@@ -60,6 +60,24 @@ export default function App() {
     tab: 'services' | 'tours' | 'inquiries' | 'settings';
   }>({ isOpen: false, tab: 'services' });
 
+  // Admin access mode: Only show admin buttons if secret URL (?admin=secret or #admin) was opened
+  const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const hash = window.location.hash;
+        if (params.get('admin') === 'secret' || params.has('admin') || hash === '#admin' || hash === '#geoadmin') {
+          localStorage.setItem('geo_admin_authorized', 'true');
+          return true;
+        }
+        return localStorage.getItem('geo_admin_authorized') === 'true';
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
+
   // Toast state
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
 
@@ -91,6 +109,27 @@ export default function App() {
         }
       }
     });
+
+    // Check URL parameters or hash on mount for secret admin entry
+    const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    if (params.get('admin') === 'secret' || params.has('admin') || hash === '#admin' || hash === '#geoadmin') {
+      setIsAdminAuthorized(true);
+      localStorage.setItem('geo_admin_authorized', 'true');
+      setAdminModal({ isOpen: true, tab: 'services' });
+    }
+
+    // Secret keyboard shortcut (Ctrl + Shift + A) to open admin panel directly
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        setIsAdminAuthorized(true);
+        localStorage.setItem('geo_admin_authorized', 'true');
+        setAdminModal((prev) => ({ isOpen: !prev.isOpen, tab: 'services' }));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleLanguageChange = (lang: Language) => {
@@ -198,6 +237,7 @@ export default function App() {
         onSelectSection={setActiveNavSection}
         language={language}
         onLanguageChange={handleLanguageChange}
+        isAdminAuthorized={isAdminAuthorized}
       />
 
       {/* Hero Minimal & Search with Bilingual Support */}
@@ -236,15 +276,17 @@ export default function App() {
               </p>
             </div>
 
-            {/* Quick action button for adding tour */}
-            <button
-              onClick={() => setAdminModal({ isOpen: true, tab: 'tours' })}
-              id="btn-add-tour-shortcut"
-              className="inline-flex items-center gap-2 bg-black hover:bg-black/90 text-white px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors self-start sm:self-auto shrink-0 shadow-xs cursor-pointer"
-            >
-              <PlusCircle className="w-4 h-4 text-[#C5D1C5]" />
-              <span>{t.adminAddTour}</span>
-            </button>
+            {/* Quick action button for adding tour - Only for Admin */}
+            {isAdminAuthorized && (
+              <button
+                onClick={() => setAdminModal({ isOpen: true, tab: 'tours' })}
+                id="btn-add-tour-shortcut"
+                className="inline-flex items-center gap-2 bg-stone-900 hover:bg-black text-white px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors self-start sm:self-auto shrink-0 shadow-xs cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4 text-amber-300" />
+                <span>{t.adminAddTour}</span>
+              </button>
+            )}
           </div>
 
           {/* Tours Grid */}
@@ -309,6 +351,7 @@ export default function App() {
         }
         onOpenAddService={() => setAdminModal({ isOpen: true, tab: 'services' })}
         language={language}
+        isAdminAuthorized={isAdminAuthorized}
       />
 
       {/* About & Pricing Clarity Section */}
@@ -340,6 +383,7 @@ export default function App() {
           })
         }
         language={language}
+        isAdminAuthorized={isAdminAuthorized}
       />
 
       {/* Floating WhatsApp Quick Action Button */}

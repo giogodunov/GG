@@ -10,6 +10,7 @@ interface ServicesSectionProps {
   onBookService: (service: Service) => void;
   onOpenAddService: () => void;
   language: Language;
+  isAdminAuthorized?: boolean;
 }
 
 export const ServicesSection: React.FC<ServicesSectionProps> = ({
@@ -17,7 +18,8 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
   settings,
   onBookService,
   onOpenAddService,
-  language
+  language,
+  isAdminAuthorized = false
 }) => {
   const t = translations[language];
   const activeServices = services.filter((s) => s.isActive);
@@ -39,30 +41,32 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             </p>
           </div>
 
-          {/* Quick Add Banner Card */}
-          <div
-            onClick={onOpenAddService}
-            id="btn-add-service-quick"
-            className="bg-[#C5D1C5]/30 hover:bg-[#C5D1C5]/50 p-5 sm:p-6 rounded-3xl relative overflow-hidden group cursor-pointer border border-black/5 transition-all shrink-0"
-          >
-            <div className="relative z-10">
-              <div className="text-[10px] uppercase font-bold tracking-widest mb-1 text-[#1A1A1A]/70">
-                {t.servicesQuickAdd}
+          {/* Quick Add Banner Card - Only shown for Admin */}
+          {isAdminAuthorized && (
+            <div
+              onClick={onOpenAddService}
+              id="btn-add-service-quick"
+              className="bg-amber-50 hover:bg-amber-100 p-5 sm:p-6 rounded-3xl relative overflow-hidden group cursor-pointer border border-amber-200 transition-all shrink-0"
+            >
+              <div className="relative z-10">
+                <div className="text-[10px] uppercase font-bold tracking-widest mb-1 text-amber-800">
+                  {t.servicesQuickAdd}
+                </div>
+                <div className="text-base font-serif italic text-stone-900 mb-2 font-medium">
+                  {t.servicesQuickAddSub}
+                </div>
+                <div className="inline-flex items-center justify-center bg-stone-900 group-hover:bg-black p-2 rounded-xl text-amber-300 transition-all">
+                  <Plus className="w-4 h-4" />
+                </div>
               </div>
-              <div className="text-base font-serif italic text-[#1A1A1A] mb-2 font-medium">
-                {t.servicesQuickAddSub}
-              </div>
-              <div className="inline-flex items-center justify-center bg-black group-hover:bg-black/80 p-2 rounded-xl text-white transition-all">
-                <Plus className="w-4 h-4" />
+              {/* Watermark Symbol */}
+              <div className="absolute -right-3 -bottom-3 opacity-10 group-hover:opacity-20 transition-opacity text-stone-900 pointer-events-none">
+                <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                </svg>
               </div>
             </div>
-            {/* Watermark Symbol */}
-            <div className="absolute -right-3 -bottom-3 opacity-10 group-hover:opacity-20 transition-opacity text-[#1A1A1A] pointer-events-none">
-              <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-              </svg>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Services Grid */}

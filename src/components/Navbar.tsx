@@ -13,6 +13,7 @@ interface NavbarProps {
   onSelectSection: (section: string) => void;
   language: Language;
   onLanguageChange: (lang: Language) => void;
+  isAdminAuthorized?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -23,7 +24,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeSection,
   onSelectSection,
   language,
-  onLanguageChange
+  onLanguageChange,
+  isAdminAuthorized = false
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = translations[language];
@@ -153,20 +155,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>{t.navBook}</span>
           </button>
 
-          {/* Admin Panel button */}
-          <button
-            type="button"
-            id="nav-admin-btn"
-            onClick={() => onOpenAdmin('services')}
-            className="p-2 rounded-xl text-[#1A1A1A]/70 hover:text-[#1A1A1A] hover:bg-black/5 transition-colors cursor-pointer relative"
-            title={t.adminPanelBtn}
-            aria-label={t.adminPanelBtn}
-          >
-            <Settings className="w-4 h-4" />
-            {newInquiriesCount > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500" />
-            )}
-          </button>
+          {/* Admin Panel button - Only shown when in admin mode */}
+          {isAdminAuthorized && (
+            <button
+              type="button"
+              id="nav-admin-btn"
+              onClick={() => onOpenAdmin('services')}
+              className="p-2 rounded-xl text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors cursor-pointer relative"
+              title={t.adminPanelBtn}
+              aria-label={t.adminPanelBtn}
+            >
+              <Settings className="w-4 h-4" />
+              {newInquiriesCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500" />
+              )}
+            </button>
+          )}
         </div>
 
         {/* Mobile Burger and Language switcher */}
@@ -248,19 +252,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               {t.navBook}
             </button>
 
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAdmin('services');
-              }}
-              className="w-full py-2.5 bg-white/90 border border-black/10 text-[#1A1A1A] rounded-xl text-xs font-semibold tracking-wide flex items-center justify-center gap-2"
-            >
-              <Settings className="w-4 h-4" />
-              <span>{t.adminPanelBtn}</span>
-              {newInquiriesCount > 0 && (
-                <span className="w-2 h-2 rounded-full bg-rose-500" />
-              )}
-            </button>
+            {isAdminAuthorized && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAdmin('services');
+                }}
+                className="w-full py-2.5 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl text-xs font-semibold tracking-wide flex items-center justify-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                <span>{t.adminPanelBtn}</span>
+                {newInquiriesCount > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-rose-500" />
+                )}
+              </button>
+            )}
           </div>
         </div>
       )}

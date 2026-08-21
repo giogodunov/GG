@@ -375,13 +375,28 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            id="btn-close-admin-panel"
-            className="text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (window.confirm('გსურთ ადმინ რეჟიმის გამორთვა და საიტის ჩაკეტვა?')) {
+                  localStorage.removeItem('geo_admin_authorized');
+                  window.location.href = window.location.pathname;
+                }
+              }}
+              title="ადმინ რეჟიმიდან გამოსვლა და ღილაკების დამალვა"
+              className="text-xs text-amber-300 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <span>🔒 გამოსვლა & ჩაკეტვა</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              id="btn-close-admin-panel"
+              className="text-white/60 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}

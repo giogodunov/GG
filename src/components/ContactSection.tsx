@@ -9,13 +9,15 @@ interface ContactSectionProps {
   onOpenAdmin: (tab?: 'services' | 'tours' | 'inquiries' | 'settings') => void;
   onOpenBooking: () => void;
   language: Language;
+  isAdminAuthorized?: boolean;
 }
 
 export const ContactSection: React.FC<ContactSectionProps> = ({
   settings,
   onOpenAdmin,
   onOpenBooking,
-  language
+  language,
+  isAdminAuthorized = false
 }) => {
   const t = translations[language];
   const cleanWhatsApp = (settings?.whatsappNumber || '+995555123456').replace(/[^0-9]/g, '');
@@ -100,17 +102,19 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               {t.footerResponseTime}
             </p>
 
-            <div className="mt-6 pt-4 border-t border-black/5">
-              <button
-                type="button"
-                onClick={() => onOpenAdmin('services')}
-                id="footer-admin-btn"
-                className="inline-flex items-center gap-2 text-xs text-[#1A1A1A]/60 hover:text-black bg-white hover:bg-black/5 px-3 py-2 rounded-xl border border-black/5 transition-colors cursor-pointer"
-              >
-                <Settings className="w-3.5 h-3.5" />
-                <span>{t.adminPanelBtn}</span>
-              </button>
-            </div>
+            {isAdminAuthorized && (
+              <div className="mt-6 pt-4 border-t border-black/5">
+                <button
+                  type="button"
+                  onClick={() => onOpenAdmin('services')}
+                  id="footer-admin-btn"
+                  className="inline-flex items-center gap-2 text-xs text-amber-900 bg-amber-50 hover:bg-amber-100 px-3 py-2 rounded-xl border border-amber-200 transition-colors cursor-pointer"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>{t.adminPanelBtn}</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
