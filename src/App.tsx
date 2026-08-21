@@ -1,0 +1,408 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { Tour, Service, BookingInquiry, SiteSettings, Language } from './types';
+import {
+  loadTours,
+  saveTours,
+  loadServices,
+  saveServices,
+  loadInquiries,
+  saveInquiry,
+  updateInquiries,
+  loadSettings,
+  saveSettings,
+  fetchServerData,
+  resetAllDataToDefaults,
+  loadLanguage,
+  saveLanguage
+} from './utils/storage';
+import { translations } from './utils/translations';
+import { Navbar } from './components/Navbar';
+import { HeroMinimal } from './components/HeroMinimal';
+import { TourCard } from './components/TourCard';
+import { TourDetailModal } from './components/TourDetailModal';
+import { ServicesSection } from './components/ServicesSection';
+import { AboutPricingSection } from './components/AboutPricingSection';
+import { ContactSection } from './components/ContactSection';
+import { BookingFormModal } from './components/BookingFormModal';
+import { AdminPanelModal } from './components/AdminPanelModal';
+import { FloatingWhatsApp } from './components/FloatingWhatsApp';
+import { Toast } from './components/Toast';
+import { Compass, PlusCircle } from 'lucide-react';
+
+export default function App() {
+  // Language state: 'ka' (Georgian) or 'en' (English)
+  const [language, setLanguage] = useState<Language>(loadLanguage());
+
+  // Primary persistent data states
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [inquiries, setInquiries] = useState<BookingInquiry[]>([]);
+  const [settings, setSettings] = useState<SiteSettings>(loadSettings());
+
+  // Search & Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [activeNavSection, setActiveNavSection] = useState('tours');
+
+  // Modals state
+  const [selectedTourDetails, setSelectedTourDetails] = useState<Tour | null>(null);
+  const [bookingModal, setBookingModal] = useState<{
+    isOpen: boolean;
+    initialItem?: {
+      type: 'tour' | 'service' | 'general';
+      title: string;
+      id?: string;
+    };
+  }>({ isOpen: false });
+
+  const [adminModal, setAdminModal] = useState<{
+    isOpen: boolean;
+    tab: 'services' | 'tours' | 'inquiries' | 'settings';
+  }>({ isOpen: false, tab: 'services' });
+
+  // Toast state
+  const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
+
+  const t = translations[language];
+
+  // Initialize data on load and sync with server
+  useEffect(() => {
+    const localTours = loadTours();
+    const localServices = loadServices();
+    const localInquiries = loadInquiries();
+    const localSettings = loadSettings();
+
+    setTours(localTours);
+    setServices(localServices);
+    setInquiries(localInquiries);
+    setSettings(localSettings);
+
+    // Asynchronously fetch server data for visitors
+    fetchServerData().then((serverData) => {
+      if (serverData) {
+        if (serverData.settings) setSettings(serverData.settings);
+        if (serverData.tours && Array.isArray(serverData.tours)) setTours(serverData.tours);
+        if (serverData.services && Array.isArray(serverData.services)) setServices(serverData.services);
+        if (serverData.inquiries && Array.isArray(serverData.inquiries)) setInquiries(serverData.inquiries);
+      } else {
+        // If server was just initialized and empty, sync our local customized settings to server
+        if (localSettings.heroCoverImage) {
+          saveSettings(localSettings);
+        }
+      }
+    });
+  }, []);
+
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
+    saveLanguage(lang);
+  };
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type });
+  };
+
+  // Updaters
+  const handleUpdateTours = (newTours: Tour[]) => {
+    setTours(newTours);
+    saveTours(newTours);
+  };
+
+  const handleUpdateServices = (newServices: Service[]) => {
+    setServices(newServices);
+    saveServices(newServices);
+  };
+
+  const handleUpdateInquiries = (newInquiries: BookingInquiry[]) => {
+    setInquiries(newInquiries);
+    updateInquiries(newInquiries);
+  };
+
+  const handleUpdateSettings = (newSettings: SiteSettings) => {
+    setSettings(newSettings);
+    saveSettings(newSettings);
+  };
+
+  const handleResetData = () => {
+    resetAllDataToDefaults();
+    setTours(loadTours());
+    setServices(loadServices());
+    setSettings(loadSettings());
+  };
+
+  const handleCreateInquiry = (inquiryData: {
+    customerName: string;
+    phone: string;
+    email?: string;
+    preferredContact: 'whatsapp' | 'call' | 'email';
+    itemType: 'tour' | 'service' | 'general';
+    itemTitle: string;
+    itemId?: string;
+    preferredDate?: string;
+    peopleCount?: number;
+    notes?: string;
+  }) => {
+    saveInquiry(inquiryData);
+    setInquiries(loadInquiries());
+    showToast(
+      language === 'en'
+        ? 'Inquiry successfully submitted! We will contact you shortly.'
+        : 'მოთხოვნა წარმატებით გაიგზავნა! მალე დაგიკავშირდებით.'
+    );
+  };
+
+  // Filtered active tours with bilingual search support
+  const filteredTours = useMemo(() => {
+    return tours
+      .filter((tour) => tour.isActive)
+      .filter((tour) => {
+        if (selectedCategory !== 'all' && tour.category !== selectedCategory) {
+          return false;
+        }
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          const matchTitle = tour.title.toLowerCase().includes(q) || (tour.titleEn?.toLowerCase().includes(q) ?? false);
+          const matchRegion = tour.region.toLowerCase().includes(q) || (tour.regionEn?.toLowerCase().includes(q) ?? false);
+          const matchDesc = tour.shortDescription.toLowerCase().includes(q) || (tour.shortDescriptionEn?.toLowerCase().includes(q) ?? false);
+          const matchHl = tour.highlights.some((h) => h.toLowerCase().includes(q)) || (tour.highlightsEn?.some((h) => h.toLowerCase().includes(q)) ?? false);
+          return matchTitle || matchRegion || matchDesc || matchHl;
+        }
+        return true;
+      });
+  }, [tours, selectedCategory, searchQuery]);
+
+  const newInquiriesCount = useMemo(() => {
+    return inquiries.filter((i) => i.status === 'new').length;
+  }, [inquiries]);
+
+  return (
+    <div
+      style={{ backgroundColor: settings.backgroundColor || '#F9F7F2' }}
+      className="min-h-screen text-[#1A1A1A] flex flex-col font-['Noto_Sans_Georgian','Plus_Jakarta_Sans',sans-serif] transition-colors duration-300"
+    >
+      {/* Navigation Bar with Language Switcher */}
+      <Navbar
+        settings={settings}
+        newInquiriesCount={newInquiriesCount}
+        onOpenAdmin={(tab = 'services') => setAdminModal({ isOpen: true, tab })}
+        onOpenContact={() =>
+          setBookingModal({
+            isOpen: true,
+            initialItem: {
+              type: 'general',
+              title: language === 'en' ? 'Custom Tour Inquiry' : 'ინდივიდუალური მოთხოვნა'
+            }
+          })
+        }
+        activeSection={activeNavSection}
+        onSelectSection={setActiveNavSection}
+        language={language}
+        onLanguageChange={handleLanguageChange}
+      />
+
+      {/* Hero Minimal & Search with Bilingual Support */}
+      <HeroMinimal
+        settings={settings}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        onQuickBookClick={() =>
+          setBookingModal({
+            isOpen: true,
+            initialItem: {
+              type: 'general',
+              title: language === 'en' ? 'Custom Tour Inquiry' : 'ინდივიდუალური მოთხოვნა'
+            }
+          })
+        }
+        language={language}
+      />
+
+      {/* Main Tours Section */}
+      <main id="tours" className="flex-1 py-16 sm:py-20 border-b border-black/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+            <div>
+              <div className="text-[10px] uppercase font-bold tracking-widest text-[#1A1A1A]/40 mb-1">
+                {t.toursBadge}
+              </div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif italic text-[#1A1A1A] tracking-tight">
+                {t.toursTitle}
+              </h2>
+              <p className="mt-2 text-sm text-[#1A1A1A]/60 max-w-xl font-normal">
+                {t.toursSubtitle}
+              </p>
+            </div>
+
+            {/* Quick action button for adding tour */}
+            <button
+              onClick={() => setAdminModal({ isOpen: true, tab: 'tours' })}
+              id="btn-add-tour-shortcut"
+              className="inline-flex items-center gap-2 bg-black hover:bg-black/90 text-white px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors self-start sm:self-auto shrink-0 shadow-xs cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4 text-[#C5D1C5]" />
+              <span>{t.adminAddTour}</span>
+            </button>
+          </div>
+
+          {/* Tours Grid */}
+          {filteredTours.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {filteredTours.map((tour) => (
+                <TourCard
+                  key={tour.id}
+                  tour={tour}
+                  whatsappNumber={settings?.whatsappNumber}
+                  onViewDetails={(tourItem) => setSelectedTourDetails(tourItem)}
+                  onBookTour={(tourItem) =>
+                    setBookingModal({
+                      isOpen: true,
+                      initialItem: {
+                        type: 'tour',
+                        title: (language === 'en' && tourItem.titleEn) ? tourItem.titleEn : tourItem.title,
+                        id: tourItem.id
+                      }
+                    })
+                  }
+                  language={language}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-white rounded-3xl border border-black/5 p-8">
+              <Compass className="w-12 h-12 text-[#1A1A1A]/20 mx-auto mb-3" />
+              <h3 className="text-base font-serif italic text-[#1A1A1A]">
+                {t.noToursFound}
+              </h3>
+              <p className="text-xs text-[#1A1A1A]/50 mt-1 max-w-sm mx-auto">
+                {t.tryDifferentSearch}
+              </p>
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('all');
+                }}
+                className="mt-4 px-4 py-2 bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl hover:bg-black/80 transition-colors cursor-pointer"
+              >
+                {t.showAllTours}
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* Services Section (Transfer, Guide, Vehicle, Custom) */}
+      <ServicesSection
+        services={services}
+        settings={settings}
+        onBookService={(srv) =>
+          setBookingModal({
+            isOpen: true,
+            initialItem: {
+              type: 'service',
+              title: (language === 'en' && srv.titleEn) ? srv.titleEn : srv.title,
+              id: srv.id
+            }
+          })
+        }
+        onOpenAddService={() => setAdminModal({ isOpen: true, tab: 'services' })}
+        language={language}
+      />
+
+      {/* About & Pricing Clarity Section */}
+      <AboutPricingSection
+        settings={settings}
+        onOpenBooking={() =>
+          setBookingModal({
+            isOpen: true,
+            initialItem: {
+              type: 'general',
+              title: language === 'en' ? 'Custom Tour Inquiry' : 'ინდივიდუალური მოთხოვნა'
+            }
+          })
+        }
+        language={language}
+      />
+
+      {/* Minimalist Contact & Footer */}
+      <ContactSection
+        settings={settings}
+        onOpenAdmin={(tab = 'services') => setAdminModal({ isOpen: true, tab })}
+        onOpenBooking={() =>
+          setBookingModal({
+            isOpen: true,
+            initialItem: {
+              type: 'general',
+              title: language === 'en' ? 'Custom Tour Inquiry' : 'ინდივიდუალური მოთხოვნა'
+            }
+          })
+        }
+        language={language}
+      />
+
+      {/* Floating WhatsApp Quick Action Button */}
+      <FloatingWhatsApp
+        whatsappNumber={settings?.whatsappNumber}
+        language={language}
+      />
+
+      {/* Tour Detail Modal */}
+      <TourDetailModal
+        tour={selectedTourDetails}
+        settings={settings}
+        onClose={() => setSelectedTourDetails(null)}
+        onOpenBookingForm={(tour) =>
+          setBookingModal({
+            isOpen: true,
+            initialItem: {
+              type: 'tour',
+              title: (language === 'en' && tour.titleEn) ? tour.titleEn : tour.title,
+              id: tour.id
+            }
+          })
+        }
+        language={language}
+      />
+
+      {/* Booking & WhatsApp Inquiry Modal */}
+      <BookingFormModal
+        isOpen={bookingModal.isOpen}
+        onClose={() => setBookingModal({ isOpen: false })}
+        initialItem={bookingModal.initialItem}
+        tours={tours.filter((t) => t.isActive)}
+        services={services.filter((s) => s.isActive)}
+        settings={settings}
+        onSubmitInquiry={handleCreateInquiry}
+        language={language}
+      />
+
+      {/* Admin Panel Modal */}
+      <AdminPanelModal
+        isOpen={adminModal.isOpen}
+        initialTab={adminModal.tab}
+        onClose={() => setAdminModal({ isOpen: false, tab: 'services' })}
+        tours={tours}
+        services={services}
+        inquiries={inquiries}
+        settings={settings}
+        onUpdateTours={handleUpdateTours}
+        onUpdateServices={handleUpdateServices}
+        onUpdateInquiries={handleUpdateInquiries}
+        onUpdateSettings={handleUpdateSettings}
+        onResetAllData={handleResetData}
+        onShowToast={(msg) => showToast(msg, 'success')}
+      />
+
+      {/* Toast notifications */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </div>
+  );
+}

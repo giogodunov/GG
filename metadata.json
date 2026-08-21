@@ -1,0 +1,6 @@
+{
+  "name": "InGeorgiaTours",
+  "description": "მინიმალისტური ტურისტული ვებ-გვერდი საქართველოში ტურების დასათვალიერებლად, სერვისების სამართავად და WhatsApp-ით/ფორმით მარტივი დაჯავშნისთვის.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
