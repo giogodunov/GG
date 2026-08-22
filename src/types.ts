@@ -35,6 +35,7 @@ export interface Service {
   features: string[];
   featuresEn?: string[];
   iconName: 'plane' | 'user-check' | 'car' | 'compass' | 'shield' | 'clock' | 'map-pin';
+  imageUrl?: string;
   isActive: boolean;
 }
 

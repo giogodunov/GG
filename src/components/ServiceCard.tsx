@@ -58,9 +58,21 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
       className="bg-white rounded-3xl border border-black/5 p-6 shadow-2xs hover:shadow-xs hover:border-black/15 transition-all flex flex-col justify-between group"
     >
       <div>
+        {/* Optional Service Image */}
+        {service.imageUrl && (
+          <div className="w-full h-40 mb-4 rounded-2xl overflow-hidden bg-stone-100 border border-black/5">
+            <img
+              src={service.imageUrl}
+              alt={title}
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+        )}
+
         {/* Top bar with Icon and Price */}
         <div className="flex items-start justify-between gap-3 mb-5">
-          <div className="w-12 h-12 rounded-2xl bg-[#F9F7F2] border border-black/5 flex items-center justify-center text-[#1A1A1A] group-hover:bg-[#1A1A1A] group-hover:text-white transition-colors">
+          <div className="w-12 h-12 rounded-2xl bg-[#F9F7F2] border border-black/5 flex items-center justify-center text-[#1A1A1A] group-hover:bg-[#1A1A1A] group-hover:text-white transition-colors shrink-0">
             {getIcon()}
           </div>
           <div className="text-right">

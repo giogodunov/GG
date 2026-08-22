@@ -128,6 +128,62 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   ];
 
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingTourImage, setIsUploadingTourImage] = useState(false);
+  const [isUploadingServiceImage, setIsUploadingServiceImage] = useState(false);
+
+  const handleTourImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 15 * 1024 * 1024) {
+        alert('ფაილის ზომა არ უნდა აღემატებოდეს 15MB-ს');
+        return;
+      }
+      try {
+        setIsUploadingTourImage(true);
+        const compressedBase64 = await compressImageFile(file, 1600, 1060, 0.85);
+        setTourFormData((prev) => ({ ...prev, imageUrl: compressedBase64 }));
+      } catch (err) {
+        console.error('Error optimizing tour image:', err);
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+          const result = loadEvent.target?.result as string;
+          if (result) {
+            setTourFormData((prev) => ({ ...prev, imageUrl: result }));
+          }
+        };
+        reader.readAsDataURL(file);
+      } finally {
+        setIsUploadingTourImage(false);
+      }
+    }
+  };
+
+  const handleServiceImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 15 * 1024 * 1024) {
+        alert('ფაილის ზომა არ უნდა აღემატებოდეს 15MB-ს');
+        return;
+      }
+      try {
+        setIsUploadingServiceImage(true);
+        const compressedBase64 = await compressImageFile(file, 1200, 800, 0.85);
+        setServiceFormData((prev) => ({ ...prev, imageUrl: compressedBase64 }));
+      } catch (err) {
+        console.error('Error optimizing service image:', err);
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+          const result = loadEvent.target?.result as string;
+          if (result) {
+            setServiceFormData((prev) => ({ ...prev, imageUrl: result }));
+          }
+        };
+        reader.readAsDataURL(file);
+      } finally {
+        setIsUploadingServiceImage(false);
+      }
+    }
+  };
 
   const handleCoverFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -648,6 +704,69 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                     </div>
                   </div>
 
+                  {/* Service Image Upload & URL */}
+                  <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200/80 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-stone-800 flex items-center gap-1.5">
+                        <ImageIcon className="w-4 h-4 text-stone-500" />
+                        <span>მომსახურების სურათი (არასავალდებულო)</span>
+                      </label>
+                      {serviceFormData.imageUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setServiceFormData({ ...serviceFormData, imageUrl: '' })}
+                          className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline"
+                        >
+                          სურათის წაშლა
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                      {/* Image Preview */}
+                      {serviceFormData.imageUrl ? (
+                        <div className="relative w-20 h-14 rounded-xl overflow-hidden border border-stone-200 shrink-0 bg-stone-200">
+                          <img
+                            src={serviceFormData.imageUrl}
+                            alt="სერვისის სურათი"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-20 h-14 rounded-xl border border-dashed border-stone-300 flex items-center justify-center shrink-0 text-stone-400 bg-white">
+                          <ImageIcon className="w-5 h-5" />
+                        </div>
+                      )}
+
+                      {/* Upload Button + URL Input */}
+                      <div className="flex-1 w-full space-y-2">
+                        <div className="flex items-center gap-2">
+                          <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-800 border border-stone-300 rounded-xl text-xs font-medium transition-colors shadow-2xs">
+                            <Upload className="w-3.5 h-3.5 text-stone-600" />
+                            <span>{isUploadingServiceImage ? 'იტვირთება...' : 'ფოტოს ატვირთვა კომპიუტერიდან'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleServiceImageFileUpload}
+                              disabled={isUploadingServiceImage}
+                            />
+                          </label>
+                          <span className="text-[10px] text-stone-400">ან ჩაწერეთ ბმული:</span>
+                        </div>
+
+                        <input
+                          type="url"
+                          value={serviceFormData.imageUrl || ''}
+                          onChange={(e) => setServiceFormData({ ...serviceFormData, imageUrl: e.target.value })}
+                          placeholder="https://images.unsplash.com/..."
+                          className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 mb-1">
                       მოკლე აღწერა
@@ -937,17 +1056,61 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      ფოტოს ბმული (Image URL)
-                    </label>
-                    <input
-                      type="url"
-                      value={tourFormData.imageUrl || ''}
-                      onChange={(e) => setTourFormData({ ...tourFormData, imageUrl: e.target.value })}
-                      placeholder="https://images.unsplash.com/..."
-                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                    />
+                  {/* Tour Image Upload & URL */}
+                  <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200/80 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-stone-800 flex items-center gap-1.5">
+                        <ImageIcon className="w-4 h-4 text-stone-500" />
+                        <span>ტურის მთავარი ფოტო *</span>
+                      </label>
+                      {tourFormData.imageUrl && (
+                        <span className="text-[11px] text-emerald-700 font-medium">✓ ფოტო არჩეულია</span>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                      {/* Image Preview */}
+                      {tourFormData.imageUrl ? (
+                        <div className="relative w-24 h-16 rounded-xl overflow-hidden border border-stone-200 shrink-0 bg-stone-200 shadow-2xs">
+                          <img
+                            src={tourFormData.imageUrl}
+                            alt="ტურის ფოტო"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-24 h-16 rounded-xl border border-dashed border-stone-300 flex items-center justify-center shrink-0 text-stone-400 bg-white">
+                          <ImageIcon className="w-6 h-6" />
+                        </div>
+                      )}
+
+                      {/* Upload Button + URL Input */}
+                      <div className="flex-1 w-full space-y-2">
+                        <div className="flex items-center gap-2">
+                          <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-800 border border-stone-300 rounded-xl text-xs font-medium transition-colors shadow-2xs">
+                            <Upload className="w-3.5 h-3.5 text-stone-600" />
+                            <span>{isUploadingTourImage ? 'იტვირთება...' : 'ფოტოს ატვირთვა კომპიუტერიდან'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleTourImageFileUpload}
+                              disabled={isUploadingTourImage}
+                            />
+                          </label>
+                          <span className="text-[10px] text-stone-400">ან ჩაწერეთ ბმული:</span>
+                        </div>
+
+                        <input
+                          type="url"
+                          value={tourFormData.imageUrl || ''}
+                          onChange={(e) => setTourFormData({ ...tourFormData, imageUrl: e.target.value })}
+                          placeholder="https://images.unsplash.com/..."
+                          className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div>
