@@ -114,13 +114,13 @@ export const AboutPricingSection: React.FC<AboutPricingSectionProps> = ({
 
                 {/* Direct Phone Call Button */}
                 <a
-                  href={`tel:${(settings?.phone || '+995555123456').replace(/[^0-9+]/g, '')}`}
+                  href={`tel:${(settings?.displayPhone || settings?.phone || '+995555123456').replace(/[^0-9+]/g, '')}`}
                   id="about-call-action-btn"
                   className="w-full flex items-center justify-between bg-[#F9F7F2] hover:bg-[#F9F7F2]/80 text-[#1A1A1A] py-3 px-5 rounded-2xl text-xs font-medium transition-colors"
                 >
                   <span className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-[#1A1A1A]" />
-                    <span>{settings?.phone || '+995 555 12 34 56'}</span>
+                    <span>{settings?.displayPhone || settings?.phone || '+995 555 12 34 56'}</span>
                   </span>
                   <span className="text-[10px] text-[#1A1A1A]/50">{t.directCall}</span>
                 </a>

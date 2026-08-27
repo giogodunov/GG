@@ -61,10 +61,13 @@ export interface SiteSettings {
   taglineEn?: string;
   whatsappNumber: string; // digits only with country code, e.g. "995555123456"
   displayPhone: string; // formatted e.g. "+995 555 12 34 56"
+  phone?: string; // formatted e.g. "+995 555 12 34 56"
   email: string;
   location: string;
   locationEn?: string;
+  address?: string;
   workHours: string;
+  workingHours?: string;
   workHoursEn?: string;
   priceDisclaimer: string;
   priceDisclaimerEn?: string;

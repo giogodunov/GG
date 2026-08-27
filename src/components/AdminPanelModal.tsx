@@ -404,7 +404,16 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   // --- SETTINGS HANDLERS ---
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdateSettings(settingsForm);
+    const updatedSettings: SiteSettings = {
+      ...settingsForm,
+      displayPhone: settingsForm.displayPhone || settingsForm.phone || '+995 555 12 34 56',
+      phone: settingsForm.displayPhone || settingsForm.phone || '+995 555 12 34 56',
+      address: settingsForm.location || settingsForm.address || 'თბილისი, საქართველო',
+      location: settingsForm.location || settingsForm.address || 'თბილისი, საქართველო',
+      workingHours: settingsForm.workHours || settingsForm.workingHours || 'ყოველდღე: 09:00 - 21:00',
+      workHours: settingsForm.workHours || settingsForm.workingHours || 'ყოველდღე: 09:00 - 21:00'
+    };
+    onUpdateSettings(updatedSettings);
     onShowToast('პარამეტრები წარმატებით შეინახა');
   };
 
@@ -1433,48 +1442,113 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   საკონტაქტო და WhatsApp პარამეტრები
                 </h3>
 
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    WhatsApp ნომერი (პირდაპირი ჩატისთვის) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={settingsForm.whatsappNumber}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, whatsappNumber: e.target.value })}
-                    placeholder="995555123456 (მხოლოდ ციფრები ქვეყნის კოდით)"
-                    className="w-full px-3.5 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                  />
-                  <p className="text-[11px] text-stone-400 mt-1">
-                    მიუთითეთ ციფრები პლიუსის და სფეისების გარეშე (მაგ: 995555123456)
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-amber-950">
+                    <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                    <span>WhatsApp და პირდაპირი ჩატი</span>
+                  </div>
                   <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      გამოსაჩენი ტელეფონის ნომერი
+                    <label className="block text-xs font-semibold text-stone-800 mb-1">
+                      WhatsApp ნომერი (პირდაპირი ჩატის დასაწყებად) *
                     </label>
                     <input
                       type="text"
-                      value={settingsForm.displayPhone}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, displayPhone: e.target.value })}
-                      placeholder="+995 555 12 34 56"
-                      className="w-full px-3.5 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl"
+                      required
+                      value={settingsForm.whatsappNumber}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, whatsappNumber: e.target.value })}
+                      placeholder="995555123456 (მხოლოდ ციფრები ქვეყნის კოდით)"
+                      className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
                     />
+                    <p className="text-[11px] text-stone-500 mt-1">
+                      მიუთითეთ ციფრები პლიუსის და სფეისების გარეშე (მაგ: 995555123456)
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-stone-50 border border-stone-200 rounded-xl p-3.5 space-y-4">
+                  <div className="flex items-center gap-2 text-xs font-bold text-stone-900">
+                    <Phone className="w-4 h-4 text-stone-700" />
+                    <span>ტელეფონის ნომერი და საკონტაქტო ინფორმაცია</span>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      ელ-ფოსტა
-                    </label>
-                    <input
-                      type="email"
-                      value={settingsForm.email}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                      placeholder="info@ingeorgiatours.ge"
-                      className="w-full px-3.5 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        ტელეფონის ნომერი (📞 ყურმილის აიკონი / ზარისთვის)
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm.displayPhone || settingsForm.phone || ''}
+                        onChange={(e) =>
+                          setSettingsForm({
+                            ...settingsForm,
+                            displayPhone: e.target.value,
+                            phone: e.target.value
+                          })
+                        }
+                        placeholder="+995 555 12 34 56"
+                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl"
+                      />
+                      <p className="text-[11px] text-stone-400 mt-1">
+                        საიტზე ყურმილის აიკონთან გამოჩნდება ეს ნომერი და დაჭერისას პირდაპირ დარეკავს
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        ელ-ფოსტა (Email)
+                      </label>
+                      <input
+                        type="email"
+                        value={settingsForm.email || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
+                        placeholder="info@ingeorgiatours.ge"
+                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl"
+                      />
+                      <p className="text-[11px] text-stone-400 mt-1">
+                        ოფიციალური საკონტაქტო მეილი
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-stone-200/60">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        მისამართი / ქალაქი (ქართულად)
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm.location || settingsForm.address || ''}
+                        onChange={(e) =>
+                          setSettingsForm({
+                            ...settingsForm,
+                            location: e.target.value,
+                            address: e.target.value
+                          })
+                        }
+                        placeholder="თბილისი, საქართველო"
+                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        სამუშაო საათები (ქართულად)
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm.workHours || settingsForm.workingHours || ''}
+                        onChange={(e) =>
+                          setSettingsForm({
+                            ...settingsForm,
+                            workHours: e.target.value,
+                            workingHours: e.target.value
+                          })
+                        }
+                        placeholder="ყოველდღე: 09:00 - 21:00"
+                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl"
+                      />
+                    </div>
                   </div>
                 </div>
 

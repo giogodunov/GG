@@ -56,11 +56,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
             <ul className="space-y-3 text-xs text-[#1A1A1A]/70">
               <li>
                 <a
-                  href={`tel:${(settings?.phone || '+995555123456').replace(/[^0-9+]/g, '')}`}
+                  href={`tel:${(settings?.displayPhone || settings?.phone || '+995555123456').replace(/[^0-9+]/g, '')}`}
                   className="flex items-center gap-2.5 hover:text-black transition-colors"
                 >
                   <Phone className="w-4 h-4 text-[#1A1A1A]/50" />
-                  <span>{settings?.phone || '+995 555 12 34 56'}</span>
+                  <span>{settings?.displayPhone || settings?.phone || '+995 555 12 34 56'}</span>
                 </a>
               </li>
               <li>
@@ -85,7 +85,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </li>
               <li className="flex items-center gap-2.5 text-[#1A1A1A]/60">
                 <MapPin className="w-4 h-4 text-[#1A1A1A]/50" />
-                <span>{settings?.address || 'თბილისი, საქართველო'}</span>
+                <span>
+                  {language === 'en'
+                    ? (settings?.locationEn || settings?.location || settings?.address || 'Tbilisi, Georgia')
+                    : (settings?.location || settings?.address || 'თბილისი, საქართველო')}
+                </span>
               </li>
             </ul>
           </div>
@@ -96,7 +100,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               {t.footerHours}
             </h4>
             <p className="text-xs text-[#1A1A1A]/70 leading-relaxed">
-              {settings?.workingHours || 'ორშაბათი - კვირა: 09:00 - 21:00'}
+              {language === 'en'
+                ? (settings?.workHoursEn || settings?.workHours || settings?.workingHours || 'Everyday: 09:00 - 21:00 (GMT+4)')
+                : (settings?.workHours || settings?.workingHours || 'ყოველდღე: 09:00 - 21:00')}
             </p>
             <p className="text-[11px] text-[#1A1A1A]/40 mt-1">
               {t.footerResponseTime}
