@@ -354,21 +354,6 @@ export default function App() {
         isAdminAuthorized={isAdminAuthorized}
       />
 
-      {/* About & Pricing Clarity Section */}
-      <AboutPricingSection
-        settings={settings}
-        onOpenBooking={() =>
-          setBookingModal({
-            isOpen: true,
-            initialItem: {
-              type: 'general',
-              title: language === 'en' ? 'Custom Tour Inquiry' : 'ინდივიდუალური მოთხოვნა'
-            }
-          })
-        }
-        language={language}
-      />
-
       {/* Minimalist Contact & Footer */}
       <ContactSection
         settings={settings}
