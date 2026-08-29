@@ -123,6 +123,23 @@ app.post('/api/services', (req, res) => {
   return res.json({ success: true, services: current.services });
 });
 
+// Specific endpoint for travel guides
+app.get('/api/guides', (req, res) => {
+  const store = readStore();
+  if (store && Array.isArray(store.guides)) {
+    return res.json({ success: true, guides: store.guides });
+  }
+  return res.json({ success: false, guides: null });
+});
+
+app.post('/api/guides', (req, res) => {
+  const current = readStore() || {};
+  current.guides = req.body;
+  current.updatedAt = new Date().toISOString();
+  writeStore(current);
+  return res.json({ success: true, guides: current.guides });
+});
+
 // Specific endpoint for inquiries
 app.get('/api/inquiries', (req, res) => {
   const store = readStore();

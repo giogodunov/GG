@@ -1,4 +1,4 @@
-import { Language } from '../types';
+import { Language, TravelGuide } from '../types';
 
 export interface FaqItem {
   id: string;
@@ -9,26 +9,7 @@ export interface FaqItem {
   category: 'general' | 'booking' | 'transfer' | 'payment';
 }
 
-export interface TravelGuide {
-  id: string;
-  slug: string;
-  title: string;
-  titleEn: string;
-  subtitle: string;
-  subtitleEn: string;
-  readTime: string;
-  readTimeEn: string;
-  category: string;
-  categoryEn: string;
-  imageUrl: string;
-  summary: string;
-  summaryEn: string;
-  content: string[];
-  contentEn: string[];
-  tips: string[];
-  tipsEn: string[];
-  recommendedTourId?: string;
-}
+export type { TravelGuide };
 
 export const SEO_FAQS: FaqItem[] = [
   {

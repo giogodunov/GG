@@ -1,4 +1,7 @@
-import { Tour, Service, SiteSettings } from '../types';
+import { Tour, Service, SiteSettings, TravelGuide } from '../types';
+import { TRAVEL_GUIDES } from './seoData';
+
+export const DEFAULT_TRAVEL_GUIDES: TravelGuide[] = TRAVEL_GUIDES;
 
 export const DEFAULT_SETTINGS: SiteSettings = {
   brandName: 'InGeorgiaTours',

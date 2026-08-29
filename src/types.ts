@@ -39,6 +39,28 @@ export interface Service {
   isActive: boolean;
 }
 
+export interface TravelGuide {
+  id: string;
+  slug?: string;
+  title: string;
+  titleEn?: string;
+  subtitle: string;
+  subtitleEn?: string;
+  readTime: string;
+  readTimeEn?: string;
+  category: string;
+  categoryEn?: string;
+  imageUrl: string;
+  summary: string;
+  summaryEn?: string;
+  content: string[];
+  contentEn?: string[];
+  tips: string[];
+  tipsEn?: string[];
+  recommendedTourId?: string;
+  isActive?: boolean;
+}
+
 export interface BookingInquiry {
   id: string;
   createdAt: string;

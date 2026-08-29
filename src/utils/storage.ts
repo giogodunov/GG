@@ -1,10 +1,11 @@
-import { Tour, Service, BookingInquiry, SiteSettings, Language } from '../types';
-import { DEFAULT_TOURS, DEFAULT_SERVICES, DEFAULT_SETTINGS } from '../data/defaultData';
+import { Tour, Service, BookingInquiry, SiteSettings, Language, TravelGuide } from '../types';
+import { DEFAULT_TOURS, DEFAULT_SERVICES, DEFAULT_SETTINGS, DEFAULT_TRAVEL_GUIDES } from '../data/defaultData';
 
 const TOURS_KEY = 'geo_tours_data_v1';
 const SERVICES_KEY = 'geo_services_data_v1';
 const INQUIRIES_KEY = 'geo_inquiries_data_v1';
 const SETTINGS_KEY = 'geo_settings_data_v1';
+const GUIDES_KEY = 'geo_guides_data_v1';
 const LANGUAGE_KEY = 'geo_language_v1';
 
 export function loadLanguage(): Language {
@@ -155,6 +156,51 @@ export function updateInquiries(inquiries: BookingInquiry[]): void {
   }
 }
 
+export function loadGuides(): TravelGuide[] {
+  try {
+    const raw = localStorage.getItem(GUIDES_KEY);
+    if (!raw) {
+      localStorage.setItem(GUIDES_KEY, JSON.stringify(DEFAULT_TRAVEL_GUIDES));
+      return DEFAULT_TRAVEL_GUIDES;
+    }
+    const parsed: TravelGuide[] = JSON.parse(raw);
+    return parsed.map((g) => {
+      const defaultMatch = DEFAULT_TRAVEL_GUIDES.find((d) => d.id === g.id);
+      if (defaultMatch) {
+        return {
+          ...defaultMatch,
+          ...g,
+          titleEn: g.titleEn || defaultMatch.titleEn,
+          subtitleEn: g.subtitleEn || defaultMatch.subtitleEn,
+          readTimeEn: g.readTimeEn || defaultMatch.readTimeEn,
+          categoryEn: g.categoryEn || defaultMatch.categoryEn,
+          summaryEn: g.summaryEn || defaultMatch.summaryEn,
+          contentEn: g.contentEn && g.contentEn.length > 0 ? g.contentEn : defaultMatch.contentEn,
+          tipsEn: g.tipsEn && g.tipsEn.length > 0 ? g.tipsEn : defaultMatch.tipsEn
+        };
+      }
+      return g;
+    });
+  } catch (e) {
+    console.error('Failed to load guides', e);
+    return DEFAULT_TRAVEL_GUIDES;
+  }
+}
+
+export function saveGuides(guides: TravelGuide[]): void {
+  try {
+    localStorage.setItem(GUIDES_KEY, JSON.stringify(guides));
+    // Persist to server
+    fetch('/api/guides', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(guides)
+    }).catch((err) => console.warn('Server guides sync failed:', err));
+  } catch (e) {
+    console.error('Failed to save guides', e);
+  }
+}
+
 export function loadSettings(): SiteSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -202,6 +248,7 @@ export async function fetchServerData(): Promise<{
   settings?: SiteSettings;
   tours?: Tour[];
   services?: Service[];
+  guides?: TravelGuide[];
   inquiries?: BookingInquiry[];
 } | null> {
   try {
@@ -217,6 +264,9 @@ export async function fetchServerData(): Promise<{
         }
         if (json.data.services && Array.isArray(json.data.services)) {
           localStorage.setItem(SERVICES_KEY, JSON.stringify(json.data.services));
+        }
+        if (json.data.guides && Array.isArray(json.data.guides)) {
+          localStorage.setItem(GUIDES_KEY, JSON.stringify(json.data.guides));
         }
         if (json.data.inquiries && Array.isArray(json.data.inquiries)) {
           localStorage.setItem(INQUIRIES_KEY, JSON.stringify(json.data.inquiries));
@@ -234,13 +284,15 @@ export function resetAllDataToDefaults(): void {
   localStorage.setItem(TOURS_KEY, JSON.stringify(DEFAULT_TOURS));
   localStorage.setItem(SERVICES_KEY, JSON.stringify(DEFAULT_SERVICES));
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(DEFAULT_SETTINGS));
+  localStorage.setItem(GUIDES_KEY, JSON.stringify(DEFAULT_TRAVEL_GUIDES));
   fetch('/api/data', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       tours: DEFAULT_TOURS,
       services: DEFAULT_SERVICES,
-      settings: DEFAULT_SETTINGS
+      settings: DEFAULT_SETTINGS,
+      guides: DEFAULT_TRAVEL_GUIDES
     })
   }).catch((err) => console.warn('Server reset sync failed:', err));
 }

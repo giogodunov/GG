@@ -34,21 +34,25 @@ import {
   Monitor,
   Move,
   Globe,
-  Languages
+  Languages,
+  BookOpen
 } from 'lucide-react';
-import { Tour, Service, BookingInquiry, SiteSettings } from '../types';
+import { Tour, Service, BookingInquiry, SiteSettings, TravelGuide } from '../types';
 import { compressImageFile, formatImageUrl } from '../utils/imageHelper';
+import { AdminTravelGuidesTab } from './AdminTravelGuidesTab';
 
 interface AdminPanelModalProps {
   isOpen: boolean;
-  initialTab?: 'services' | 'tours' | 'inquiries' | 'settings';
+  initialTab?: 'services' | 'tours' | 'guides' | 'inquiries' | 'settings';
   onClose: () => void;
   tours: Tour[];
   services: Service[];
+  guides?: TravelGuide[];
   inquiries: BookingInquiry[];
   settings: SiteSettings;
   onUpdateTours: (tours: Tour[]) => void;
   onUpdateServices: (services: Service[]) => void;
+  onUpdateGuides?: (guides: TravelGuide[]) => void;
   onUpdateInquiries: (inquiries: BookingInquiry[]) => void;
   onUpdateSettings: (settings: SiteSettings) => void;
   onResetAllData: () => void;
@@ -61,16 +65,18 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   onClose,
   tours,
   services,
+  guides = [],
   inquiries,
   settings,
   onUpdateTours,
   onUpdateServices,
+  onUpdateGuides = () => {},
   onUpdateInquiries,
   onUpdateSettings,
   onResetAllData,
   onShowToast
 }) => {
-  const [activeTab, setActiveTab] = useState<'services' | 'tours' | 'inquiries' | 'settings'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'services' | 'tours' | 'guides' | 'inquiries' | 'settings'>(initialTab);
 
   // Service form state
   const [isEditingService, setIsEditingService] = useState<boolean>(false);
@@ -635,6 +641,21 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
           >
             <Compass className="w-3.5 h-3.5" />
             <span>ტურები ({tours.length})</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('guides');
+            }}
+            id="admin-tab-guides"
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
+              activeTab === 'guides'
+                ? 'bg-black text-white shadow-xs'
+                : 'text-[#1A1A1A]/60 hover:text-[#1A1A1A] hover:bg-black/5'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+            <span>გზამკვლევები ({guides.length})</span>
           </button>
 
           <button
@@ -1915,6 +1936,16 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                 </form>
               )}
             </div>
+          )}
+
+          {/* TAB: TRAVEL GUIDES */}
+          {activeTab === 'guides' && (
+            <AdminTravelGuidesTab
+              guides={guides}
+              tours={tours}
+              onUpdateGuides={onUpdateGuides}
+              onShowToast={onShowToast}
+            />
           )}
 
           {/* TAB 3: INQUIRIES */}

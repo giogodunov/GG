@@ -1,21 +1,27 @@
 import React, { useState } from 'react';
 import { BookOpen, Clock, ArrowRight, X, Sparkles, CheckCircle2, MessageCircle } from 'lucide-react';
-import { Language, SiteSettings } from '../types';
-import { TRAVEL_GUIDES, TravelGuide } from '../data/seoData';
+import { Language, SiteSettings, TravelGuide } from '../types';
+import { TRAVEL_GUIDES } from '../data/seoData';
 
 interface TravelGuidesSectionProps {
+  guides?: TravelGuide[];
   settings: SiteSettings;
   language: Language;
   onBookTour: (tourId?: string, title?: string) => void;
 }
 
 export const TravelGuidesSection: React.FC<TravelGuidesSectionProps> = ({
+  guides = TRAVEL_GUIDES,
   settings,
   language,
   onBookTour
 }) => {
   const isEn = language === 'en';
   const [selectedGuide, setSelectedGuide] = useState<TravelGuide | null>(null);
+
+  const activeGuides = (guides && guides.length > 0 ? guides : TRAVEL_GUIDES).filter(
+    (g) => g.isActive !== false
+  );
 
   const whatsappCleanNumber = (settings.whatsappNumber || '995555123456').replace(/[^0-9]/g, '');
 
@@ -42,12 +48,12 @@ export const TravelGuidesSection: React.FC<TravelGuidesSectionProps> = ({
 
         {/* Guides Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          {TRAVEL_GUIDES.map((guide) => {
-            const title = isEn ? guide.titleEn : guide.title;
-            const subtitle = isEn ? guide.subtitleEn : guide.subtitle;
-            const category = isEn ? guide.categoryEn : guide.category;
-            const readTime = isEn ? guide.readTimeEn : guide.readTime;
-            const summary = isEn ? guide.summaryEn : guide.summary;
+          {activeGuides.map((guide) => {
+            const title = (isEn ? guide.titleEn : guide.title) || guide.title;
+            const subtitle = (isEn ? guide.subtitleEn : guide.subtitle) || guide.subtitle;
+            const category = (isEn ? guide.categoryEn : guide.category) || guide.category;
+            const readTime = (isEn ? guide.readTimeEn : guide.readTime) || guide.readTime;
+            const summary = (isEn ? guide.summaryEn : guide.summary) || guide.summary;
 
             return (
               <article
@@ -139,30 +145,41 @@ export const TravelGuidesSection: React.FC<TravelGuidesSectionProps> = ({
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto flex-1 space-y-5 text-xs sm:text-sm text-[#1A1A1A]/80 leading-relaxed">
               <p className="font-medium text-[#1A1A1A] italic text-sm sm:text-base border-l-2 border-amber-500 pl-3">
-                {isEn ? selectedGuide.subtitleEn : selectedGuide.subtitle}
+                {(isEn ? selectedGuide.subtitleEn : selectedGuide.subtitle) || selectedGuide.subtitle}
               </p>
 
               <div className="space-y-3">
-                {(isEn ? selectedGuide.contentEn : selectedGuide.content).map((paragraph, pIdx) => (
+                {((isEn && selectedGuide.contentEn && selectedGuide.contentEn.length > 0
+                  ? selectedGuide.contentEn
+                  : selectedGuide.content) || []
+                ).map((paragraph, pIdx) => (
                   <p key={pIdx}>{paragraph}</p>
                 ))}
               </div>
 
               {/* Local Tips Box */}
-              <div className="bg-[#F9F7F2] rounded-2xl p-4 sm:p-5 border border-black/5">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black mb-3">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  <span>{isEn ? 'Local Insider Tips' : 'ადგილობრივი რჩევები'}</span>
+              {(((isEn && selectedGuide.tipsEn && selectedGuide.tipsEn.length > 0
+                ? selectedGuide.tipsEn
+                : selectedGuide.tips) || []
+              ).length > 0) && (
+                <div className="bg-[#F9F7F2] rounded-2xl p-4 sm:p-5 border border-black/5">
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black mb-3">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span>{isEn ? 'Local Insider Tips' : 'ადგილობრივი რჩევები'}</span>
+                  </div>
+                  <ul className="space-y-2">
+                    {((isEn && selectedGuide.tipsEn && selectedGuide.tipsEn.length > 0
+                      ? selectedGuide.tipsEn
+                      : selectedGuide.tips) || []
+                    ).map((tip, tIdx) => (
+                      <li key={tIdx} className="flex items-start gap-2.5 text-xs text-[#1A1A1A]/80">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="space-y-2">
-                  {(isEn ? selectedGuide.tipsEn : selectedGuide.tips).map((tip, tIdx) => (
-                    <li key={tIdx} className="flex items-start gap-2.5 text-xs text-[#1A1A1A]/80">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
-                      <span>{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              )}
             </div>
 
             {/* Modal Footer with Actions */}

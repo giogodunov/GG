@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Tour, Service, BookingInquiry, SiteSettings, Language } from './types';
+import { Tour, Service, BookingInquiry, SiteSettings, Language, TravelGuide } from './types';
 import {
   loadTours,
   saveTours,
   loadServices,
   saveServices,
+  loadGuides,
+  saveGuides,
   loadInquiries,
   saveInquiry,
   updateInquiries,
@@ -39,6 +41,7 @@ export default function App() {
   // Primary persistent data states
   const [tours, setTours] = useState<Tour[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [guides, setGuides] = useState<TravelGuide[]>([]);
   const [inquiries, setInquiries] = useState<BookingInquiry[]>([]);
   const [settings, setSettings] = useState<SiteSettings>(loadSettings());
 
@@ -60,7 +63,7 @@ export default function App() {
 
   const [adminModal, setAdminModal] = useState<{
     isOpen: boolean;
-    tab: 'services' | 'tours' | 'inquiries' | 'settings';
+    tab: 'services' | 'tours' | 'guides' | 'inquiries' | 'settings';
   }>({ isOpen: false, tab: 'services' });
 
   // Admin access mode: Only show admin buttons if secret URL (?admin=secret or #admin) was opened
@@ -90,11 +93,13 @@ export default function App() {
   useEffect(() => {
     const localTours = loadTours();
     const localServices = loadServices();
+    const localGuides = loadGuides();
     const localInquiries = loadInquiries();
     const localSettings = loadSettings();
 
     setTours(localTours);
     setServices(localServices);
+    setGuides(localGuides);
     setInquiries(localInquiries);
     setSettings(localSettings);
 
@@ -113,6 +118,7 @@ export default function App() {
           }
         }
         if (serverData.services && Array.isArray(serverData.services)) setServices(serverData.services);
+        if (serverData.guides && Array.isArray(serverData.guides)) setGuides(serverData.guides);
         if (serverData.inquiries && Array.isArray(serverData.inquiries)) setInquiries(serverData.inquiries);
       } else {
         // If server was just initialized and empty, sync our local customized settings to server
@@ -176,6 +182,11 @@ export default function App() {
     saveServices(newServices);
   };
 
+  const handleUpdateGuides = (newGuides: TravelGuide[]) => {
+    setGuides(newGuides);
+    saveGuides(newGuides);
+  };
+
   const handleUpdateInquiries = (newInquiries: BookingInquiry[]) => {
     setInquiries(newInquiries);
     updateInquiries(newInquiries);
@@ -190,6 +201,7 @@ export default function App() {
     resetAllDataToDefaults();
     setTours(loadTours());
     setServices(loadServices());
+    setGuides(loadGuides());
     setSettings(loadSettings());
   };
 
@@ -388,6 +400,7 @@ export default function App() {
 
       {/* Travel Guides & Local Insights Section (SEO Traffic Magnet) */}
       <TravelGuidesSection
+        guides={guides}
         settings={settings}
         language={language}
         onBookTour={(tourId, title) => {
@@ -483,10 +496,12 @@ export default function App() {
         onClose={() => setAdminModal({ isOpen: false, tab: 'services' })}
         tours={tours}
         services={services}
+        guides={guides}
         inquiries={inquiries}
         settings={settings}
         onUpdateTours={handleUpdateTours}
         onUpdateServices={handleUpdateServices}
+        onUpdateGuides={handleUpdateGuides}
         onUpdateInquiries={handleUpdateInquiries}
         onUpdateSettings={handleUpdateSettings}
         onResetAllData={handleResetData}
