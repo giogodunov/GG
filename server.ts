@@ -194,7 +194,7 @@ app.get('/sitemap.xml', (req, res) => {
   </url>`;
 
   toursList.forEach((tour: any) => {
-    if (tour.isActive) {
+    if (tour && tour.isActive) {
       xml += `
   <url>
     <loc>https://ingeorgiatours.ge/?tour=${encodeURIComponent(tour.id || '')}</loc>
@@ -205,7 +205,7 @@ app.get('/sitemap.xml', (req, res) => {
   });
 
   xml += `\n</urlset>`;
-  res.type('application/xml');
+  res.set('Content-Type', 'text/xml; charset=utf-8');
   res.send(xml);
 });
 
