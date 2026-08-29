@@ -35,7 +35,14 @@ import {
   Move,
   Globe,
   Languages,
-  BookOpen
+  BookOpen,
+  Send,
+  Bell,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  HelpCircle,
+  Bot
 } from 'lucide-react';
 import { Tour, Service, BookingInquiry, SiteSettings, TravelGuide } from '../types';
 import { compressImageFile, formatImageUrl } from '../utils/imageHelper';
@@ -129,6 +136,52 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   // Settings form state
   const [settingsForm, setSettingsForm] = useState<SiteSettings>(settings);
   const [settingsLangTab, setSettingsLangTab] = useState<'both' | 'ka' | 'en'>('both');
+  const [isTestingTelegram, setIsTestingTelegram] = useState(false);
+  const [telegramTestResult, setTelegramTestResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [showTelegramGuide, setShowTelegramGuide] = useState(false);
+  const [showBotToken, setShowBotToken] = useState(false);
+
+  const handleTestTelegram = async () => {
+    if (!settingsForm.telegramBotToken || !settingsForm.telegramChatId) {
+      setTelegramTestResult({
+        success: false,
+        message: 'გთხოვთ ჯერ ჩაწეროთ Bot Token და Chat ID'
+      });
+      return;
+    }
+    setIsTestingTelegram(true);
+    setTelegramTestResult(null);
+    try {
+      const res = await fetch('/api/telegram/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          botToken: settingsForm.telegramBotToken,
+          chatId: settingsForm.telegramChatId
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTelegramTestResult({
+          success: true,
+          message: 'ტესტური შეტყობინება წარმატებით გაიგზავნა თქვენს Telegram-ში!'
+        });
+        onShowToast('ტესტური შეტყობინება გაიგზავნა Telegram-ში');
+      } else {
+        setTelegramTestResult({
+          success: false,
+          message: data.error || 'შეტყობინება ვერ გაიგზავნა. გადაამოწმეთ Token და Chat ID.'
+        });
+      }
+    } catch (err: any) {
+      setTelegramTestResult({
+        success: false,
+        message: `ქსელის შეცდომა: ${err.message}`
+      });
+    } finally {
+      setIsTestingTelegram(false);
+    }
+  };
 
   const PRESET_COVERS = [
     {
@@ -547,16 +600,19 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       taglineEn: settingsForm.taglineEn || 'Discover Georgia’s Most Breathtaking Destinations',
       displayPhone: settingsForm.displayPhone || settingsForm.phone || '+995 555 12 34 56',
       phone: settingsForm.displayPhone || settingsForm.phone || '+995 555 12 34 56',
-      address: settingsForm.location || settingsForm.address || 'თბილისი, საქართველო',
-      location: settingsForm.location || settingsForm.address || 'თბილისი, საქართველო',
-      locationEn: settingsForm.locationEn || 'Tbilisi, Georgia',
+      address: settingsForm.location || settingsForm.address || 'ქუთაისი, საქართველო',
+      location: settingsForm.location || settingsForm.address || 'ქუთაისი, საქართველო',
+      locationEn: settingsForm.locationEn || 'Kutaisi, Georgia',
       workingHours: settingsForm.workHours || settingsForm.workingHours || 'ყოველდღე: 09:00 - 21:00',
       workHours: settingsForm.workHours || settingsForm.workingHours || 'ყოველდღე: 09:00 - 21:00',
       workHoursEn: settingsForm.workHoursEn || 'Everyday: 09:00 - 21:00 (GMT+4)',
       priceDisclaimer: settingsForm.priceDisclaimer || '',
       priceDisclaimerEn: settingsForm.priceDisclaimerEn || '',
       aboutText: settingsForm.aboutText || '',
-      aboutTextEn: settingsForm.aboutTextEn || ''
+      aboutTextEn: settingsForm.aboutTextEn || '',
+      telegramEnabled: !!settingsForm.telegramEnabled,
+      telegramBotToken: settingsForm.telegramBotToken?.trim() || '',
+      telegramChatId: settingsForm.telegramChatId?.trim() || ''
     };
     onUpdateSettings(updatedSettings);
     onShowToast('პარამეტრები წარმატებით შეინახა');
@@ -2213,6 +2269,205 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                       />
                     </div>
                   </div>
+                </div>
+
+                {/* 📱 TELEGRAM NOTIFICATIONS INTEGRATION */}
+                <div className="bg-gradient-to-br from-sky-50/80 via-blue-50/50 to-indigo-50/40 border border-sky-200/80 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-sky-200/60">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#229ED9] text-white flex items-center justify-center shadow-xs">
+                        <Send className="w-4 h-4 translate-x-[-0.5px] translate-y-[-0.5px]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xs font-bold text-sky-950">
+                            Telegram შეტყობინებები (მყისიერი ნოტიფიკაცია მობილურზე)
+                          </h4>
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              settingsForm.telegramEnabled
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                : 'bg-stone-200 text-stone-600'
+                            }`}
+                          >
+                            {settingsForm.telegramEnabled ? '● აქტიურია' : '○ გამორთულია'}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-sky-800/80">
+                          როგორც კი კლიენტი შეავსებს ჯავშანს, შეტყობინება მომენტალურად მოგივათ თქვენს Telegram-ში.
+                        </p>
+                      </div>
+                    </div>
+
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={!!settingsForm.telegramEnabled}
+                        onChange={(e) =>
+                          setSettingsForm({ ...settingsForm, telegramEnabled: e.target.checked })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#229ED9]"></div>
+                      <span className="ml-2 text-xs font-semibold text-sky-950 select-none">
+                        {settingsForm.telegramEnabled ? 'ჩართული' : 'გამორთული'}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-semibold text-stone-800">
+                          Telegram Bot API Token *
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowBotToken(!showBotToken)}
+                          className="text-[10px] text-sky-700 hover:text-sky-900 font-medium flex items-center gap-1 cursor-pointer"
+                        >
+                          {showBotToken ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                          <span>{showBotToken ? 'დამალვა' : 'ჩვენება'}</span>
+                        </button>
+                      </div>
+                      <input
+                        type={showBotToken ? 'text' : 'password'}
+                        value={settingsForm.telegramBotToken || ''}
+                        onChange={(e) =>
+                          setSettingsForm({ ...settingsForm, telegramBotToken: e.target.value })
+                        }
+                        placeholder="მაგ: 1234567890:ABCdefGhIJKlmNoPQRsTUVwxyZ"
+                        className="w-full px-3.5 py-2 text-xs font-mono bg-white border border-sky-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-800 mb-1">
+                        თქვენი Chat ID (პირადი ან ჯგუფის) *
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm.telegramChatId || ''}
+                        onChange={(e) =>
+                          setSettingsForm({ ...settingsForm, telegramChatId: e.target.value })
+                        }
+                        placeholder="მაგ: 123456789 (პირადი) ან -1001234567890 (ჯგუფი)"
+                        className="w-full px-3.5 py-2 text-xs font-mono bg-white border border-sky-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Action & Testing Section */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={isTestingTelegram || !settingsForm.telegramBotToken || !settingsForm.telegramChatId}
+                        onClick={handleTestTelegram}
+                        className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                          !settingsForm.telegramBotToken || !settingsForm.telegramChatId
+                            ? 'bg-stone-200 text-stone-400 cursor-not-allowed'
+                            : isTestingTelegram
+                            ? 'bg-sky-400 text-white cursor-wait'
+                            : 'bg-[#229ED9] hover:bg-[#1e8cc0] text-white'
+                        }`}
+                      >
+                        {isTestingTelegram ? (
+                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                        <span>{isTestingTelegram ? 'იგზავნება...' : '🚀 ტესტური შეტყობინების გაგზავნა'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowTelegramGuide(!showTelegramGuide)}
+                        className="text-xs text-sky-800 hover:text-sky-950 font-semibold underline flex items-center gap-1 px-2 py-1.5 cursor-pointer"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        <span>{showTelegramGuide ? 'ინსტრუქციის დამალვა' : 'როგორ გავაკეთოთ ბოტი 1 წუთში?'}</span>
+                      </button>
+                    </div>
+
+                    <span className="text-[11px] text-stone-500">
+                      💡 პარამეტრების შეცვლის შემდეგ არ დაგავიწყდეთ ქვემოთ <b>„შენახვა“</b>
+                    </span>
+                  </div>
+
+                  {/* Test Result Message */}
+                  {telegramTestResult && (
+                    <div
+                      className={`p-3 rounded-xl text-xs flex items-start gap-2.5 ${
+                        telegramTestResult.success
+                          ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
+                          : 'bg-rose-50 text-rose-900 border border-rose-200'
+                      }`}
+                    >
+                      {telegramTestResult.success ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                      )}
+                      <div className="flex-1">
+                        <p className="font-semibold">{telegramTestResult.message}</p>
+                        {telegramTestResult.success && (
+                          <p className="text-[11px] text-emerald-700 mt-0.5">
+                            შეტყობინება უკვე თქვენს ტელეგრამშია! ახლა შეგიძლიათ ჩართოთ და შეინახოთ.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step-by-step Setup Guide */}
+                  {showTelegramGuide && (
+                    <div className="bg-white/90 border border-sky-200 rounded-xl p-4 text-xs space-y-3 text-stone-700">
+                      <div className="font-bold text-sky-950 flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-amber-500" />
+                        <span>როგორ შევქმნათ Telegram Bot-ი და გავიგოთ Chat ID (4 მარტივი ნაბიჯი):</span>
+                      </div>
+
+                      <ol className="space-y-2.5 list-decimal list-inside pl-1 text-[11px] leading-relaxed">
+                        <li>
+                          <strong>ბოტის შექმნა:</strong> Telegram-ში მოძებნეთ{' '}
+                          <a
+                            href="https://t.me/BotFather"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-bold text-[#229ED9] hover:underline"
+                          >
+                            @BotFather
+                          </a>{' '}
+                          და გაუგზავნეთ ბრძანება <code>/newbot</code>. მიჰყევით ინსტრუქციას (დაარქვით სახელი და username).
+                        </li>
+                        <li>
+                          <strong>API Token-ის აღება:</strong> BotFather მოგცემთ <strong>HTTP API Token</strong>-ს (მაგ: <code>1234567890:ABC...</code>) — დააკოპირეთ და ჩასვით ზემოთ ველში.
+                        </li>
+                        <li>
+                          <strong>ბოტის გააქტიურება:</strong> გადადით თქვენს შექმნილ ბოტთან და აუცილებლად დააჭირეთ <strong>START</strong> (ეს აუცილებელია, რომ ბოტმა შეტყობინება გამოგიგზავნოთ).
+                        </li>
+                        <li>
+                          <strong>Chat ID-ის გაგება:</strong> Telegram-ში გახსენით{' '}
+                          <a
+                            href="https://t.me/userinfobot"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-bold text-[#229ED9] hover:underline"
+                          >
+                            @userinfobot
+                          </a>{' '}
+                          და დააკოპირეთ თქვენი <strong>Id</strong> (მხოლოდ ციფრები). ჩასვით ზემოთ Chat ID ველში.
+                        </li>
+                      </ol>
+
+                      <div className="pt-2 border-t border-sky-100 flex items-center justify-between text-[11px]">
+                        <span className="text-sky-900">
+                          ✨ <em>ჯგუფში მიღება:</em> თუ გსურთ რამდენიმე თანამშრომელმა ნახოს ჯავშანი, ჩაამატეთ ბოტი თქვენს Telegram ჯგუფში და მიუთითეთ ჯგუფის Chat ID (რომელიც იწყება <code>-100...</code>-ით).
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* 🇬🇪 GEORGIAN SETTINGS TEXTS */}

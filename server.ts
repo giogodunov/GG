@@ -149,20 +149,141 @@ app.get('/api/inquiries', (req, res) => {
   return res.json({ success: false, inquiries: [] });
 });
 
-app.post('/api/inquiries', (req, res) => {
+// Helper for escaping HTML in Telegram messages
+function escapeTgHtml(str: string) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+async function sendTelegramMessage(
+  botToken: string,
+  chatId: string,
+  text: string,
+  buttons?: Array<Array<{ text: string; url: string }>>
+) {
+  try {
+    const cleanToken = (botToken || '').trim();
+    const cleanChatId = (chatId || '').trim();
+    if (!cleanToken || !cleanChatId) {
+      return { ok: false, description: 'Bot Token or Chat ID is missing' };
+    }
+    const url = `https://api.telegram.org/bot${cleanToken}/sendMessage`;
+    const payload: any = {
+      chat_id: cleanChatId,
+      text,
+      parse_mode: 'HTML',
+      disable_web_page_preview: true
+    };
+    if (buttons && buttons.length > 0) {
+      payload.reply_markup = { inline_keyboard: buttons };
+    }
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    console.error('Telegram notification error:', error);
+    return { ok: false, description: error.message };
+  }
+}
+
+app.post('/api/inquiries', async (req, res) => {
   const current = readStore() || {};
   const data = req.body;
+  let newSingleInquiry: any = null;
+
   if (Array.isArray(data)) {
     // Overwrite with full list of inquiries (e.g. after delete, status update, reorder)
     current.inquiries = data;
   } else if (data && typeof data === 'object') {
     // Append single new incoming inquiry
+    newSingleInquiry = data;
     const inquiries = Array.isArray(current.inquiries) ? current.inquiries : [];
     current.inquiries = [data, ...inquiries];
   }
   current.updatedAt = new Date().toISOString();
   writeStore(current);
+
+  // Send Telegram Notification if enabled and new inquiry arrived
+  if (newSingleInquiry && current.settings?.telegramEnabled && current.settings?.telegramBotToken && current.settings?.telegramChatId) {
+    try {
+      const name = newSingleInquiry.customerName || 'სტუმარი';
+      const phone = newSingleInquiry.phone || 'არ არის მითითებული';
+      const email = newSingleInquiry.email || '';
+      const itemTitle = newSingleInquiry.itemTitle || 'ზოგადი ჯავშანი / ტრანსფერი';
+      const itemType = newSingleInquiry.itemType === 'tour' ? '🗺️ ტური' : newSingleInquiry.itemType === 'service' ? '🚗 სერვისი / ტრანსფერი' : '📩 ზოგადი მოთხოვნა';
+      const preferredContact = newSingleInquiry.preferredContact === 'whatsapp' ? '💬 WhatsApp' : newSingleInquiry.preferredContact === 'call' ? '📞 სატელეფონო ზარი' : '✉️ ელფოსტა';
+      const preferredDate = newSingleInquiry.preferredDate || '';
+      const peopleCount = newSingleInquiry.peopleCount ? `${newSingleInquiry.peopleCount} ადამიანი` : '';
+      const notes = newSingleInquiry.notes || '';
+      const cleanPhone = phone.replace(/[^0-9]/g, '');
+
+      let text = `🚀 <b>ახალი ჯავშანი საიტიდან!</b>\n\n`;
+      text += `👤 <b>კლიენტი:</b> ${escapeTgHtml(name)}\n`;
+      text += `📞 <b>ტელეფონი:</b> <code>${escapeTgHtml(phone)}</code>\n`;
+      if (email) text += `✉️ <b>ელფოსტა:</b> ${escapeTgHtml(email)}\n`;
+      text += `📲 <b>სასურველი კავშირი:</b> ${preferredContact}\n\n`;
+      text += `📌 <b>სერვისი / ტური:</b> ${escapeTgHtml(itemTitle)} (${itemType})\n`;
+      if (preferredDate) text += `📅 <b>სასურველი თარიღი:</b> ${escapeTgHtml(preferredDate)}\n`;
+      if (peopleCount) text += `👥 <b>რაოდენობა:</b> ${escapeTgHtml(peopleCount)}\n`;
+      if (notes) text += `📝 <b>შენიშვნა/დეტალები:</b> ${escapeTgHtml(notes)}\n`;
+      text += `\n⏰ <i>${new Date().toLocaleString('ka-GE', { timeZone: 'Asia/Tbilisi' })}</i>`;
+
+      const buttons: Array<Array<{ text: string; url: string }>> = [];
+      if (cleanPhone) {
+        buttons.push([
+          {
+            text: '💬 WhatsApp-ზე მიწერა',
+            url: `https://wa.me/${cleanPhone}`
+          }
+        ]);
+      }
+
+      // Fire and log result
+      sendTelegramMessage(
+        current.settings.telegramBotToken,
+        current.settings.telegramChatId,
+        text,
+        buttons
+      ).then((res) => {
+        if (!res.ok) {
+          console.warn('Telegram send failed:', res);
+        } else {
+          console.log('Telegram booking notification sent successfully');
+        }
+      }).catch((err) => console.error('Telegram dispatch error:', err));
+    } catch (e) {
+      console.error('Error formatting telegram notification:', e);
+    }
+  }
+
   return res.json({ success: true, inquiries: current.inquiries });
+});
+
+// Endpoint for testing Telegram Bot connection directly from the Admin Panel
+app.post('/api/telegram/test', async (req, res) => {
+  const { botToken, chatId } = req.body;
+  if (!botToken || !chatId) {
+    return res.status(400).json({ success: false, error: 'გთხოვთ მიუთითოთ Bot Token და Chat ID' });
+  }
+
+  const testMessage = `✅ <b>InGeorgiaTours - ტესტური შეტყობინება</b>\n\nთქვენი Telegram Bot-ი წარმატებით დაუკავშირდა საიტს! 🎉\nროდესაც კლიენტი საიტზე ჯავშანს ან შეკითხვას გამოგზავნის, შეტყობინება მყისიერად მოგივათ აქ.\n\n⏰ <i>${new Date().toLocaleString('ka-GE', { timeZone: 'Asia/Tbilisi' })}</i>`;
+
+  const result = await sendTelegramMessage(botToken, chatId, testMessage);
+  if (result && result.ok) {
+    return res.json({ success: true, result });
+  } else {
+    return res.status(400).json({
+      success: false,
+      error: result?.description || 'შეტყობინების გაგზავნა ვერ მოხერხდა. გადაამოწმეთ Token და Chat ID, ასევე დარწმუნდით, რომ ბოტში START გაქვთ დაჭერილი.'
+    });
+  }
 });
 
 app.delete('/api/inquiries/:id', (req, res) => {

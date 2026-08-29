@@ -26,7 +26,10 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroCoverOverlayOpacity: 35,
   heroTextColorMode: 'auto',
   heroCoverPositionMobile: 'center',
-  heroCoverPositionDesktop: 'center'
+  heroCoverPositionDesktop: 'center',
+  telegramEnabled: false,
+  telegramBotToken: '',
+  telegramChatId: ''
 };
 
 export const DEFAULT_TOURS: Tour[] = [

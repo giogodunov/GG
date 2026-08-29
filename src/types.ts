@@ -101,4 +101,7 @@ export interface SiteSettings {
   heroTextColorMode?: 'auto' | 'dark' | 'light'; // text color mode for hero
   heroCoverPositionMobile?: string; // e.g. 'center', 'top', 'bottom', 'left', 'right', or '50% 30%'
   heroCoverPositionDesktop?: string; // e.g. 'center', 'top', 'bottom', or '50% 50%'
+  telegramEnabled?: boolean;
+  telegramBotToken?: string;
+  telegramChatId?: string;
 }

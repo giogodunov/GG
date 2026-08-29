@@ -238,7 +238,10 @@ export function loadSettings(): SiteSettings {
       heroCoverOverlayOpacity: parsed.heroCoverOverlayOpacity !== undefined ? parsed.heroCoverOverlayOpacity : 35,
       heroTextColorMode: parsed.heroTextColorMode || DEFAULT_SETTINGS.heroTextColorMode || 'auto',
       heroCoverPositionMobile: parsed.heroCoverPositionMobile || DEFAULT_SETTINGS.heroCoverPositionMobile || 'center',
-      heroCoverPositionDesktop: parsed.heroCoverPositionDesktop || DEFAULT_SETTINGS.heroCoverPositionDesktop || 'center'
+      heroCoverPositionDesktop: parsed.heroCoverPositionDesktop || DEFAULT_SETTINGS.heroCoverPositionDesktop || 'center',
+      telegramEnabled: parsed.telegramEnabled !== undefined ? parsed.telegramEnabled : DEFAULT_SETTINGS.telegramEnabled,
+      telegramBotToken: parsed.telegramBotToken !== undefined ? parsed.telegramBotToken : DEFAULT_SETTINGS.telegramBotToken,
+      telegramChatId: parsed.telegramChatId !== undefined ? parsed.telegramChatId : DEFAULT_SETTINGS.telegramChatId
     };
   } catch (e) {
     console.error('Failed to load settings', e);
