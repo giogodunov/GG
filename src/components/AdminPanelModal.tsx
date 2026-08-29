@@ -32,7 +32,9 @@ import {
   Moon,
   Smartphone,
   Monitor,
-  Move
+  Move,
+  Globe,
+  Languages
 } from 'lucide-react';
 import { Tour, Service, BookingInquiry, SiteSettings } from '../types';
 import { compressImageFile, formatImageUrl } from '../utils/imageHelper';
@@ -72,38 +74,55 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
 
   // Service form state
   const [isEditingService, setIsEditingService] = useState<boolean>(false);
+  const [serviceFormLangTab, setServiceFormLangTab] = useState<'both' | 'ka' | 'en'>('both');
   const [serviceFormData, setServiceFormData] = useState<Partial<Service>>({
     title: '',
+    titleEn: '',
     category: 'transfer',
     priceInfo: '50 ₾-დან',
+    priceInfoEn: 'From 50 GEL',
     shortDescription: '',
+    shortDescriptionEn: '',
     features: ['სანდო და კომფორტული მომსახურება', 'გამოცდილი სპეციალისტები'],
+    featuresEn: ['Reliable and comfortable service', 'Experienced professionals'],
     iconName: 'plane',
     imageUrl: '',
     isActive: true
   });
   const [featureInput, setFeatureInput] = useState('');
+  const [featureEnInput, setFeatureEnInput] = useState('');
 
   // Tour form state
   const [isEditingTour, setIsEditingTour] = useState<boolean>(false);
+  const [tourFormLangTab, setTourFormLangTab] = useState<'both' | 'ka' | 'en'>('both');
   const [tourFormData, setTourFormData] = useState<Partial<Tour>>({
     title: '',
+    titleEn: '',
     region: 'საქართველო',
+    regionEn: 'Georgia',
     duration: '1 დღე',
+    durationEn: '1 Day',
     priceInfo: '100 ₾-დან',
+    priceInfoEn: 'From 100 GEL',
     category: 'day_tour',
     shortDescription: '',
+    shortDescriptionEn: '',
     highlights: ['ღირსშესანიშნაობა 1', 'ღირსშესანიშნაობა 2'],
+    highlightsEn: ['Sightseeing location 1', 'Sightseeing location 2'],
     included: ['ტრანსპორტირება', 'გიდი'],
+    includedEn: ['Transportation', 'Guide'],
     imageUrl: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
     featured: false,
     isActive: true
   });
   const [highlightInput, setHighlightInput] = useState('');
+  const [highlightEnInput, setHighlightEnInput] = useState('');
   const [includedInput, setIncludedInput] = useState('');
+  const [includedEnInput, setIncludedEnInput] = useState('');
 
   // Settings form state
   const [settingsForm, setSettingsForm] = useState<SiteSettings>(settings);
+  const [settingsLangTab, setSettingsLangTab] = useState<'both' | 'ka' | 'en'>('both');
 
   const PRESET_COVERS = [
     {
@@ -225,28 +244,34 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     setServiceFormData({
       id: 'srv_' + Date.now(),
       title: '',
+      titleEn: '',
       category: 'transfer',
       priceInfo: '80 ₾-დან',
+      priceInfoEn: 'From 80 GEL',
       shortDescription: '',
+      shortDescriptionEn: '',
       features: ['კომფორტული ავტომობილი', 'პუნქტუალური მომსახურება'],
+      featuresEn: ['Comfortable Air-conditioned Vehicle', 'Punctual & Reliable Service'],
       iconName: 'plane',
       imageUrl: '',
       isActive: true
     });
     setFeatureInput('');
+    setFeatureEnInput('');
     setIsEditingService(true);
   };
 
   const handleStartEditService = (service: Service) => {
     setServiceFormData({ ...service });
     setFeatureInput('');
+    setFeatureEnInput('');
     setIsEditingService(true);
   };
 
   const handleSaveService = (e: React.FormEvent) => {
     e.preventDefault();
     if (!serviceFormData.title || !serviceFormData.title.trim()) {
-      alert('გთხოვთ მიუთითოთ მომსახურების სათაური');
+      alert('გთხოვთ მიუთითოთ მომსახურების სათაური ქართულად');
       return;
     }
 
@@ -256,12 +281,12 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       title: serviceFormData.title.trim(),
       titleEn: serviceFormData.titleEn?.trim() || undefined,
       category: serviceFormData.category || 'transfer',
-      priceInfo: serviceFormData.priceInfo || 'შეთანხმებით',
+      priceInfo: serviceFormData.priceInfo?.trim() || 'შეთანხმებით',
       priceInfoEn: serviceFormData.priceInfoEn?.trim() || undefined,
-      shortDescription: serviceFormData.shortDescription || '',
+      shortDescription: serviceFormData.shortDescription?.trim() || '',
       shortDescriptionEn: serviceFormData.shortDescriptionEn?.trim() || undefined,
       features: serviceFormData.features || [],
-      featuresEn: serviceFormData.featuresEn || undefined,
+      featuresEn: serviceFormData.featuresEn && serviceFormData.featuresEn.length > 0 ? serviceFormData.featuresEn : undefined,
       iconName: (serviceFormData.iconName as any) || 'plane',
       imageUrl: serviceFormData.imageUrl?.trim() || undefined,
       isActive: serviceFormData.isActive ?? true
@@ -312,39 +337,66 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     }));
   };
 
+  const handleAddFeatureEn = () => {
+    if (!featureEnInput.trim()) return;
+    setServiceFormData((prev) => ({
+      ...prev,
+      featuresEn: [...(prev.featuresEn || []), featureEnInput.trim()]
+    }));
+    setFeatureEnInput('');
+  };
+
+  const handleRemoveFeatureEn = (idx: number) => {
+    setServiceFormData((prev) => ({
+      ...prev,
+      featuresEn: (prev.featuresEn || []).filter((_, i) => i !== idx)
+    }));
+  };
+
   // --- TOUR HANDLERS ---
   const handleStartAddTour = () => {
     setTourFormData({
       id: 'tour_' + Date.now(),
       title: '',
+      titleEn: '',
       region: 'მცხეთა-მთიანეთი',
+      regionEn: 'Mtskheta-Mtianeti',
       duration: '1 დღე',
+      durationEn: '1 Day',
       priceInfo: '120 ₾-დან / პერსონა',
+      priceInfoEn: 'From 120 GEL / Person',
       priceValue: 120,
       category: 'day_tour',
       shortDescription: '',
+      shortDescriptionEn: '',
       highlights: ['მთავარი ლოკაცია 1', 'მთავარი ლოკაცია 2'],
+      highlightsEn: ['Main Sight 1', 'Main Sight 2'],
       included: ['კომფორტული ტრანსპორტი', 'მძღოლი-გიდი'],
+      includedEn: ['Comfortable AC Transport', 'Private Driver / Guide'],
       imageUrl: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
       featured: false,
       isActive: true
     });
     setHighlightInput('');
+    setHighlightEnInput('');
     setIncludedInput('');
+    setIncludedEnInput('');
     setIsEditingTour(true);
   };
 
   const handleStartEditTour = (tour: Tour) => {
     setTourFormData({ ...tour });
     setHighlightInput('');
+    setHighlightEnInput('');
     setIncludedInput('');
+    setIncludedEnInput('');
     setIsEditingTour(true);
   };
 
   const handleSaveTour = (e: React.FormEvent) => {
     e.preventDefault();
     if (!tourFormData.title || !tourFormData.title.trim()) {
-      alert('გთხოვთ მიუთითოთ ტურის სათაური');
+      alert('გთხოვთ მიუთითოთ ტურის სათაური ქართულად');
       return;
     }
 
@@ -352,14 +404,21 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     const newTour: Tour = {
       id: currentId,
       title: tourFormData.title.trim(),
-      region: tourFormData.region || 'საქართველო',
-      duration: tourFormData.duration || '1 დღე',
-      priceInfo: tourFormData.priceInfo || 'შეთანხმებით',
+      titleEn: tourFormData.titleEn?.trim() || undefined,
+      region: tourFormData.region?.trim() || 'საქართველო',
+      regionEn: tourFormData.regionEn?.trim() || undefined,
+      duration: tourFormData.duration?.trim() || '1 დღე',
+      durationEn: tourFormData.durationEn?.trim() || undefined,
+      priceInfo: tourFormData.priceInfo?.trim() || 'შეთანხმებით',
+      priceInfoEn: tourFormData.priceInfoEn?.trim() || undefined,
       priceValue: tourFormData.priceValue || 100,
       category: tourFormData.category || 'day_tour',
-      shortDescription: tourFormData.shortDescription || '',
+      shortDescription: tourFormData.shortDescription?.trim() || '',
+      shortDescriptionEn: tourFormData.shortDescriptionEn?.trim() || undefined,
       highlights: tourFormData.highlights || [],
+      highlightsEn: tourFormData.highlightsEn && tourFormData.highlightsEn.length > 0 ? tourFormData.highlightsEn : undefined,
       included: tourFormData.included || [],
+      includedEn: tourFormData.includedEn && tourFormData.includedEn.length > 0 ? tourFormData.includedEn : undefined,
       imageUrl: tourFormData.imageUrl || 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
       featured: tourFormData.featured || false,
       isActive: tourFormData.isActive ?? true
@@ -394,6 +453,70 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     onUpdateTours(updated);
   };
 
+  const handleAddHighlight = () => {
+    if (!highlightInput.trim()) return;
+    setTourFormData((prev) => ({
+      ...prev,
+      highlights: [...(prev.highlights || []), highlightInput.trim()]
+    }));
+    setHighlightInput('');
+  };
+
+  const handleRemoveHighlight = (idx: number) => {
+    setTourFormData((prev) => ({
+      ...prev,
+      highlights: (prev.highlights || []).filter((_, i) => i !== idx)
+    }));
+  };
+
+  const handleAddHighlightEn = () => {
+    if (!highlightEnInput.trim()) return;
+    setTourFormData((prev) => ({
+      ...prev,
+      highlightsEn: [...(prev.highlightsEn || []), highlightEnInput.trim()]
+    }));
+    setHighlightEnInput('');
+  };
+
+  const handleRemoveHighlightEn = (idx: number) => {
+    setTourFormData((prev) => ({
+      ...prev,
+      highlightsEn: (prev.highlightsEn || []).filter((_, i) => i !== idx)
+    }));
+  };
+
+  const handleAddIncluded = () => {
+    if (!includedInput.trim()) return;
+    setTourFormData((prev) => ({
+      ...prev,
+      included: [...(prev.included || []), includedInput.trim()]
+    }));
+    setIncludedInput('');
+  };
+
+  const handleRemoveIncluded = (idx: number) => {
+    setTourFormData((prev) => ({
+      ...prev,
+      included: (prev.included || []).filter((_, i) => i !== idx)
+    }));
+  };
+
+  const handleAddIncludedEn = () => {
+    if (!includedEnInput.trim()) return;
+    setTourFormData((prev) => ({
+      ...prev,
+      includedEn: [...(prev.includedEn || []), includedEnInput.trim()]
+    }));
+    setIncludedEnInput('');
+  };
+
+  const handleRemoveIncludedEn = (idx: number) => {
+    setTourFormData((prev) => ({
+      ...prev,
+      includedEn: (prev.includedEn || []).filter((_, i) => i !== idx)
+    }));
+  };
+
   // --- INQUIRY HANDLERS ---
   const handleUpdateInquiryStatus = (id: string, newStatus: BookingInquiry['status']) => {
     const updated = inquiries.map((inq) =>
@@ -413,12 +536,21 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     e.preventDefault();
     const updatedSettings: SiteSettings = {
       ...settingsForm,
+      brandName: settingsForm.brandName || 'InGeorgiaTours',
+      tagline: settingsForm.tagline || 'აღმოაჩინე საქართველოს გამორჩეული კუთხეები',
+      taglineEn: settingsForm.taglineEn || 'Discover Georgia’s Most Breathtaking Destinations',
       displayPhone: settingsForm.displayPhone || settingsForm.phone || '+995 555 12 34 56',
       phone: settingsForm.displayPhone || settingsForm.phone || '+995 555 12 34 56',
       address: settingsForm.location || settingsForm.address || 'თბილისი, საქართველო',
       location: settingsForm.location || settingsForm.address || 'თბილისი, საქართველო',
+      locationEn: settingsForm.locationEn || 'Tbilisi, Georgia',
       workingHours: settingsForm.workHours || settingsForm.workingHours || 'ყოველდღე: 09:00 - 21:00',
-      workHours: settingsForm.workHours || settingsForm.workingHours || 'ყოველდღე: 09:00 - 21:00'
+      workHours: settingsForm.workHours || settingsForm.workingHours || 'ყოველდღე: 09:00 - 21:00',
+      workHoursEn: settingsForm.workHoursEn || 'Everyday: 09:00 - 21:00 (GMT+4)',
+      priceDisclaimer: settingsForm.priceDisclaimer || '',
+      priceDisclaimerEn: settingsForm.priceDisclaimerEn || '',
+      aboutText: settingsForm.aboutText || '',
+      aboutTextEn: settingsForm.aboutTextEn || ''
     };
     onUpdateSettings(updatedSettings);
     onShowToast('პარამეტრები წარმატებით შეინახა');
@@ -572,27 +704,55 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                               <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
                                 {srv.category}
                               </span>
-                              <h4 className="text-sm font-bold text-stone-900">
-                                {srv.title}
+                              <h4 className="text-sm font-bold text-stone-900 flex items-center gap-1.5 flex-wrap">
+                                <span>🇬🇪 {srv.title}</span>
                               </h4>
+                              {srv.titleEn ? (
+                                <p className="text-xs text-stone-500 font-medium mt-0.5">
+                                  🇬🇧 {srv.titleEn}
+                                </p>
+                              ) : (
+                                <span className="inline-block text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded mt-1 font-medium">
+                                  🇬🇧 ინგლისური არ არის შეყვანილი
+                                </span>
+                              )}
                             </div>
-                            <span className="text-xs font-bold text-stone-900 bg-stone-100 px-2 py-0.5 rounded">
-                              {srv.priceInfo}
-                            </span>
+                            <div className="text-right shrink-0">
+                              <span className="text-xs font-bold text-stone-900 bg-stone-100 px-2 py-0.5 rounded block">
+                                {srv.priceInfo}
+                              </span>
+                              {srv.priceInfoEn && (
+                                <span className="text-[10px] text-stone-500 block mt-0.5">
+                                  {srv.priceInfoEn}
+                                </span>
+                              )}
+                            </div>
                           </div>
 
-                          <p className="text-xs text-stone-600 mb-3 line-clamp-2">
+                          <p className="text-xs text-stone-600 mb-2 line-clamp-2">
                             {srv.shortDescription}
                           </p>
+
+                          {srv.shortDescriptionEn && (
+                            <p className="text-xs text-stone-400 italic mb-2 line-clamp-2">
+                              EN: {srv.shortDescriptionEn}
+                            </p>
+                          )}
 
                           {srv.features && srv.features.length > 0 && (
                             <ul className="text-xs text-stone-500 space-y-1 mb-3">
                               {srv.features.slice(0, 2).map((f, i) => (
                                 <li key={i} className="flex items-center gap-1.5">
                                   <Check className="w-3 h-3 text-emerald-600 shrink-0" />
-                                  <span className="truncate">{f}</span>
+                                  <span className="truncate">🇬🇪 {f}</span>
                                 </li>
                               ))}
+                              {srv.featuresEn && srv.featuresEn.length > 0 && (
+                                <li className="flex items-center gap-1.5 text-stone-400">
+                                  <Check className="w-3 h-3 text-stone-400 shrink-0" />
+                                  <span className="truncate">🇬🇧 {srv.featuresEn[0]}</span>
+                                </li>
+                              )}
                             </ul>
                           )}
                         </div>
@@ -639,222 +799,373 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                 </>
               ) : (
                 /* Service Add / Edit Form */
-                <form onSubmit={handleSaveService} className="bg-white p-6 rounded-2xl border border-stone-200 space-y-4">
-                  <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                    <h4 className="text-sm font-bold text-stone-900">
-                      {serviceFormData.id ? 'მომსახურების რედაქტირება' : 'ახალი მომსახურების დამატება'}
-                    </h4>
-                    <button
-                      type="button"
-                      onClick={() => setIsEditingService(false)}
-                      className="text-xs text-stone-500 hover:text-stone-800"
-                    >
-                      გაუქმება
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <form onSubmit={handleSaveService} className="bg-white p-6 rounded-2xl border border-stone-200 space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        მომსახურების სათაური *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={serviceFormData.title || ''}
-                        onChange={(e) => setServiceFormData({ ...serviceFormData, title: e.target.value })}
-                        placeholder="მაგ: აეროპორტის ტრანსფერი (თბილისი/ქუთაისი)"
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      />
+                      <h4 className="text-sm font-bold text-stone-900">
+                        {serviceFormData.id ? 'მომსახურების რედაქტირება' : 'ახალი მომსახურების დამატება'}
+                      </h4>
+                      <p className="text-xs text-stone-500 mt-0.5">
+                        შეიყვანეთ ინფორმაცია ქართულ და ინგლისურ ენებზე
+                      </p>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        საინფორმაციო ფასი *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={serviceFormData.priceInfo || ''}
-                        onChange={(e) => setServiceFormData({ ...serviceFormData, priceInfo: e.target.value })}
-                        placeholder="მაგ: 60 ₾-დან / რეისი, ან შეთანხმებით"
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        კატეგორია
-                      </label>
-                      <select
-                        value={serviceFormData.category || 'transfer'}
-                        onChange={(e) => setServiceFormData({ ...serviceFormData, category: e.target.value as any })}
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      >
-                        <option value="transfer">ტრანსფერი (აეროპორტი/ქალაქები)</option>
-                        <option value="guide">გიდი (ექსკურსიამძღოლი)</option>
-                        <option value="vehicle">ავტომობილის ქირაობა მძღოლით</option>
-                        <option value="custom">ინდივიდუალური სერვისი</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        ხატულა (Icon)
-                      </label>
-                      <select
-                        value={serviceFormData.iconName || 'plane'}
-                        onChange={(e) => setServiceFormData({ ...serviceFormData, iconName: e.target.value as any })}
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      >
-                        <option value="plane">✈️ თვითმფრინავი (აეროპორტი/ტრანსფერი)</option>
-                        <option value="user-check">👤 გიდი (ადამიანი)</option>
-                        <option value="car">🚗 ავტომობილი (მანქანა)</option>
-                        <option value="compass">🧭 კომპასი (მარშრუტი)</option>
-                        <option value="shield">🛡️ ფარი (დაცვა/სანდოობა)</option>
-                        <option value="clock">⏱️ საათი (24/7)</option>
-                        <option value="map-pin">📍 ლოკაცია</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Service Image Upload & URL */}
-                  <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200/80 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-semibold text-stone-800 flex items-center gap-1.5">
-                        <ImageIcon className="w-4 h-4 text-stone-500" />
-                        <span>მომსახურების სურათი (არასავალდებულო)</span>
-                      </label>
-                      {serviceFormData.imageUrl && (
-                        <button
-                          type="button"
-                          onClick={() => setServiceFormData({ ...serviceFormData, imageUrl: '' })}
-                          className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline"
-                        >
-                          სურათის წაშლა
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                      {/* Image Preview */}
-                      {serviceFormData.imageUrl ? (
-                        <div className="relative w-20 h-14 rounded-xl overflow-hidden border border-stone-200 shrink-0 bg-stone-200">
-                          <img
-                            src={serviceFormData.imageUrl}
-                            alt="სერვისის სურათი"
-                            referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-20 h-14 rounded-xl border border-dashed border-stone-300 flex items-center justify-center shrink-0 text-stone-400 bg-white">
-                          <ImageIcon className="w-5 h-5" />
-                        </div>
-                      )}
-
-                      {/* Upload Button + URL Input */}
-                      <div className="flex-1 w-full space-y-2">
-                        <div className="flex items-center gap-2">
-                          <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-800 border border-stone-300 rounded-xl text-xs font-medium transition-colors shadow-2xs">
-                            <Upload className="w-3.5 h-3.5 text-stone-600" />
-                            <span>{isUploadingServiceImage ? 'იტვირთება...' : 'ფოტოს ატვირთვა კომპიუტერიდან'}</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={handleServiceImageFileUpload}
-                              disabled={isUploadingServiceImage}
-                            />
-                          </label>
-                          <span className="text-[10px] text-stone-400">ან ჩაწერეთ ბმული:</span>
-                        </div>
-
-                        <input
-                          type="url"
-                          value={serviceFormData.imageUrl || ''}
-                          onChange={(e) => setServiceFormData({ ...serviceFormData, imageUrl: e.target.value })}
-                          placeholder="https://images.unsplash.com/..."
-                          className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      მოკლე აღწერა
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={serviceFormData.shortDescription || ''}
-                      onChange={(e) => setServiceFormData({ ...serviceFormData, shortDescription: e.target.value })}
-                      placeholder="მაგ: დახვედრა აეროპორტში კომფორტული ავტომობილით ნებისმიერ დროს."
-                      className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl resize-none"
-                    />
-                  </div>
-
-                  {/* Bullet points / Features */}
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      სერვისის დეტალები / პუნქტები
-                    </label>
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={featureInput}
-                        onChange={(e) => setFeatureInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleAddFeature();
-                          }
-                        }}
-                        placeholder="მაგ: უფასო ლოდინი ფრენის დაგვიანებისას"
-                        className="flex-1 px-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      />
+                    {/* Language Switcher Tabs */}
+                    <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl shrink-0">
                       <button
                         type="button"
-                        onClick={handleAddFeature}
-                        className="px-3 py-1.5 bg-stone-800 text-white rounded-xl text-xs font-medium"
+                        onClick={() => setServiceFormLangTab('both')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          serviceFormLangTab === 'both'
+                            ? 'bg-white text-stone-900 shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
                       >
-                        დამატება
+                        🌐 ორივე ენა
                       </button>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5">
-                      {(serviceFormData.features || []).map((feat, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center gap-1.5 bg-stone-100 text-stone-800 text-xs px-2.5 py-1 rounded-lg border border-stone-200"
-                        >
-                          <span>{feat}</span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveFeature(idx)}
-                            className="text-stone-400 hover:text-rose-600"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </span>
-                      ))}
+                      <button
+                        type="button"
+                        onClick={() => setServiceFormLangTab('ka')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          serviceFormLangTab === 'ka'
+                            ? 'bg-white text-stone-900 shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        🇬🇪 ქართული
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setServiceFormLangTab('en')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          serviceFormLangTab === 'en'
+                            ? 'bg-white text-stone-900 shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        🇬🇧 English
+                      </button>
                     </div>
                   </div>
 
-                  {/* Active toggle */}
-                  <div className="flex items-center gap-2 pt-2">
-                    <input
-                      type="checkbox"
-                      id="service-is-active"
-                      checked={serviceFormData.isActive ?? true}
-                      onChange={(e) => setServiceFormData({ ...serviceFormData, isActive: e.target.checked })}
-                      className="rounded text-stone-900"
-                    />
-                    <label htmlFor="service-is-active" className="text-xs text-stone-700 font-medium cursor-pointer">
-                      მომსახურება აქტიურია და ჩანს მთავარ გვერდზე
-                    </label>
+                  {/* 🇬🇪 GEORGIAN SECTION */}
+                  {(serviceFormLangTab === 'both' || serviceFormLangTab === 'ka') && (
+                    <div className="bg-amber-50/40 border border-amber-200/70 rounded-2xl p-4 space-y-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-amber-950 pb-2 border-b border-amber-200/50">
+                        <span className="text-base">🇬🇪</span>
+                        <span>ქართული ვერსია (Georgian Content)</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            მომსახურების სათაური (ქართულად) *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={serviceFormData.title || ''}
+                            onChange={(e) => setServiceFormData({ ...serviceFormData, title: e.target.value })}
+                            placeholder="მაგ: აეროპორტის ტრანსფერი (თბილისი/ქუთაისი)"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            საინფორმაციო ფასი (ქართულად) *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={serviceFormData.priceInfo || ''}
+                            onChange={(e) => setServiceFormData({ ...serviceFormData, priceInfo: e.target.value })}
+                            placeholder="მაგ: 60 ₾-დან / რეისი, ან შეთანხმებით"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          მოკლე აღწერა (ქართულად)
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={serviceFormData.shortDescription || ''}
+                          onChange={(e) => setServiceFormData({ ...serviceFormData, shortDescription: e.target.value })}
+                          placeholder="მაგ: დახვედრა აეროპორტში კომფორტული ავტომობილით ნებისმიერ დროს."
+                          className="w-full p-2.5 text-xs bg-white border border-stone-200 rounded-xl resize-none focus:ring-1 focus:ring-amber-500"
+                        />
+                      </div>
+
+                      {/* Georgian Features */}
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          სერვისის დეტალები / პუნქტები (ქართულად)
+                        </label>
+                        <div className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={featureInput}
+                            onChange={(e) => setFeatureInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddFeature();
+                              }
+                            }}
+                            placeholder="მაგ: უფასო ლოდინი ფრენის დაგვიანებისას"
+                            className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddFeature}
+                            className="px-3 py-1.5 bg-stone-800 text-white rounded-xl text-xs font-medium hover:bg-stone-900"
+                          >
+                            დამატება
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {(serviceFormData.features || []).map((feat, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 bg-white text-stone-800 text-xs px-2.5 py-1 rounded-lg border border-amber-200 shadow-2xs"
+                            >
+                              <span>🇬🇪 {feat}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveFeature(idx)}
+                                className="text-stone-400 hover:text-rose-600"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 🇬🇧 ENGLISH SECTION */}
+                  {(serviceFormLangTab === 'both' || serviceFormLangTab === 'en') && (
+                    <div className="bg-sky-50/40 border border-sky-200/70 rounded-2xl p-4 space-y-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-sky-950 pb-2 border-b border-sky-200/50">
+                        <span className="text-base">🇬🇧</span>
+                        <span>ინგლისური ვერსია (English Version)</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            Service Title (in English)
+                          </label>
+                          <input
+                            type="text"
+                            value={serviceFormData.titleEn || ''}
+                            onChange={(e) => setServiceFormData({ ...serviceFormData, titleEn: e.target.value })}
+                            placeholder="e.g. Airport Transfer (Tbilisi / Kutaisi / Batumi)"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            Price Info (in English)
+                          </label>
+                          <input
+                            type="text"
+                            value={serviceFormData.priceInfoEn || ''}
+                            onChange={(e) => setServiceFormData({ ...serviceFormData, priceInfoEn: e.target.value })}
+                            placeholder="e.g. From 60 GEL / Ride, or By agreement"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          Short Description (in English)
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={serviceFormData.shortDescriptionEn || ''}
+                          onChange={(e) => setServiceFormData({ ...serviceFormData, shortDescriptionEn: e.target.value })}
+                          placeholder="e.g. Punctual private airport pickup and drop-off with comfortable AC vehicles 24/7."
+                          className="w-full p-2.5 text-xs bg-white border border-stone-200 rounded-xl resize-none focus:ring-1 focus:ring-sky-500"
+                        />
+                      </div>
+
+                      {/* English Features */}
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          Service Details / Bullet Points (in English)
+                        </label>
+                        <div className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={featureEnInput}
+                            onChange={(e) => setFeatureEnInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddFeatureEn();
+                              }
+                            }}
+                            placeholder="e.g. Free flight delay waiting included"
+                            className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleAddFeatureEn}
+                            className="px-3 py-1.5 bg-stone-800 text-white rounded-xl text-xs font-medium hover:bg-stone-900"
+                          >
+                            Add (დამატება)
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {(serviceFormData.featuresEn || []).map((feat, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 bg-white text-stone-800 text-xs px-2.5 py-1 rounded-lg border border-sky-200 shadow-2xs"
+                            >
+                              <span>🇬🇧 {feat}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveFeatureEn(idx)}
+                                className="text-stone-400 hover:text-rose-600"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ⚙️ SHARED CONFIGURATION (Category, Icon, Image, Active) */}
+                  <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-stone-800 pb-2 border-b border-stone-200/60">
+                      <Settings className="w-4 h-4 text-stone-600" />
+                      <span>სერვისის პარამეტრები და სურათი (საერთო)</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-700 mb-1">
+                          კატეგორია
+                        </label>
+                        <select
+                          value={serviceFormData.category || 'transfer'}
+                          onChange={(e) => setServiceFormData({ ...serviceFormData, category: e.target.value as any })}
+                          className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl"
+                        >
+                          <option value="transfer">ტრანსფერი (აეროპორტი/ქალაქები)</option>
+                          <option value="guide">გიდი (ექსკურსიამძღოლი)</option>
+                          <option value="vehicle">ავტომობილის ქირაობა მძღოლით</option>
+                          <option value="custom">ინდივიდუალური სერვისი</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-700 mb-1">
+                          ხატულა (Icon)
+                        </label>
+                        <select
+                          value={serviceFormData.iconName || 'plane'}
+                          onChange={(e) => setServiceFormData({ ...serviceFormData, iconName: e.target.value as any })}
+                          className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl"
+                        >
+                          <option value="plane">✈️ თვითმფრინავი (აეროპორტი/ტრანსფერი)</option>
+                          <option value="user-check">👤 გიდი (ადამიანი)</option>
+                          <option value="car">🚗 ავტომობილი (მანქანა)</option>
+                          <option value="compass">🧭 კომპასი (მარშრუტი)</option>
+                          <option value="shield">🛡️ ფარი (დაცვა/სანდოობა)</option>
+                          <option value="clock">⏱️ საათი (24/7)</option>
+                          <option value="map-pin">📍 ლოკაცია</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Service Image Upload & URL */}
+                    <div className="bg-white p-3.5 rounded-xl border border-stone-200/80 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-stone-800 flex items-center gap-1.5">
+                          <ImageIcon className="w-4 h-4 text-stone-500" />
+                          <span>მომსახურების სურათი (არასავალდებულო)</span>
+                        </label>
+                        {serviceFormData.imageUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setServiceFormData({ ...serviceFormData, imageUrl: '' })}
+                            className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline"
+                          >
+                            სურათის წაშლა
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                        {/* Image Preview */}
+                        {serviceFormData.imageUrl ? (
+                          <div className="relative w-20 h-14 rounded-xl overflow-hidden border border-stone-200 shrink-0 bg-stone-200">
+                            <img
+                              src={serviceFormData.imageUrl}
+                              alt="სერვისის სურათი"
+                              referrerPolicy="no-referrer"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-20 h-14 rounded-xl border border-dashed border-stone-300 flex items-center justify-center shrink-0 text-stone-400 bg-white">
+                            <ImageIcon className="w-5 h-5" />
+                          </div>
+                        )}
+
+                        {/* Upload Button + URL Input */}
+                        <div className="flex-1 w-full space-y-2">
+                          <div className="flex items-center gap-2">
+                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-800 border border-stone-300 rounded-xl text-xs font-medium transition-colors shadow-2xs">
+                              <Upload className="w-3.5 h-3.5 text-stone-600" />
+                              <span>{isUploadingServiceImage ? 'იტვირთება...' : 'ფოტოს ატვირთვა კომპიუტერიდან'}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleServiceImageFileUpload}
+                                disabled={isUploadingServiceImage}
+                              />
+                            </label>
+                            <span className="text-[10px] text-stone-400">ან ჩაწერეთ ბმული:</span>
+                          </div>
+
+                          <input
+                            type="url"
+                            value={serviceFormData.imageUrl || ''}
+                            onChange={(e) => setServiceFormData({ ...serviceFormData, imageUrl: e.target.value })}
+                            placeholder="https://images.unsplash.com/..."
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Active toggle */}
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="checkbox"
+                        id="service-is-active"
+                        checked={serviceFormData.isActive ?? true}
+                        onChange={(e) => setServiceFormData({ ...serviceFormData, isActive: e.target.checked })}
+                        className="rounded text-stone-900"
+                      />
+                      <label htmlFor="service-is-active" className="text-xs text-stone-700 font-medium cursor-pointer">
+                        მომსახურება აქტიურია და ჩანს მთავარ გვერდზე
+                      </label>
+                    </div>
                   </div>
 
                   {/* Form Actions */}
@@ -870,7 +1181,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                       type="submit"
                       className="px-5 py-2 text-xs font-semibold bg-stone-900 hover:bg-stone-800 text-white rounded-xl shadow-xs"
                     >
-                      შენახვა
+                      შენახვა (Save Service)
                     </button>
                   </div>
                 </form>
@@ -917,25 +1228,34 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             referrerPolicy="no-referrer"
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute top-2 left-2 flex gap-1">
+                          <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[80%]">
                             <span className="bg-stone-900/80 text-white text-[10px] px-2 py-0.5 rounded">
-                              {tour.region}
+                              {tour.region} {tour.regionEn ? `(${tour.regionEn})` : ''}
                             </span>
                             <span className="bg-stone-900/80 text-white text-[10px] px-2 py-0.5 rounded">
                               {tour.duration}
                             </span>
                           </div>
-                          <span className="absolute bottom-2 right-2 bg-amber-400 text-stone-950 font-bold text-[11px] px-2 py-0.5 rounded">
+                          <span className="absolute bottom-2 right-2 bg-amber-400 text-stone-950 font-bold text-[11px] px-2 py-0.5 rounded shadow-2xs">
                             {tour.priceInfo}
                           </span>
                         </div>
 
                         <div className="p-3.5 flex-1 flex flex-col justify-between">
                           <div>
-                            <h4 className="text-sm font-bold text-stone-900 line-clamp-1 mb-1">
-                              {tour.title}
+                            <h4 className="text-sm font-bold text-stone-900 line-clamp-1 mb-0.5">
+                              🇬🇪 {tour.title}
                             </h4>
-                            <p className="text-xs text-stone-600 line-clamp-2">
+                            {tour.titleEn ? (
+                              <p className="text-xs text-stone-500 font-medium mb-1 line-clamp-1">
+                                🇬🇧 {tour.titleEn}
+                              </p>
+                            ) : (
+                              <span className="inline-block text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded mb-1 font-medium">
+                                🇬🇧 ინგლისური არ არის შეყვანილი
+                              </span>
+                            )}
+                            <p className="text-xs text-stone-600 line-clamp-2 mt-1">
                               {tour.shortDescription}
                             </p>
                           </div>
@@ -983,318 +1303,597 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                 </>
               ) : (
                 /* Tour Edit / Add Form */
-                <form onSubmit={handleSaveTour} className="bg-white p-6 rounded-2xl border border-stone-200 space-y-4">
-                  <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                    <h4 className="text-sm font-bold text-stone-900">
-                      {tourFormData.id ? 'ტურის რედაქტირება' : 'ახალი ტურის დამატება'}
-                    </h4>
-                    <button
-                      type="button"
-                      onClick={() => setIsEditingTour(false)}
-                      className="text-xs text-stone-500 hover:text-stone-800"
-                    >
-                      გაუქმება
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <form onSubmit={handleSaveTour} className="bg-white p-6 rounded-2xl border border-stone-200 space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        ტურის სათაური *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={tourFormData.title || ''}
-                        onChange={(e) => setTourFormData({ ...tourFormData, title: e.target.value })}
-                        placeholder="მაგ: ყაზბეგი & გერგეტის სამება"
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      />
+                      <h4 className="text-sm font-bold text-stone-900">
+                        {tourFormData.id ? 'ტურის რედაქტირება' : 'ახალი ტურის დამატება'}
+                      </h4>
+                      <p className="text-xs text-stone-500 mt-0.5">
+                        შეიყვანეთ ტურის დეტალები ქართულ და ინგლისურ ენებზე
+                      </p>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        რეგიონი *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={tourFormData.region || ''}
-                        onChange={(e) => setTourFormData({ ...tourFormData, region: e.target.value })}
-                        placeholder="მაგ: მცხეთა-მთიანეთი, კახეთი, სვანეთი..."
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        ხანგრძლივობა
-                      </label>
-                      <input
-                        type="text"
-                        value={tourFormData.duration || ''}
-                        onChange={(e) => setTourFormData({ ...tourFormData, duration: e.target.value })}
-                        placeholder="მაგ: 1 დღე, 2 დღე / 1 ღამე"
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        საინფორმაციო ფასი
-                      </label>
-                      <input
-                        type="text"
-                        value={tourFormData.priceInfo || ''}
-                        onChange={(e) => setTourFormData({ ...tourFormData, priceInfo: e.target.value })}
-                        placeholder="მაგ: 130 ₾-დან / პერსონა"
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        კატეგორია
-                      </label>
-                      <select
-                        value={tourFormData.category || 'day_tour'}
-                        onChange={(e) => setTourFormData({ ...tourFormData, category: e.target.value as any })}
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl"
+                    {/* Language Switcher Tabs */}
+                    <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setTourFormLangTab('both')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          tourFormLangTab === 'both'
+                            ? 'bg-white text-stone-900 shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
                       >
-                        <option value="day_tour">1-დღიანი ტური</option>
-                        <option value="multi_day">მრავალდღიანი ტური</option>
-                        <option value="wine">ღვინის ტური</option>
-                        <option value="adventure">სათავგადასავლო ტური</option>
-                        <option value="cultural">კულტურული ტური</option>
-                      </select>
+                        🌐 ორივე ენა
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTourFormLangTab('ka')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          tourFormLangTab === 'ka'
+                            ? 'bg-white text-stone-900 shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        🇬🇪 ქართული
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTourFormLangTab('en')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                          tourFormLangTab === 'en'
+                            ? 'bg-white text-stone-900 shadow-xs'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        🇬🇧 English
+                      </button>
                     </div>
                   </div>
 
-                  {/* Tour Image Upload & URL */}
-                  <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200/80 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-semibold text-stone-800 flex items-center gap-1.5">
-                        <ImageIcon className="w-4 h-4 text-stone-500" />
-                        <span>ტურის მთავარი ფოტო *</span>
-                      </label>
-                      {tourFormData.imageUrl && (
-                        <span className="text-[11px] text-emerald-700 font-medium">✓ ფოტო არჩეულია</span>
-                      )}
-                    </div>
+                  {/* 🇬🇪 GEORGIAN SECTION */}
+                  {(tourFormLangTab === 'both' || tourFormLangTab === 'ka') && (
+                    <div className="bg-amber-50/40 border border-amber-200/70 rounded-2xl p-4 space-y-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-amber-950 pb-2 border-b border-amber-200/50">
+                        <span className="text-base">🇬🇪</span>
+                        <span>ქართული ვერსია (Georgian Content)</span>
+                      </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                      {/* Image Preview */}
-                      {tourFormData.imageUrl ? (
-                        <div className="relative w-24 h-16 rounded-xl overflow-hidden border border-stone-200 shrink-0 bg-stone-200 shadow-2xs">
-                          <img
-                            src={tourFormData.imageUrl}
-                            alt="ტურის ფოტო"
-                            referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover"
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            ტურის სათაური (ქართულად) *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={tourFormData.title || ''}
+                            onChange={(e) => setTourFormData({ ...tourFormData, title: e.target.value })}
+                            placeholder="მაგ: ყაზბეგი & გერგეტის სამება"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
                           />
                         </div>
-                      ) : (
-                        <div className="w-24 h-16 rounded-xl border border-dashed border-stone-300 flex items-center justify-center shrink-0 text-stone-400 bg-white">
-                          <ImageIcon className="w-6 h-6" />
-                        </div>
-                      )}
 
-                      {/* Upload Button + URL Input */}
-                      <div className="flex-1 w-full space-y-2">
-                        <div className="flex items-center gap-2">
-                          <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-800 border border-stone-300 rounded-xl text-xs font-medium transition-colors shadow-2xs">
-                            <Upload className="w-3.5 h-3.5 text-stone-600" />
-                            <span>{isUploadingTourImage ? 'იტვირთება...' : 'ფოტოს ატვირთვა კომპიუტერიდან'}</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={handleTourImageFileUpload}
-                              disabled={isUploadingTourImage}
-                            />
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            რეგიონი (ქართულად) *
                           </label>
-                          <span className="text-[10px] text-stone-400">ან ჩაწერეთ ბმული:</span>
+                          <input
+                            type="text"
+                            required
+                            value={tourFormData.region || ''}
+                            onChange={(e) => setTourFormData({ ...tourFormData, region: e.target.value })}
+                            placeholder="მაგ: მცხეთა-მთიანეთი, კახეთი, სვანეთი..."
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            ხანგრძლივობა (ქართულად)
+                          </label>
+                          <input
+                            type="text"
+                            value={tourFormData.duration || ''}
+                            onChange={(e) => setTourFormData({ ...tourFormData, duration: e.target.value })}
+                            placeholder="მაგ: 1 დღე, 2 დღე / 1 ღამე"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
+                          />
                         </div>
 
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            საინფორმაციო ფასი (ქართულად)
+                          </label>
+                          <input
+                            type="text"
+                            value={tourFormData.priceInfo || ''}
+                            onChange={(e) => setTourFormData({ ...tourFormData, priceInfo: e.target.value })}
+                            placeholder="მაგ: 130 ₾-დან / პერსონა"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          მოკლე აღწერა (ქართულად)
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={tourFormData.shortDescription || ''}
+                          onChange={(e) => setTourFormData({ ...tourFormData, shortDescription: e.target.value })}
+                          placeholder="მარშრუტის მოკლე მიმოხილვა ქართულად..."
+                          className="w-full p-2.5 text-xs bg-white border border-stone-200 rounded-xl resize-none focus:ring-1 focus:ring-amber-500"
+                        />
+                      </div>
+
+                      {/* Georgian Highlights */}
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          მარშრუტის პუნქტები (Highlights - ქართულად)
+                        </label>
+                        <div className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={highlightInput}
+                            onChange={(e) => setHighlightInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (highlightInput.trim()) {
+                                  setTourFormData((prev) => ({
+                                    ...prev,
+                                    highlights: [...(prev.highlights || []), highlightInput.trim()]
+                                  }));
+                                  setHighlightInput('');
+                                }
+                              }
+                            }}
+                            placeholder="მაგ: ანანურის ციხე, გუდაური, გერგეტის სამება"
+                            className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (highlightInput.trim()) {
+                                setTourFormData((prev) => ({
+                                  ...prev,
+                                  highlights: [...(prev.highlights || []), highlightInput.trim()]
+                                }));
+                                setHighlightInput('');
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-stone-800 text-white rounded-xl text-xs font-medium hover:bg-stone-900"
+                          >
+                            დამატება
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {(tourFormData.highlights || []).map((item, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 bg-white text-stone-800 text-xs px-2.5 py-1 rounded-lg border border-amber-200 shadow-2xs"
+                            >
+                              <span>🇬🇪 {item}</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setTourFormData((prev) => ({
+                                    ...prev,
+                                    highlights: (prev.highlights || []).filter((_, i) => i !== idx)
+                                  }))
+                                }
+                                className="text-stone-400 hover:text-rose-600"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Georgian Included */}
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          ფასში შედის (Included - ქართულად)
+                        </label>
+                        <div className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={includedInput}
+                            onChange={(e) => setIncludedInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (includedInput.trim()) {
+                                  setTourFormData((prev) => ({
+                                    ...prev,
+                                    included: [...(prev.included || []), includedInput.trim()]
+                                  }));
+                                  setIncludedInput('');
+                                }
+                              }
+                            }}
+                            placeholder="მაგ: კომფორტული ტრანსპორტირება, პროფესიონალი გიდი"
+                            className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (includedInput.trim()) {
+                                setTourFormData((prev) => ({
+                                  ...prev,
+                                  included: [...(prev.included || []), includedInput.trim()]
+                                }));
+                                setIncludedInput('');
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-stone-800 text-white rounded-xl text-xs font-medium hover:bg-stone-900"
+                          >
+                            დამატება
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {(tourFormData.included || []).map((item, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 bg-white text-emerald-800 text-xs px-2.5 py-1 rounded-lg border border-emerald-200 shadow-2xs"
+                            >
+                              <span>🇬🇪 {item}</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setTourFormData((prev) => ({
+                                    ...prev,
+                                    included: (prev.included || []).filter((_, i) => i !== idx)
+                                  }))
+                                }
+                                className="text-stone-400 hover:text-rose-600"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 🇬🇧 ENGLISH SECTION */}
+                  {(tourFormLangTab === 'both' || tourFormLangTab === 'en') && (
+                    <div className="bg-sky-50/40 border border-sky-200/70 rounded-2xl p-4 space-y-4">
+                      <div className="flex items-center gap-2 text-xs font-bold text-sky-950 pb-2 border-b border-sky-200/50">
+                        <span className="text-base">🇬🇧</span>
+                        <span>ინგლისური ვერსია (English Version)</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            Tour Title (in English)
+                          </label>
+                          <input
+                            type="text"
+                            value={tourFormData.titleEn || ''}
+                            onChange={(e) => setTourFormData({ ...tourFormData, titleEn: e.target.value })}
+                            placeholder="e.g. Kazbegi & Gergeti Trinity Church"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            Region (in English)
+                          </label>
+                          <input
+                            type="text"
+                            value={tourFormData.regionEn || ''}
+                            onChange={(e) => setTourFormData({ ...tourFormData, regionEn: e.target.value })}
+                            placeholder="e.g. Kazbegi, Kakheti, Svaneti..."
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            Duration (in English)
+                          </label>
+                          <input
+                            type="text"
+                            value={tourFormData.durationEn || ''}
+                            onChange={(e) => setTourFormData({ ...tourFormData, durationEn: e.target.value })}
+                            placeholder="e.g. 1 Day, 2 Days / 1 Night"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-800 mb-1">
+                            Price Info (in English)
+                          </label>
+                          <input
+                            type="text"
+                            value={tourFormData.priceInfoEn || ''}
+                            onChange={(e) => setTourFormData({ ...tourFormData, priceInfoEn: e.target.value })}
+                            placeholder="e.g. From 130 GEL / Person"
+                            className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          Short Description (in English)
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={tourFormData.shortDescriptionEn || ''}
+                          onChange={(e) => setTourFormData({ ...tourFormData, shortDescriptionEn: e.target.value })}
+                          placeholder="Short tour overview in English..."
+                          className="w-full p-2.5 text-xs bg-white border border-stone-200 rounded-xl resize-none focus:ring-1 focus:ring-sky-500"
+                        />
+                      </div>
+
+                      {/* English Highlights */}
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          Tour Highlights (in English)
+                        </label>
+                        <div className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={highlightEnInput}
+                            onChange={(e) => setHighlightEnInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (highlightEnInput.trim()) {
+                                  setTourFormData((prev) => ({
+                                    ...prev,
+                                    highlightsEn: [...(prev.highlightsEn || []), highlightEnInput.trim()]
+                                  }));
+                                  setHighlightEnInput('');
+                                }
+                              }
+                            }}
+                            placeholder="e.g. Ananuri Fortress, Gudauri Viewpoint, Gergeti Church"
+                            className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (highlightEnInput.trim()) {
+                                setTourFormData((prev) => ({
+                                  ...prev,
+                                  highlightsEn: [...(prev.highlightsEn || []), highlightEnInput.trim()]
+                                }));
+                                setHighlightEnInput('');
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-stone-800 text-white rounded-xl text-xs font-medium hover:bg-stone-900"
+                          >
+                            Add (დამატება)
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {(tourFormData.highlightsEn || []).map((item, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 bg-white text-stone-800 text-xs px-2.5 py-1 rounded-lg border border-sky-200 shadow-2xs"
+                            >
+                              <span>🇬🇧 {item}</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setTourFormData((prev) => ({
+                                    ...prev,
+                                    highlightsEn: (prev.highlightsEn || []).filter((_, i) => i !== idx)
+                                  }))
+                                }
+                                className="text-stone-400 hover:text-rose-600"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* English Included */}
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          What's Included (in English)
+                        </label>
+                        <div className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={includedEnInput}
+                            onChange={(e) => setIncludedEnInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (includedEnInput.trim()) {
+                                  setTourFormData((prev) => ({
+                                    ...prev,
+                                    includedEn: [...(prev.includedEn || []), includedEnInput.trim()]
+                                  }));
+                                  setIncludedEnInput('');
+                                }
+                              }
+                            }}
+                            placeholder="e.g. Private transport with AC, English-speaking guide"
+                            className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (includedEnInput.trim()) {
+                                setTourFormData((prev) => ({
+                                  ...prev,
+                                  includedEn: [...(prev.includedEn || []), includedEnInput.trim()]
+                                }));
+                                setIncludedEnInput('');
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-stone-800 text-white rounded-xl text-xs font-medium hover:bg-stone-900"
+                          >
+                            Add (დამატება)
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {(tourFormData.includedEn || []).map((item, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 bg-white text-emerald-800 text-xs px-2.5 py-1 rounded-lg border border-emerald-200 shadow-2xs"
+                            >
+                              <span>🇬🇧 {item}</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setTourFormData((prev) => ({
+                                    ...prev,
+                                    includedEn: (prev.includedEn || []).filter((_, i) => i !== idx)
+                                  }))
+                                }
+                                className="text-stone-400 hover:text-rose-600"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ⚙️ SHARED TOUR CONFIGURATION (Category, Image, PriceValue, Toggles) */}
+                  <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-stone-800 pb-2 border-b border-stone-200/60">
+                      <Settings className="w-4 h-4 text-stone-600" />
+                      <span>ტურის პარამეტრები და ფოტო (საერთო)</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-700 mb-1">
+                          კატეგორია
+                        </label>
+                        <select
+                          value={tourFormData.category || 'day_tour'}
+                          onChange={(e) => setTourFormData({ ...tourFormData, category: e.target.value as any })}
+                          className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl"
+                        >
+                          <option value="day_tour">1-დღიანი ტური</option>
+                          <option value="multi_day">მრავალდღიანი ტური</option>
+                          <option value="wine">ღვინის ტური</option>
+                          <option value="adventure">სათავგადასავლო ტური</option>
+                          <option value="cultural">კულტურული ტური</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-700 mb-1">
+                          ფასის ციფრი (სორტირებისთვის, ლარში)
+                        </label>
                         <input
-                          type="url"
-                          value={tourFormData.imageUrl || ''}
-                          onChange={(e) => setTourFormData({ ...tourFormData, imageUrl: e.target.value })}
-                          placeholder="https://images.unsplash.com/..."
-                          className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                          type="number"
+                          value={tourFormData.priceValue || ''}
+                          onChange={(e) => setTourFormData({ ...tourFormData, priceValue: Number(e.target.value) || 0 })}
+                          placeholder="მაგ: 130"
+                          className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-xl"
                         />
                       </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      მოკლე აღწერა
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={tourFormData.shortDescription || ''}
-                      onChange={(e) => setTourFormData({ ...tourFormData, shortDescription: e.target.value })}
-                      placeholder="მარშრუტის მოკლე მიმოხილვა..."
-                      className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl resize-none"
-                    />
-                  </div>
+                    {/* Tour Image Upload & URL */}
+                    <div className="bg-white p-3.5 rounded-xl border border-stone-200/80 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-stone-800 flex items-center gap-1.5">
+                          <ImageIcon className="w-4 h-4 text-stone-500" />
+                          <span>ტურის მთავარი ფოტო *</span>
+                        </label>
+                        {tourFormData.imageUrl && (
+                          <span className="text-[11px] text-emerald-700 font-medium">✓ ფოტო არჩეულია</span>
+                        )}
+                      </div>
 
-                  {/* Highlights */}
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      მარშრუტის პუნქტები (Highlights)
-                    </label>
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={highlightInput}
-                        onChange={(e) => setHighlightInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (highlightInput.trim()) {
-                              setTourFormData((prev) => ({
-                                ...prev,
-                                highlights: [...(prev.highlights || []), highlightInput.trim()]
-                              }));
-                              setHighlightInput('');
-                            }
-                          }
-                        }}
-                        placeholder="მაგ: ანანურის ციხე"
-                        className="flex-1 px-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (highlightInput.trim()) {
-                            setTourFormData((prev) => ({
-                              ...prev,
-                              highlights: [...(prev.highlights || []), highlightInput.trim()]
-                            }));
-                            setHighlightInput('');
-                          }
-                        }}
-                        className="px-3 py-1.5 bg-stone-800 text-white rounded-xl text-xs font-medium"
-                      >
-                        დამატება
-                      </button>
+                      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                        {/* Image Preview */}
+                        {tourFormData.imageUrl ? (
+                          <div className="relative w-24 h-16 rounded-xl overflow-hidden border border-stone-200 shrink-0 bg-stone-200 shadow-2xs">
+                            <img
+                              src={tourFormData.imageUrl}
+                              alt="ტურის ფოტო"
+                              referrerPolicy="no-referrer"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-24 h-16 rounded-xl border border-dashed border-stone-300 flex items-center justify-center shrink-0 text-stone-400 bg-white">
+                            <ImageIcon className="w-6 h-6" />
+                          </div>
+                        )}
+
+                        {/* Upload Button + URL Input */}
+                        <div className="flex-1 w-full space-y-2">
+                          <div className="flex items-center gap-2">
+                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-800 border border-stone-300 rounded-xl text-xs font-medium transition-colors shadow-2xs">
+                              <Upload className="w-3.5 h-3.5 text-stone-600" />
+                              <span>{isUploadingTourImage ? 'იტვირთება...' : 'ფოტოს ატვირთვა კომპიუტერიდან'}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleTourImageFileUpload}
+                                disabled={isUploadingTourImage}
+                              />
+                            </label>
+                            <span className="text-[10px] text-stone-400">ან ჩაწერეთ ბმული:</span>
+                          </div>
+
+                          <input
+                            type="url"
+                            value={tourFormData.imageUrl || ''}
+                            onChange={(e) => setTourFormData({ ...tourFormData, imageUrl: e.target.value })}
+                            placeholder="https://images.unsplash.com/..."
+                            className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-1.5">
-                      {(tourFormData.highlights || []).map((item, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center gap-1.5 bg-stone-100 text-stone-800 text-xs px-2.5 py-1 rounded-lg border border-stone-200"
-                        >
-                          <span>{item}</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setTourFormData((prev) => ({
-                                ...prev,
-                                highlights: (prev.highlights || []).filter((_, i) => i !== idx)
-                              }))
-                            }
-                            className="text-stone-400 hover:text-rose-600"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </span>
-                      ))}
+                    {/* Toggles */}
+                    <div className="flex items-center gap-6 pt-1">
+                      <label className="inline-flex items-center gap-2 text-xs text-stone-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={tourFormData.featured || false}
+                          onChange={(e) => setTourFormData({ ...tourFormData, featured: e.target.checked })}
+                          className="rounded text-stone-900"
+                        />
+                        <span>პოპულარული ტური (Featured badge)</span>
+                      </label>
+
+                      <label className="inline-flex items-center gap-2 text-xs text-stone-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={tourFormData.isActive ?? true}
+                          onChange={(e) => setTourFormData({ ...tourFormData, isActive: e.target.checked })}
+                          className="rounded text-stone-900"
+                        />
+                        <span>აქტიური ტური (ჩანს საიტზე)</span>
+                      </label>
                     </div>
-                  </div>
-
-                  {/* Included Items */}
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      ფასში შედის (Included)
-                    </label>
-                    <div className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={includedInput}
-                        onChange={(e) => setIncludedInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (includedInput.trim()) {
-                              setTourFormData((prev) => ({
-                                ...prev,
-                                included: [...(prev.included || []), includedInput.trim()]
-                              }));
-                              setIncludedInput('');
-                            }
-                          }
-                        }}
-                        placeholder="მაგ: ტრანსპორტირება, გიდის მომსახურება"
-                        className="flex-1 px-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (includedInput.trim()) {
-                            setTourFormData((prev) => ({
-                              ...prev,
-                              included: [...(prev.included || []), includedInput.trim()]
-                            }));
-                            setIncludedInput('');
-                          }
-                        }}
-                        className="px-3 py-1.5 bg-stone-800 text-white rounded-xl text-xs font-medium"
-                      >
-                        დამატება
-                      </button>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5">
-                      {(tourFormData.included || []).map((item, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-xs px-2.5 py-1 rounded-lg border border-emerald-200"
-                        >
-                          <span>{item}</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setTourFormData((prev) => ({
-                                ...prev,
-                                included: (prev.included || []).filter((_, i) => i !== idx)
-                              }))
-                            }
-                            className="text-stone-400 hover:text-rose-600"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Toggles */}
-                  <div className="flex items-center gap-6 pt-2">
-                    <label className="inline-flex items-center gap-2 text-xs text-stone-700 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={tourFormData.featured || false}
-                        onChange={(e) => setTourFormData({ ...tourFormData, featured: e.target.checked })}
-                        className="rounded text-stone-900"
-                      />
-                      <span>პოპულარული ტური (Featured badge)</span>
-                    </label>
-
-                    <label className="inline-flex items-center gap-2 text-xs text-stone-700 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={tourFormData.isActive ?? true}
-                        onChange={(e) => setTourFormData({ ...tourFormData, isActive: e.target.checked })}
-                        className="rounded text-stone-900"
-                      />
-                      <span>აქტიური ტური</span>
-                    </label>
                   </div>
 
                   {/* Form Actions */}
@@ -1310,7 +1909,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                       type="submit"
                       className="px-5 py-2 text-xs font-semibold bg-stone-900 hover:bg-stone-800 text-white rounded-xl shadow-xs"
                     >
-                      შენახვა
+                      შენახვა (Save Tour)
                     </button>
                   </div>
                 </form>
@@ -1443,13 +2042,58 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
 
           {/* TAB 4: SETTINGS & WHATSAPP */}
           {activeTab === 'settings' && (
-            <div className="space-y-6 max-w-2xl">
-              <form onSubmit={handleSaveSettings} className="bg-white p-6 rounded-2xl border border-stone-200 space-y-4">
-                <h3 className="text-base font-bold text-stone-900 border-b border-stone-100 pb-3">
-                  საკონტაქტო და WhatsApp პარამეტრები
-                </h3>
+            <div className="space-y-6 max-w-3xl">
+              <form onSubmit={handleSaveSettings} className="bg-white p-6 rounded-2xl border border-stone-200 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3">
+                  <div>
+                    <h3 className="text-base font-bold text-stone-900">
+                      საიტის პარამეტრები & ტექსტები
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      შეცვალეთ საკონტაქტო მონაცემები და საიტის ტექსტები ქართულ და ინგლისურ ენებზე
+                    </p>
+                  </div>
 
-                <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 space-y-3">
+                  {/* Language Switcher for Settings */}
+                  <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setSettingsLangTab('both')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                        settingsLangTab === 'both'
+                          ? 'bg-white text-stone-900 shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      🌐 ორივე ენა
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSettingsLangTab('ka')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                        settingsLangTab === 'ka'
+                          ? 'bg-white text-stone-900 shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      🇬🇪 ქართული
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSettingsLangTab('en')}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                        settingsLangTab === 'en'
+                          ? 'bg-white text-stone-900 shadow-xs'
+                          : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      🇬🇧 English
+                    </button>
+                  </div>
+                </div>
+
+                {/* WhatsApp & Core Contacts */}
+                <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 space-y-3">
                   <div className="flex items-center gap-2 text-xs font-bold text-amber-950">
                     <MessageCircle className="w-4 h-4 text-[#25D366]" />
                     <span>WhatsApp და პირდაპირი ჩატი</span>
@@ -1472,16 +2116,16 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-stone-50 border border-stone-200 rounded-xl p-3.5 space-y-4">
+                <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-4">
                   <div className="flex items-center gap-2 text-xs font-bold text-stone-900">
                     <Phone className="w-4 h-4 text-stone-700" />
-                    <span>ტელეფონის ნომერი და საკონტაქტო ინფორმაცია</span>
+                    <span>ტელეფონის ნომერი, ელ-ფოსტა და ბრენდი</span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        ტელეფონის ნომერი (📞 ყურმილის აიკონი / ზარისთვის)
+                        ტელეფონი (ზარისთვის)
                       </label>
                       <input
                         type="text"
@@ -1494,11 +2138,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           })
                         }
                         placeholder="+995 555 12 34 56"
-                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl"
+                        className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl"
                       />
-                      <p className="text-[11px] text-stone-400 mt-1">
-                        საიტზე ყურმილის აიკონთან გამოჩნდება ეს ნომერი და დაჭერისას პირდაპირ დარეკავს
-                      </p>
                     </div>
 
                     <div>
@@ -1510,80 +2151,190 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                         value={settingsForm.email || ''}
                         onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
                         placeholder="info@ingeorgiatours.ge"
-                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl"
-                      />
-                      <p className="text-[11px] text-stone-400 mt-1">
-                        ოფიციალური საკონტაქტო მეილი
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-stone-200/60">
-                    <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        მისამართი / ქალაქი (ქართულად)
-                      </label>
-                      <input
-                        type="text"
-                        value={settingsForm.location || settingsForm.address || ''}
-                        onChange={(e) =>
-                          setSettingsForm({
-                            ...settingsForm,
-                            location: e.target.value,
-                            address: e.target.value
-                          })
-                        }
-                        placeholder="თბილისი, საქართველო"
-                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl"
+                        className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl"
                       />
                     </div>
 
                     <div>
                       <label className="block text-xs font-semibold text-stone-700 mb-1">
-                        სამუშაო საათები (ქართულად)
+                        კომპანიის სახელი
                       </label>
                       <input
                         type="text"
-                        value={settingsForm.workHours || settingsForm.workingHours || ''}
-                        onChange={(e) =>
-                          setSettingsForm({
-                            ...settingsForm,
-                            workHours: e.target.value,
-                            workingHours: e.target.value
-                          })
-                        }
-                        placeholder="ყოველდღე: 09:00 - 21:00"
-                        className="w-full px-3.5 py-2.5 text-xs bg-white border border-stone-200 rounded-xl"
+                        value={settingsForm.brandName || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, brandName: e.target.value })}
+                        placeholder="InGeorgiaTours"
+                        className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    საიტის / კომპანიის სახელი
-                  </label>
-                  <input
-                    type="text"
-                    value={settingsForm.brandName}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, brandName: e.target.value })}
-                    placeholder="InGeorgiaTours"
-                    className="w-full px-3.5 py-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl"
-                  />
-                </div>
+                {/* 🇬🇪 GEORGIAN SETTINGS TEXTS */}
+                {(settingsLangTab === 'both' || settingsLangTab === 'ka') && (
+                  <div className="bg-amber-50/40 border border-amber-200/70 rounded-2xl p-4 space-y-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-amber-950 pb-2 border-b border-amber-200/50">
+                      <span className="text-base">🇬🇪</span>
+                      <span>ქართული ტექსტები (Georgian Texts)</span>
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    ფასების საინფორმაციო განმარტება (Disclaimer)
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={settingsForm.priceDisclaimer}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, priceDisclaimer: e.target.value })}
-                    placeholder="* საიტზე მითითებული ფასები არის საინფორმაციო ხასიათის..."
-                    className="w-full p-2.5 text-xs bg-stone-50 border border-stone-200 rounded-xl resize-none"
-                  />
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          მისამართი / ქალაქი (ქართულად)
+                        </label>
+                        <input
+                          type="text"
+                          value={settingsForm.location || settingsForm.address || ''}
+                          onChange={(e) =>
+                            setSettingsForm({
+                              ...settingsForm,
+                              location: e.target.value,
+                              address: e.target.value
+                            })
+                          }
+                          placeholder="თბილისი, საქართველო"
+                          className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          სამუშაო საათები (ქართულად)
+                        </label>
+                        <input
+                          type="text"
+                          value={settingsForm.workHours || settingsForm.workingHours || ''}
+                          onChange={(e) =>
+                            setSettingsForm({
+                              ...settingsForm,
+                              workHours: e.target.value,
+                              workingHours: e.target.value
+                            })
+                          }
+                          placeholder="ყოველდღე: 09:00 - 21:00"
+                          className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-800 mb-1">
+                        სლოგანი / ტაგლაინი (ქართულად)
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm.tagline || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
+                        placeholder="ინდივიდუალური ტურები და კომფორტული ტრანსფერები საქართველოში"
+                        className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-800 mb-1">
+                        ფასების საინფორმაციო განმარტება (ქართულად)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={settingsForm.priceDisclaimer || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, priceDisclaimer: e.target.value })}
+                        placeholder="* საიტზე მითითებული ფასები არის საინფორმაციო ხასიათის..."
+                        className="w-full p-2.5 text-xs bg-white border border-stone-200 rounded-xl resize-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-800 mb-1">
+                        ჩვენ შესახებ მოკლე ტექსტი (ქართულად)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={settingsForm.aboutText || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, aboutText: e.target.value })}
+                        placeholder="მოკლე ინფორმაცია კომპანიის შესახებ..."
+                        className="w-full p-2.5 text-xs bg-white border border-stone-200 rounded-xl resize-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* 🇬🇧 ENGLISH SETTINGS TEXTS */}
+                {(settingsLangTab === 'both' || settingsLangTab === 'en') && (
+                  <div className="bg-sky-50/40 border border-sky-200/70 rounded-2xl p-4 space-y-4">
+                    <div className="flex items-center gap-2 text-xs font-bold text-sky-950 pb-2 border-b border-sky-200/50">
+                      <span className="text-base">🇬🇧</span>
+                      <span>ინგლისური ტექსტები (English Texts)</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          Location / Address (in English)
+                        </label>
+                        <input
+                          type="text"
+                          value={settingsForm.locationEn || ''}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, locationEn: e.target.value })}
+                          placeholder="Tbilisi, Georgia"
+                          className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-800 mb-1">
+                          Working Hours (in English)
+                        </label>
+                        <input
+                          type="text"
+                          value={settingsForm.workHoursEn || ''}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, workHoursEn: e.target.value })}
+                          placeholder="Everyday: 09:00 - 21:00"
+                          className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-800 mb-1">
+                        Tagline / Slogan (in English)
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm.taglineEn || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, taglineEn: e.target.value })}
+                        placeholder="Private tours, VIP transfers and custom travel in Georgia"
+                        className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-800 mb-1">
+                        Price Disclaimer (in English)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={settingsForm.priceDisclaimerEn || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, priceDisclaimerEn: e.target.value })}
+                        placeholder="* Prices shown on the website are indicative..."
+                        className="w-full p-2.5 text-xs bg-white border border-stone-200 rounded-xl resize-none focus:ring-1 focus:ring-sky-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-800 mb-1">
+                        About Us text (in English)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={settingsForm.aboutTextEn || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, aboutTextEn: e.target.value })}
+                        placeholder="Short overview about the company in English..."
+                        className="w-full p-2.5 text-xs bg-white border border-stone-200 rounded-xl resize-none focus:ring-1 focus:ring-sky-500"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Hero Cover Photo Customizer */}
                 <div className="pt-4 border-t border-stone-100">
