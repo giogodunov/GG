@@ -27,6 +27,9 @@ import { BookingFormModal } from './components/BookingFormModal';
 import { AdminPanelModal } from './components/AdminPanelModal';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Toast } from './components/Toast';
+import { SeoStructuredData } from './components/SeoStructuredData';
+import { TravelGuidesSection } from './components/TravelGuidesSection';
+import { FaqSection } from './components/FaqSection';
 import { Compass, PlusCircle } from 'lucide-react';
 
 export default function App() {
@@ -99,7 +102,16 @@ export default function App() {
     fetchServerData().then((serverData) => {
       if (serverData) {
         if (serverData.settings) setSettings(serverData.settings);
-        if (serverData.tours && Array.isArray(serverData.tours)) setTours(serverData.tours);
+        if (serverData.tours && Array.isArray(serverData.tours)) {
+          setTours(serverData.tours);
+          // Check if a tour was deep-linked in URL ?tour=id
+          const params = new URLSearchParams(window.location.search);
+          const deepTourId = params.get('tour');
+          if (deepTourId) {
+            const found = serverData.tours.find((t: Tour) => t.id === deepTourId);
+            if (found) setSelectedTourDetails(found);
+          }
+        }
         if (serverData.services && Array.isArray(serverData.services)) setServices(serverData.services);
         if (serverData.inquiries && Array.isArray(serverData.inquiries)) setInquiries(serverData.inquiries);
       } else {
@@ -110,8 +122,20 @@ export default function App() {
       }
     });
 
-    // Check URL parameters or hash on mount for secret admin entry
+    // Check URL parameters or hash on mount for language or secret admin entry
     const params = new URLSearchParams(window.location.search);
+    const langParam = params.get('lang');
+    if (langParam === 'en' || langParam === 'ka') {
+      setLanguage(langParam);
+      saveLanguage(langParam);
+    }
+
+    const deepTourId = params.get('tour');
+    if (deepTourId) {
+      const found = localTours.find((t) => t.id === deepTourId);
+      if (found) setSelectedTourDetails(found);
+    }
+
     const hash = window.location.hash;
     if (params.get('admin') === 'secret' || params.has('admin') || hash === '#admin' || hash === '#geoadmin') {
       setIsAdminAuthorized(true);
@@ -219,6 +243,14 @@ export default function App() {
       style={{ backgroundColor: settings.backgroundColor || '#F9F7F2' }}
       className="min-h-screen text-[#1A1A1A] flex flex-col font-['Noto_Sans_Georgian','Plus_Jakarta_Sans',sans-serif] transition-colors duration-300"
     >
+      {/* Dynamic SEO Meta & Schema.org JSON-LD structured data */}
+      <SeoStructuredData
+        settings={settings}
+        tours={tours}
+        language={language}
+        activeTour={selectedTourDetails}
+      />
+
       {/* Navigation Bar with Language Switcher */}
       <Navbar
         settings={settings}
@@ -352,6 +384,43 @@ export default function App() {
         onOpenAddService={() => setAdminModal({ isOpen: true, tab: 'services' })}
         language={language}
         isAdminAuthorized={isAdminAuthorized}
+      />
+
+      {/* Travel Guides & Local Insights Section (SEO Traffic Magnet) */}
+      <TravelGuidesSection
+        settings={settings}
+        language={language}
+        onBookTour={(tourId, title) => {
+          if (tourId) {
+            const found = tours.find((t) => t.id === tourId);
+            if (found) {
+              setSelectedTourDetails(found);
+              return;
+            }
+          }
+          setBookingModal({
+            isOpen: true,
+            initialItem: {
+              type: 'general',
+              title: title || (language === 'en' ? 'Custom Tour Inquiry' : 'ინდივიდუალური მოთხოვნა')
+            }
+          });
+        }}
+      />
+
+      {/* Frequently Asked Questions (FAQ) Section with Rich Snippets */}
+      <FaqSection
+        settings={settings}
+        language={language}
+        onOpenBooking={() =>
+          setBookingModal({
+            isOpen: true,
+            initialItem: {
+              type: 'general',
+              title: language === 'en' ? 'Question & Tour Inquiry' : 'კითხვა & კონსულტაცია'
+            }
+          })
+        }
       />
 
       {/* Minimalist Contact & Footer */}

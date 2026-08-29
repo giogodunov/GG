@@ -142,6 +142,68 @@ app.post('/api/inquiries', (req, res) => {
   return res.json({ success: true, inquiry: newInquiry, inquiries: current.inquiries });
 });
 
+// SEO routes: robots.txt and sitemap.xml
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send(`User-agent: *\nAllow: /\nSitemap: https://ingeorgiatours.ge/sitemap.xml\n`);
+});
+
+app.get('/sitemap.xml', (req, res) => {
+  const store = readStore();
+  const toursList = store && Array.isArray(store.tours) ? store.tours : [];
+  
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://ingeorgiatours.ge/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ka" href="https://ingeorgiatours.ge/?lang=ka" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://ingeorgiatours.ge/?lang=en" />
+  </url>
+  <url>
+    <loc>https://ingeorgiatours.ge/#tours</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ingeorgiatours.ge/#services</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ingeorgiatours.ge/#guides</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ingeorgiatours.ge/#faq</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ingeorgiatours.ge/#contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`;
+
+  toursList.forEach((tour: any) => {
+    if (tour.isActive) {
+      xml += `
+  <url>
+    <loc>https://ingeorgiatours.ge/?tour=${encodeURIComponent(tour.id || '')}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>`;
+    }
+  });
+
+  xml += `\n</urlset>`;
+  res.type('application/xml');
+  res.send(xml);
+});
+
 // ================= VITE / STATIC SERVING =================
 
 async function start() {

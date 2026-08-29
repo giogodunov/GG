@@ -4,6 +4,8 @@ export interface Translations {
   // Navigation
   navTours: string;
   navServices: string;
+  navGuides: string;
+  navFaq: string;
   navAbout: string;
   navContact: string;
   navBook: string;
@@ -126,6 +128,8 @@ export const translations: Record<Language, Translations> = {
   ka: {
     navTours: 'ტურები',
     navServices: 'სერვისები',
+    navGuides: 'გზამკვლევი',
+    navFaq: 'კითხვა-პასუხი',
     navAbout: 'პირობები და ფასები',
     navContact: 'კონტაქტი',
     navBook: 'დაჯავშნა',
@@ -237,6 +241,8 @@ export const translations: Record<Language, Translations> = {
   en: {
     navTours: 'Tours',
     navServices: 'Services',
+    navGuides: 'Travel Guides',
+    navFaq: 'FAQ',
     navAbout: 'Pricing & How it Works',
     navContact: 'Contact',
     navBook: 'Book Now',
