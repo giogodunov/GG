@@ -12,7 +12,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   phone: '+995 555 12 34 56',
   email: 'info@ingeorgiatours.ge',
   location: 'ქუთაისი, საქართველო',
-  locationEn: 'Tbilisi, Georgia',
+  locationEn: 'Kutaisi, Georgia',
   address: 'ქუთაისი, საქართველო',
   workHours: 'ყოველდღე: 09:00 - 21:00',
   workingHours: 'ყოველდღე: 09:00 - 21:00',

@@ -151,12 +151,28 @@ app.get('/api/inquiries', (req, res) => {
 
 app.post('/api/inquiries', (req, res) => {
   const current = readStore() || {};
-  const newInquiry = req.body;
-  const inquiries = Array.isArray(current.inquiries) ? current.inquiries : [];
-  current.inquiries = [newInquiry, ...inquiries];
+  const data = req.body;
+  if (Array.isArray(data)) {
+    // Overwrite with full list of inquiries (e.g. after delete, status update, reorder)
+    current.inquiries = data;
+  } else if (data && typeof data === 'object') {
+    // Append single new incoming inquiry
+    const inquiries = Array.isArray(current.inquiries) ? current.inquiries : [];
+    current.inquiries = [data, ...inquiries];
+  }
   current.updatedAt = new Date().toISOString();
   writeStore(current);
-  return res.json({ success: true, inquiry: newInquiry, inquiries: current.inquiries });
+  return res.json({ success: true, inquiries: current.inquiries });
+});
+
+app.delete('/api/inquiries/:id', (req, res) => {
+  const current = readStore() || {};
+  const idToDelete = req.params.id;
+  const inquiries = Array.isArray(current.inquiries) ? current.inquiries : [];
+  current.inquiries = inquiries.filter((inq: any) => inq && inq.id !== idToDelete);
+  current.updatedAt = new Date().toISOString();
+  writeStore(current);
+  return res.json({ success: true, inquiries: current.inquiries });
 });
 
 // SEO routes: robots.txt and sitemap.xml

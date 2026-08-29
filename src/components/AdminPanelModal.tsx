@@ -1961,9 +1961,23 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   </p>
                 </div>
                 {inquiries.length > 0 && (
-                  <span className="text-xs font-semibold text-stone-600 bg-stone-200 px-3 py-1 rounded-full">
-                    სულ: {inquiries.length}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-stone-600 bg-stone-200 px-3 py-1 rounded-full">
+                      სულ: {inquiries.length}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm('ნამდვილად გსურთ ყველა შემოსული მოთხოვნის წაშლა?')) {
+                          onUpdateInquiries([]);
+                          onShowToast('ყველა მოთხოვნა წაიშალა');
+                        }
+                      }}
+                      className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer"
+                    >
+                      ყველას წაშლა
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -2224,7 +2238,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                               address: e.target.value
                             })
                           }
-                          placeholder="თბილისი, საქართველო"
+                          placeholder="ქუთაისი, საქართველო"
                           className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-amber-500"
                         />
                       </div>
@@ -2307,7 +2321,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           type="text"
                           value={settingsForm.locationEn || ''}
                           onChange={(e) => setSettingsForm({ ...settingsForm, locationEn: e.target.value })}
-                          placeholder="Tbilisi, Georgia"
+                          placeholder="Kutaisi, Georgia"
                           className="w-full px-3.5 py-2 text-xs bg-white border border-stone-200 rounded-xl focus:ring-1 focus:ring-sky-500"
                         />
                       </div>

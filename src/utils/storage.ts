@@ -151,6 +151,12 @@ export function saveInquiry(inquiry: Omit<BookingInquiry, 'id' | 'createdAt' | '
 export function updateInquiries(inquiries: BookingInquiry[]): void {
   try {
     localStorage.setItem(INQUIRIES_KEY, JSON.stringify(inquiries));
+    // Persist full list to server so deletions and status changes persist across reloads
+    fetch('/api/inquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(inquiries)
+    }).catch((err) => console.warn('Server inquiries update failed:', err));
   } catch (e) {
     console.error('Failed to update inquiries', e);
   }
@@ -209,11 +215,21 @@ export function loadSettings(): SiteSettings {
       return DEFAULT_SETTINGS;
     }
     const parsed = JSON.parse(raw);
+    const resolvedLocation =
+      parsed.location && parsed.location !== 'თბილისი, საქართველო'
+        ? parsed.location
+        : DEFAULT_SETTINGS.location;
+    const resolvedLocationEn =
+      parsed.locationEn && parsed.locationEn !== 'Tbilisi, Georgia'
+        ? parsed.locationEn
+        : DEFAULT_SETTINGS.locationEn;
+
     return {
       ...DEFAULT_SETTINGS,
       ...parsed,
+      location: resolvedLocation,
+      locationEn: resolvedLocationEn,
       taglineEn: parsed.taglineEn || DEFAULT_SETTINGS.taglineEn,
-      locationEn: parsed.locationEn || DEFAULT_SETTINGS.locationEn,
       workHoursEn: parsed.workHoursEn || DEFAULT_SETTINGS.workHoursEn,
       priceDisclaimerEn: parsed.priceDisclaimerEn || DEFAULT_SETTINGS.priceDisclaimerEn,
       aboutTextEn: parsed.aboutTextEn || DEFAULT_SETTINGS.aboutTextEn,

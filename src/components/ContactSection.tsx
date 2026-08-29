@@ -87,8 +87,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <MapPin className="w-4 h-4 text-[#1A1A1A]/50" />
                 <span>
                   {language === 'en'
-                    ? (settings?.locationEn || settings?.location || settings?.address || 'Tbilisi, Georgia')
-                    : (settings?.location || settings?.address || 'თბილისი, საქართველო')}
+                    ? (settings?.locationEn && settings.locationEn !== 'Tbilisi, Georgia' ? settings.locationEn : 'Kutaisi, Georgia')
+                    : (settings?.location && settings.location !== 'თბილისი, საქართველო' ? settings.location : 'ქუთაისი, საქართველო')}
                 </span>
               </li>
             </ul>
