@@ -79,6 +79,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     shortDescription: '',
     features: ['სანდო და კომფორტული მომსახურება', 'გამოცდილი სპეციალისტები'],
     iconName: 'plane',
+    imageUrl: '',
     isActive: true
   });
   const [featureInput, setFeatureInput] = useState('');
@@ -229,6 +230,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       shortDescription: '',
       features: ['კომფორტული ავტომობილი', 'პუნქტუალური მომსახურება'],
       iconName: 'plane',
+      imageUrl: '',
       isActive: true
     });
     setFeatureInput('');
@@ -252,11 +254,16 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     const newService: Service = {
       id: currentId,
       title: serviceFormData.title.trim(),
+      titleEn: serviceFormData.titleEn?.trim() || undefined,
       category: serviceFormData.category || 'transfer',
       priceInfo: serviceFormData.priceInfo || 'შეთანხმებით',
+      priceInfoEn: serviceFormData.priceInfoEn?.trim() || undefined,
       shortDescription: serviceFormData.shortDescription || '',
+      shortDescriptionEn: serviceFormData.shortDescriptionEn?.trim() || undefined,
       features: serviceFormData.features || [],
+      featuresEn: serviceFormData.featuresEn || undefined,
       iconName: (serviceFormData.iconName as any) || 'plane',
+      imageUrl: serviceFormData.imageUrl?.trim() || undefined,
       isActive: serviceFormData.isActive ?? true
     };
 
