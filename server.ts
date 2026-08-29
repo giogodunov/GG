@@ -143,6 +143,11 @@ app.post('/api/inquiries', (req, res) => {
 });
 
 // SEO routes: robots.txt and sitemap.xml
+app.get('/googled97e390ba04d87c2.html', (req, res) => {
+  res.type('text/html');
+  res.send('google-site-verification: googled97e390ba04d87c2.html');
+});
+
 app.get('/robots.txt', (req, res) => {
   res.type('text/plain');
   res.send(`User-agent: *\nAllow: /\nSitemap: https://ingeorgiatours.ge/sitemap.xml\n`);
