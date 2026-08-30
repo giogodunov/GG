@@ -152,21 +152,23 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>{t.navBook}</span>
           </button>
 
-          {/* Admin Panel button - Always visible for quick management */}
-          <button
-            type="button"
-            id="nav-admin-btn"
-            onClick={() => onOpenAdmin('services')}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-amber-300 bg-black/30 hover:bg-black/40 border border-amber-400/40 text-xs font-bold transition-all shadow-xs cursor-pointer relative"
-            title={t.adminPanelBtn}
-            aria-label={t.adminPanelBtn}
-          >
-            <Settings className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden lg:inline">{t.adminPanelBtn}</span>
-            {newInquiriesCount > 0 && (
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            )}
-          </button>
+          {/* Admin Panel button - Only visible when authorized via secret link */}
+          {isAdminAuthorized && (
+            <button
+              type="button"
+              id="nav-admin-btn"
+              onClick={() => onOpenAdmin('services')}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-amber-300 bg-black/30 hover:bg-black/40 border border-amber-400/40 text-xs font-bold transition-all shadow-xs cursor-pointer relative"
+              title={t.adminPanelBtn}
+              aria-label={t.adminPanelBtn}
+            >
+              <Settings className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden lg:inline">{t.adminPanelBtn}</span>
+              {newInquiriesCount > 0 && (
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              )}
+            </button>
+          )}
         </div>
 
         {/* Mobile Burger and Language switcher */}
@@ -248,20 +250,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             {t.navBook}
           </button>
 
-          {/* Admin button in mobile menu */}
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenAdmin('services');
-            }}
-            className="w-full py-3 bg-black/40 border border-amber-400/40 text-amber-300 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2"
-          >
-            <Settings className="w-4 h-4 text-amber-400" />
-            <span>{t.adminPanelBtn}</span>
-            {newInquiriesCount > 0 && (
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            )}
-          </button>
+          {/* Admin button in mobile menu - Only visible when authorized */}
+          {isAdminAuthorized && (
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenAdmin('services');
+              }}
+              className="w-full py-3 bg-black/40 border border-amber-400/40 text-amber-300 rounded-xl text-xs font-bold tracking-wide flex items-center justify-center gap-2"
+            >
+              <Settings className="w-4 h-4 text-amber-400" />
+              <span>{t.adminPanelBtn}</span>
+              {newInquiriesCount > 0 && (
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              )}
+            </button>
+          )}
         </div>
       </div>
     )}
