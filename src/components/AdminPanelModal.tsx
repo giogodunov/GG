@@ -219,7 +219,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       }
       try {
         setIsUploadingTourImage(true);
-        const compressedBase64 = await compressImageFile(file, 1600, 1060, 0.85);
+        const compressedBase64 = await compressImageFile(file, 1600, 900, 0.85);
         setTourFormData((prev) => ({ ...prev, imageUrl: compressedBase64 }));
       } catch (err) {
         console.error('Error optimizing tour image:', err);
@@ -246,7 +246,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       }
       try {
         setIsUploadingServiceImage(true);
-        const compressedBase64 = await compressImageFile(file, 1200, 800, 0.85);
+        const compressedBase64 = await compressImageFile(file, 1600, 900, 0.85);
         setServiceFormData((prev) => ({ ...prev, imageUrl: compressedBase64 }));
       } catch (err) {
         console.error('Error optimizing service image:', err);
@@ -1226,6 +1226,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             placeholder="https://images.unsplash.com/..."
                             className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
                           />
+                          <p className="text-[10px] text-stone-500">
+                            📐 <b>სტანდარტული პროპორცია: 16:9</b> (მაგ: 1200×675 px ან 1920×1080 px)
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -1945,6 +1948,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                             placeholder="https://images.unsplash.com/..."
                             className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
                           />
+                          <p className="text-[10px] text-stone-500">
+                            📐 <b>სტანდარტული პროპორცია: 16:9</b> (მაგ: 1200×675 px ან 1920×1080 px)
+                          </p>
                         </div>
                       </div>
                     </div>

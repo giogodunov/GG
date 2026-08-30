@@ -215,29 +215,28 @@ export function loadSettings(): SiteSettings {
       return DEFAULT_SETTINGS;
     }
     const parsed = JSON.parse(raw);
-    const resolvedLocation =
-      parsed.location && parsed.location !== 'თბილისი, საქართველო'
-        ? parsed.location
-        : DEFAULT_SETTINGS.location;
-    const resolvedLocationEn =
-      parsed.locationEn && parsed.locationEn !== 'Tbilisi, Georgia'
-        ? parsed.locationEn
-        : DEFAULT_SETTINGS.locationEn;
 
     return {
       ...DEFAULT_SETTINGS,
       ...parsed,
-      location: resolvedLocation,
-      locationEn: resolvedLocationEn,
+      location: parsed.location || DEFAULT_SETTINGS.location,
+      locationEn: parsed.locationEn || DEFAULT_SETTINGS.locationEn,
+      displayPhone: parsed.displayPhone || parsed.phone || DEFAULT_SETTINGS.displayPhone,
+      phone: parsed.phone || parsed.displayPhone || DEFAULT_SETTINGS.phone,
+      whatsappNumber: parsed.whatsappNumber || DEFAULT_SETTINGS.whatsappNumber,
+      tagline: parsed.tagline || DEFAULT_SETTINGS.tagline,
       taglineEn: parsed.taglineEn || DEFAULT_SETTINGS.taglineEn,
+      workHours: parsed.workHours || DEFAULT_SETTINGS.workHours,
       workHoursEn: parsed.workHoursEn || DEFAULT_SETTINGS.workHoursEn,
+      priceDisclaimer: parsed.priceDisclaimer || DEFAULT_SETTINGS.priceDisclaimer,
       priceDisclaimerEn: parsed.priceDisclaimerEn || DEFAULT_SETTINGS.priceDisclaimerEn,
+      aboutText: parsed.aboutText || DEFAULT_SETTINGS.aboutText,
       aboutTextEn: parsed.aboutTextEn || DEFAULT_SETTINGS.aboutTextEn,
       backgroundColor: parsed.backgroundColor || DEFAULT_SETTINGS.backgroundColor || '#F9F7F2',
       heroCoverImage: parsed.heroCoverImage !== undefined ? parsed.heroCoverImage : (DEFAULT_SETTINGS.heroCoverImage || ''),
       heroCoverOverlayOpacity: parsed.heroCoverOverlayOpacity !== undefined ? parsed.heroCoverOverlayOpacity : 35,
       heroTextColorMode: parsed.heroTextColorMode || DEFAULT_SETTINGS.heroTextColorMode || 'auto',
-      heroCoverPositionMobile: parsed.heroCoverPositionMobile || DEFAULT_SETTINGS.heroCoverPositionMobile || 'center',
+      heroCoverPositionMobile: parsed.heroCoverPositionMobile || DEFAULT_SETTINGS.heroCoverPositionMobile || '41% 25%',
       heroCoverPositionDesktop: parsed.heroCoverPositionDesktop || DEFAULT_SETTINGS.heroCoverPositionDesktop || 'center',
       telegramEnabled: parsed.telegramEnabled !== undefined ? parsed.telegramEnabled : DEFAULT_SETTINGS.telegramEnabled,
       telegramBotToken: parsed.telegramBotToken !== undefined ? parsed.telegramBotToken : DEFAULT_SETTINGS.telegramBotToken,

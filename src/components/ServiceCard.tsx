@@ -58,14 +58,15 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
       className="bg-white rounded-3xl border border-black/5 p-6 shadow-2xs hover:shadow-xs hover:border-black/15 transition-all flex flex-col justify-between group"
     >
       <div>
-        {/* Optional Service Image */}
+        {/* Optional Service Image (Unified 16:9) */}
         {service.imageUrl && (
-          <div className="w-full h-40 mb-4 rounded-2xl overflow-hidden bg-stone-100 border border-black/5">
+          <div className="w-full aspect-[16/9] mb-4 rounded-2xl overflow-hidden bg-stone-100 border border-black/5 shadow-2xs">
             <img
               src={service.imageUrl}
               alt={title}
               referrerPolicy="no-referrer"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
             />
           </div>
         )}

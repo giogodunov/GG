@@ -87,6 +87,30 @@ export interface Translations {
   pricesInformational: string;
 
   // Booking Modal
+  formValidationName: string;
+  formValidationPhone: string;
+  formModalBadge: string;
+  formModalTitle: string;
+  formSuccessTitle: string;
+  formSuccessSubtitle: string;
+  formInterestedIn: string;
+  formOptionTour: string;
+  formOptionService: string;
+  formOptionCustom: string;
+  formSelectTour: string;
+  formSelectService: string;
+  formTopicSubject: string;
+  formFullName: string;
+  formPhone: string;
+  formDesiredDate: string;
+  formTravelersCount: string;
+  formPreferredContact: string;
+  formOptionPhoneCall: string;
+  formWishesNotes: string;
+  formWishesPlaceholder: string;
+  formSubmitBtn: string;
+  formDirectWhatsAppClarify: string;
+
   bookingModalTitle: string;
   bookingModalSubtitle: string;
   bookingForLabel: string;
@@ -204,6 +228,31 @@ export const translations: Record<Language, Translations> = {
     adminPanelBtn: 'სამართავი პანელი',
     pricesInformational: 'ფასები არის საინფორმაციო ხასიათის',
 
+    
+    formValidationName: 'სახელის მითითება სავალდებულოა.',
+    formValidationPhone: 'ტელეფონის ნომრის მითითება სავალდებულოა.',
+    formModalBadge: 'დაჯავშნა',
+    formModalTitle: 'მოთხოვნის გაგზავნა',
+    formSuccessTitle: 'წარმატებით გაიგზავნა',
+    formSuccessSubtitle: 'ჩვენი გუნდი მალე დაგიკავშირდებათ დეტალების დასაზუსტებლად.',
+    formInterestedIn: 'რითი ხართ დაინტერესებული?',
+    formOptionTour: 'ტურები',
+    formOptionService: 'სერვისები',
+    formOptionCustom: 'ინდივიდუალური მოთხოვნა',
+    formSelectTour: 'აირჩიეთ ტური',
+    formSelectService: 'აირჩიეთ სერვისი',
+    formTopicSubject: 'მოთხოვნის თემა',
+    formFullName: 'სახელი და გვარი',
+    formPhone: 'ტელეფონის ნომერი',
+    formDesiredDate: 'სასურველი თარიღი',
+    formTravelersCount: 'ადამიანების რაოდენობა',
+    formPreferredContact: 'კავშირის სასურველი მეთოდი',
+    formOptionPhoneCall: 'სატელეფონო ზარი',
+    formWishesNotes: 'სურვილები / კომენტარი',
+    formWishesPlaceholder: 'მოგვწერეთ ნებისმიერი სპეციალური მოთხოვნა...',
+    formSubmitBtn: 'მოთხოვნის გაგზავნა',
+    formDirectWhatsAppClarify: 'ან მოგვწერეთ პირდაპირ',
+
     bookingModalTitle: 'დაჯავშნის მოთხოვნა',
     bookingModalSubtitle: 'შეავსეთ ფორმა ან გადადით პირდაპირ WhatsApp ჩატში ოპერატორთან დასაკავშირებლად.',
     bookingForLabel: 'არჩეული ობიექტი',
@@ -316,6 +365,31 @@ export const translations: Record<Language, Translations> = {
     contactCopyright: 'InGeorgiaTours — Personalized Travel in Georgia',
     adminPanelBtn: 'Admin Dashboard',
     pricesInformational: 'Prices are for informational purposes',
+
+    
+    formValidationName: 'Name is required.',
+    formValidationPhone: 'Phone number is required.',
+    formModalBadge: 'Booking',
+    formModalTitle: 'Send Request',
+    formSuccessTitle: 'Successfully Sent',
+    formSuccessSubtitle: 'Our team will contact you shortly with more details.',
+    formInterestedIn: 'What are you interested in?',
+    formOptionTour: 'Tours',
+    formOptionService: 'Services',
+    formOptionCustom: 'Custom Request',
+    formSelectTour: 'Select Tour',
+    formSelectService: 'Select Service',
+    formTopicSubject: 'Request Subject',
+    formFullName: 'Full Name',
+    formPhone: 'Phone Number',
+    formDesiredDate: 'Preferred Date',
+    formTravelersCount: 'Number of Travelers',
+    formPreferredContact: 'Preferred Contact Method',
+    formOptionPhoneCall: 'Phone Call',
+    formWishesNotes: 'Wishes / Comments',
+    formWishesPlaceholder: 'Write any specific requests...',
+    formSubmitBtn: 'Submit Request',
+    formDirectWhatsAppClarify: 'or contact us directly on',
 
     bookingModalTitle: 'Booking Request',
     bookingModalSubtitle: 'Fill out this quick form or reach out directly via WhatsApp for immediate assistance.',

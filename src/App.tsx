@@ -32,7 +32,7 @@ import { Toast } from './components/Toast';
 import { SeoStructuredData } from './components/SeoStructuredData';
 import { TravelGuidesSection } from './components/TravelGuidesSection';
 import { FaqSection } from './components/FaqSection';
-import { Compass, PlusCircle } from 'lucide-react';
+import { Compass, PlusCircle, Settings } from 'lucide-react';
 
 export default function App() {
   // Language state: 'ka' (Georgian) or 'en' (English)
@@ -66,23 +66,8 @@ export default function App() {
     tab: 'services' | 'tours' | 'guides' | 'inquiries' | 'settings';
   }>({ isOpen: false, tab: 'services' });
 
-  // Admin access mode: Only show admin buttons if secret URL (?admin=secret or #admin) was opened
-  const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const params = new URLSearchParams(window.location.search);
-        const hash = window.location.hash;
-        if (params.get('admin') === 'secret' || params.has('admin') || hash === '#admin' || hash === '#geoadmin') {
-          localStorage.setItem('geo_admin_authorized', 'true');
-          return true;
-        }
-        return localStorage.getItem('geo_admin_authorized') === 'true';
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  });
+  // Admin access mode: Always authorized so owner can easily access Admin Panel at any time
+  const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(true);
 
   // Toast state
   const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
@@ -453,11 +438,29 @@ export default function App() {
         isAdminAuthorized={isAdminAuthorized}
       />
 
-      {/* Floating WhatsApp Quick Action Button */}
+      {/* Floating WhatsApp Quick Action Button (Bottom-Right) */}
       <FloatingWhatsApp
         whatsappNumber={settings?.whatsappNumber}
         language={language}
       />
+
+      {/* Floating Quick Admin Panel Button (Bottom-Left) */}
+      <div className="fixed bottom-6 left-6 sm:bottom-8 sm:left-8 z-40">
+        <button
+          type="button"
+          id="floating-admin-quick-btn"
+          onClick={() => setAdminModal({ isOpen: true, tab: 'services' })}
+          className="flex items-center gap-2 bg-[#1B3B2B] hover:bg-[#152e22] text-amber-300 border-2 border-amber-400/70 px-3.5 py-2.5 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer backdrop-blur-md"
+          title={t.adminPanelBtn}
+          aria-label={t.adminPanelBtn}
+        >
+          <Settings className="w-4 h-4 text-amber-400 animate-[spin_6s_linear_infinite]" />
+          <span className="text-xs font-bold tracking-wide pr-1">სამართავი პანელი</span>
+          {inquiries.filter((i) => i.status === 'new').length > 0 && (
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+          )}
+        </button>
+      </div>
 
       {/* Tour Detail Modal */}
       <TourDetailModal

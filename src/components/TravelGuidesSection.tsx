@@ -61,8 +61,8 @@ export const TravelGuidesSection: React.FC<TravelGuidesSectionProps> = ({
                 onClick={() => setSelectedGuide(guide)}
                 className="group bg-[#F9F7F2] rounded-3xl overflow-hidden border border-black/5 hover:border-black/20 transition-all duration-300 flex flex-col cursor-pointer shadow-xs hover:shadow-md"
               >
-                {/* Image */}
-                <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-stone-200">
+                {/* Image (Unified 16:9 Standard) */}
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-stone-200">
                   <img
                     src={guide.imageUrl}
                     alt={title}

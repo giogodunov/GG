@@ -7,13 +7,13 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   brandName: 'InGeorgiaTours',
   tagline: 'აღმოაჩინე საქართველოს გამორჩეული კუთხეები',
   taglineEn: 'Discover Georgia’s Most Breathtaking Destinations',
-  whatsappNumber: '995555123456',
-  displayPhone: '+995 555 12 34 56',
-  phone: '+995 555 12 34 56',
-  email: 'info@ingeorgiatours.ge',
-  location: 'ქუთაისი, საქართველო',
-  locationEn: 'Kutaisi, Georgia',
-  address: 'ქუთაისი, საქართველო',
+  whatsappNumber: '995595017390',
+  displayPhone: '+995 595 01 73 90',
+  phone: '+995 595 01 73 90',
+  email: '',
+  location: 'თბილისი, საქართველო',
+  locationEn: 'Tbilisi, Georgia',
+  address: 'თბილისი, საქართველო',
   workHours: 'ყოველდღე: 09:00 - 21:00',
   workingHours: 'ყოველდღე: 09:00 - 21:00',
   workHoursEn: 'Everyday: 09:00 - 21:00 (GMT+4)',
@@ -25,11 +25,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroCoverImage: '',
   heroCoverOverlayOpacity: 35,
   heroTextColorMode: 'auto',
-  heroCoverPositionMobile: 'center',
+  heroCoverPositionMobile: '41% 25%',
   heroCoverPositionDesktop: 'center',
-  telegramEnabled: false,
-  telegramBotToken: '',
-  telegramChatId: ''
+  telegramEnabled: true,
+  telegramBotToken: '8804688673:AAENYbJOm1y8r4uIbFy8wZzmpW-UW5SZom4',
+  telegramChatId: '1655481200'
 };
 
 export const DEFAULT_TOURS: Tour[] = [

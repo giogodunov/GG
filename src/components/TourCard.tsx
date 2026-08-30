@@ -43,8 +43,8 @@ export const TourCard: React.FC<TourCardProps> = ({
       className="group cursor-pointer flex flex-col justify-between bg-white rounded-3xl p-4 border border-black/5 hover:border-black/15 transition-all shadow-2xs hover:shadow-xs"
     >
       <div>
-        {/* Artistic Image Container */}
-        <div className="aspect-[4/3] bg-[#E8E4DB] rounded-2xl mb-4 overflow-hidden relative shadow-xs">
+        {/* Unified 16:9 Standard Image Container */}
+        <div className="aspect-[16/9] bg-[#E8E4DB] rounded-2xl mb-4 overflow-hidden relative shadow-xs">
           <img
             src={tour.imageUrl}
             alt={title}

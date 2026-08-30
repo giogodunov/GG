@@ -108,19 +108,18 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               {t.footerResponseTime}
             </p>
 
-            {isAdminAuthorized && (
-              <div className="mt-6 pt-4 border-t border-black/5">
-                <button
-                  type="button"
-                  onClick={() => onOpenAdmin('services')}
-                  id="footer-admin-btn"
-                  className="inline-flex items-center gap-2 text-xs text-amber-900 bg-amber-50 hover:bg-amber-100 px-3 py-2 rounded-xl border border-amber-200 transition-colors cursor-pointer"
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                  <span>{t.adminPanelBtn}</span>
-                </button>
-              </div>
-            )}
+            {/* Footer Admin Button - Always visible for owner */}
+            <div className="mt-6 pt-4 border-t border-black/5">
+              <button
+                type="button"
+                onClick={() => onOpenAdmin('services')}
+                id="footer-admin-btn"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-amber-900 bg-amber-50 hover:bg-amber-100 px-3.5 py-2 rounded-xl border border-amber-300/80 transition-colors cursor-pointer shadow-2xs"
+              >
+                <Settings className="w-3.5 h-3.5 text-amber-700" />
+                <span>{t.adminPanelBtn}</span>
+              </button>
+            </div>
           </div>
         </div>
 
