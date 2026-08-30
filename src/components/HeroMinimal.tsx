@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
 import { SiteSettings, Language } from '../types';
 import { translations } from '../utils/translations';
 import { formatImageUrl } from '../utils/imageHelper';
@@ -16,10 +15,6 @@ interface HeroMinimalProps {
 
 export const HeroMinimal: React.FC<HeroMinimalProps> = ({
   settings,
-  searchQuery,
-  onSearchChange,
-  selectedCategory,
-  onSelectCategory,
   onQuickBookClick,
   language
 }) => {
@@ -31,15 +26,6 @@ export const HeroMinimal: React.FC<HeroMinimalProps> = ({
       : 'გამარჯობა! მსურს ტურის ან სერვისის შესახებ ინფორმაციის მიღება.';
 
   const directWhatsAppUrl = `https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(whatsAppMsg)}`;
-
-  const categories = [
-    { id: 'all', label: t.heroAllTours },
-    { id: 'day_tour', label: t.heroDayTours },
-    { id: 'multi_day', label: t.heroMultiDay },
-    { id: 'wine', label: t.heroWine },
-    { id: 'adventure', label: t.heroAdventure },
-    { id: 'cultural', label: t.heroCultural }
-  ];
 
   const formattedCoverUrl = formatImageUrl(settings?.heroCoverImage);
   const [imageError, setImageError] = useState(false);
@@ -169,57 +155,6 @@ export const HeroMinimal: React.FC<HeroMinimalProps> = ({
             >
               <span>{t.heroBookNow}</span>
             </button>
-          </div>
-        </div>
-
-        {/* Search & Category Filter */}
-        <div
-          className={`mt-12 rounded-2xl p-3 sm:p-4 border transition-all ${
-            hasCoverImage
-              ? 'bg-white/95 backdrop-blur-md border-white/20 shadow-md text-[#1A1A1A]'
-              : 'bg-white/70 backdrop-blur-xs border-black/10 shadow-none text-[#1A1A1A]'
-          }`}
-        >
-          <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-            {/* Search Input */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1A1A1A]/40" />
-              <input
-                type="text"
-                id="search-tours-input"
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                placeholder={t.heroSearchPlaceholder}
-                className="w-full pl-10 pr-4 py-2.5 bg-[#F9F7F2]/80 border border-black/5 rounded-xl text-[#1A1A1A] text-xs placeholder:text-[#1A1A1A]/40 focus:outline-none focus:ring-1 ring-black/15 transition-all shadow-none"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => onSearchChange('')}
-                  id="clear-search-query-btn"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#1A1A1A]/40 hover:text-[#1A1A1A]"
-                >
-                  {t.clearFilter}
-                </button>
-              )}
-            </div>
-
-            {/* Category Chips */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  id={`hero-category-${cat.id}`}
-                  onClick={() => onSelectCategory(cat.id)}
-                  className={`whitespace-nowrap px-4 py-2.5 rounded-full text-xs transition-all shrink-0 cursor-pointer shadow-none ${
-                    selectedCategory === cat.id
-                      ? 'bg-black text-white font-medium'
-                      : 'border border-black/10 text-[#1A1A1A]/60 hover:text-[#1A1A1A] hover:bg-black/5'
-                  }`}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>

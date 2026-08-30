@@ -70,18 +70,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           <BrandLogo
             sizeClass="text-2xl"
-            showTagline={true}
+            showTagline={false}
             light={true}
-            tagline={
-              language === 'en'
-                ? (settings?.taglineEn || 'Georgia Tours & Travel')
-                : (settings?.brandName || 'InGeorgiaTours')
-            }
           />
         </button>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8 lg:gap-10 text-xs uppercase tracking-widest text-emerald-100/80 font-medium">
+        <nav className="hidden md:flex flex-1 justify-center items-center gap-6 lg:gap-10 text-xs uppercase tracking-widest text-emerald-100/80 font-medium px-4">
           {navItems.map((item) => (
             <button
               key={item.id}

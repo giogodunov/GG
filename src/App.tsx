@@ -27,7 +27,6 @@ import { AboutPricingSection } from './components/AboutPricingSection';
 import { ContactSection } from './components/ContactSection';
 import { BookingFormModal } from './components/BookingFormModal';
 import { AdminPanelModal } from './components/AdminPanelModal';
-import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Toast } from './components/Toast';
 import { SeoStructuredData } from './components/SeoStructuredData';
 import { TravelGuidesSection } from './components/TravelGuidesSection';
@@ -269,13 +268,9 @@ export default function App() {
         isAdminAuthorized={isAdminAuthorized}
       />
 
-      {/* Hero Minimal & Search with Bilingual Support */}
+      {/* Hero Minimal */}
       <HeroMinimal
         settings={settings}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
         onQuickBookClick={() =>
           setBookingModal({
             isOpen: true,
@@ -436,12 +431,6 @@ export default function App() {
         }
         language={language}
         isAdminAuthorized={isAdminAuthorized}
-      />
-
-      {/* Floating WhatsApp Quick Action Button (Bottom-Right) */}
-      <FloatingWhatsApp
-        whatsappNumber={settings?.whatsappNumber}
-        language={language}
       />
 
       {/* Floating Quick Admin Panel Button (Bottom-Left) */}
