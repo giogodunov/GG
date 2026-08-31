@@ -47,6 +47,7 @@ import {
 import { Tour, Service, BookingInquiry, SiteSettings, TravelGuide } from '../types';
 import { compressImageFile, formatImageUrl } from '../utils/imageHelper';
 import { AdminTravelGuidesTab } from './AdminTravelGuidesTab';
+import { ImagePositionController } from './ImagePositionController';
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -2881,277 +2882,17 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Mobile Focal Point / Position Selector with Interactive Drag */}
-                        <div className="pt-3 border-t border-stone-200">
-                          <div className="flex items-center justify-between mb-1">
-                            <label className="text-[11px] font-semibold text-stone-700 flex items-center gap-1.5">
-                              <Smartphone className="w-3.5 h-3.5 text-stone-700" />
-                              <span>მობილურზე ფოტოს ხედვის არე (მაუსით / თითით გასწორება):</span>
-                            </label>
-                            <span className="text-[10px] font-medium text-amber-800 bg-amber-100 px-2 py-0.5 rounded flex items-center gap-1">
-                              <Move className="w-3 h-3" />
-                              მაუსით ამოძრავეთ
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-stone-500 mb-3">
-                            დააკლიკეთ ან მაუსით გადააადგილეთ წითელი წრე მთლიან ფოტოზე, რომ ზუსტად აირჩიოთ მობილურის კადრი:
-                          </p>
-
-                          <div className="bg-stone-50 p-4 rounded-xl border border-stone-200">
-                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
-                              
-                              {/* Interactive Focal Pin Canvas / Full Photo Box */}
-                              <div className="lg:col-span-7 flex flex-col gap-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[11px] font-bold text-stone-700 flex items-center gap-1">
-                                    <Move className="w-3.5 h-3.5 text-amber-600" />
-                                    სრული ფოტო (დააწკაპუნეთ ან გადაათრიეთ წრე):
-                                  </span>
-                                  {(() => {
-                                    const val = settingsForm.heroCoverPositionMobile || '50% 50%';
-                                    let xPercent = 50;
-                                    let yPercent = 50;
-                                    if (val === 'top') { xPercent = 50; yPercent = 0; }
-                                    else if (val === 'bottom') { xPercent = 50; yPercent = 100; }
-                                    else if (val === 'left') { xPercent = 0; yPercent = 50; }
-                                    else if (val === 'right') { xPercent = 100; yPercent = 50; }
-                                    else if (val.includes('%')) {
-                                      const parts = val.split(' ');
-                                      if (parts.length === 2) {
-                                        xPercent = Math.round(parseFloat(parts[0]));
-                                        yPercent = Math.round(parseFloat(parts[1]));
-                                      }
-                                    }
-                                    return (
-                                      <span className="text-[10px] font-mono font-bold bg-white px-2 py-0.5 rounded border border-stone-200 text-stone-600">
-                                        X: {xPercent}% | Y: {yPercent}%
-                                      </span>
-                                    );
-                                  })()}
-                                </div>
-
-                                {/* Drag Surface Container */}
-                                {(() => {
-                                  const val = settingsForm.heroCoverPositionMobile || '50% 50%';
-                                  let currentX = 50;
-                                  let currentY = 50;
-                                  if (val === 'top') { currentX = 50; currentY = 0; }
-                                  else if (val === 'bottom') { currentX = 50; currentY = 100; }
-                                  else if (val === 'left') { currentX = 0; currentY = 50; }
-                                  else if (val === 'right') { currentX = 100; currentY = 50; }
-                                  else if (val === 'top-left') { currentX = 0; currentY = 0; }
-                                  else if (val === 'top-right') { currentX = 100; currentY = 0; }
-                                  else if (val === 'bottom-left') { currentX = 0; currentY = 100; }
-                                  else if (val === 'bottom-right') { currentX = 100; currentY = 100; }
-                                  else if (val.includes('%')) {
-                                    const parts = val.split(' ');
-                                    if (parts.length === 2) {
-                                      currentX = parseFloat(parts[0]);
-                                      currentY = parseFloat(parts[1]);
-                                    }
-                                  }
-
-                                  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-                                    const rect = e.currentTarget.getBoundingClientRect();
-                                    const clientX = e.clientX;
-                                    const clientY = e.clientY;
-                                    const clampedX = Math.max(0, Math.min(rect.width, clientX - rect.left));
-                                    const clampedY = Math.max(0, Math.min(rect.height, clientY - rect.top));
-                                    const pctX = Math.round((clampedX / rect.width) * 100);
-                                    const pctY = Math.round((clampedY / rect.height) * 100);
-                                    setSettingsForm((prev) => ({
-                                      ...prev,
-                                      heroCoverPositionMobile: `${pctX}% ${pctY}%`
-                                    }));
-                                  };
-
-                                  return (
-                                    <div
-                                      className="relative w-full aspect-[16/9] rounded-xl overflow-hidden cursor-crosshair border-2 border-stone-300 shadow-inner bg-stone-900 select-none group"
-                                      onPointerDown={(e) => {
-                                        e.currentTarget.setPointerCapture(e.pointerId);
-                                        handlePointerMove(e);
-                                      }}
-                                      onPointerMove={(e) => {
-                                        if (e.buttons === 1) {
-                                          handlePointerMove(e);
-                                        }
-                                      }}
-                                    >
-                                      {/* Full image */}
-                                      <img
-                                        src={formatImageUrl(settingsForm.heroCoverImage)}
-                                        alt="Focal full view"
-                                        className="w-full h-full object-cover pointer-events-none"
-                                        referrerPolicy="no-referrer"
-                                      />
-                                      
-                                      {/* Visual Rule of Thirds Grid */}
-                                      <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none opacity-25">
-                                        <div className="border-r border-b border-white" />
-                                        <div className="border-r border-b border-white" />
-                                        <div className="border-b border-white" />
-                                        <div className="border-r border-b border-white" />
-                                        <div className="border-r border-b border-white" />
-                                        <div className="border-b border-white" />
-                                        <div className="border-r border-white" />
-                                        <div className="border-r border-white" />
-                                        <div />
-                                      </div>
-
-                                      {/* Crosshair Horizontal Line */}
-                                      <div
-                                        className="absolute left-0 right-0 h-px bg-white/60 pointer-events-none transition-all"
-                                        style={{ top: `${currentY}%` }}
-                                      />
-                                      {/* Crosshair Vertical Line */}
-                                      <div
-                                        className="absolute top-0 bottom-0 w-px bg-white/60 pointer-events-none transition-all"
-                                        style={{ left: `${currentX}%` }}
-                                      />
-
-                                      {/* Target Pin Marker (Interactive Handle) */}
-                                      <div
-                                        className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center transition-all"
-                                        style={{
-                                          left: `${currentX}%`,
-                                          top: `${currentY}%`
-                                        }}
-                                      >
-                                        <div className="relative flex items-center justify-center">
-                                          <div className="w-9 h-9 rounded-full border-2 border-white bg-amber-500/90 text-white flex items-center justify-center shadow-lg ring-4 ring-black/30 animate-pulse">
-                                            <Smartphone className="w-4 h-4" />
-                                          </div>
-                                          <div className="absolute -bottom-5 whitespace-nowrap bg-black/80 text-white text-[9px] px-1.5 py-0.5 rounded font-mono shadow-xs">
-                                            მობილურის ფოკუსი
-                                          </div>
-                                        </div>
-                                      </div>
-
-                                      {/* Hover Instruction Overlay */}
-                                      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded backdrop-blur-xs pointer-events-none">
-                                        🖱️ დააწექით მაუსით სასურველ ადგილას
-                                      </div>
-                                    </div>
-                                  );
-                                })()}
-
-                                {/* Quick Presets for Reset */}
-                                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                  <span className="text-[10px] text-stone-500 font-medium">სწრაფი გასწორება:</span>
-                                  {[
-                                    { label: 'ცენტრი (50% 50%)', val: '50% 50%' },
-                                    { label: 'ზედა (50% 15%)', val: '50% 15%' },
-                                    { label: 'ქვედა (50% 85%)', val: '50% 85%' },
-                                    { label: 'მარცხენა (20% 50%)', val: '20% 50%' },
-                                    { label: 'მარჯვენა (80% 50%)', val: '80% 50%' }
-                                  ].map((p) => (
-                                    <button
-                                      key={p.val}
-                                      type="button"
-                                      onClick={() => setSettingsForm({ ...settingsForm, heroCoverPositionMobile: p.val })}
-                                      className="text-[10px] bg-white hover:bg-stone-100 text-stone-700 px-2 py-1 rounded border border-stone-200 transition-colors cursor-pointer"
-                                    >
-                                      {p.label}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-
-                              {/* Live Mobile Phone Mockup Preview */}
-                              <div className="lg:col-span-5 flex flex-col items-center justify-center">
-                                <span className="text-[11px] font-bold text-stone-700 mb-2 flex items-center gap-1.5">
-                                  <Smartphone className="w-3.5 h-3.5 text-amber-600" />
-                                  როგორ გამოჩნდება ტელეფონზე:
-                                </span>
-                                
-                                {(() => {
-                                  const val = settingsForm.heroCoverPositionMobile || '50% 50%';
-                                  let objPos = val;
-                                  if (val === 'top') objPos = '50% 0%';
-                                  else if (val === 'bottom') objPos = '50% 100%';
-                                  else if (val === 'left') objPos = '0% 50%';
-                                  else if (val === 'right') objPos = '100% 50%';
-                                  else if (val === 'top-left') objPos = '0% 0%';
-                                  else if (val === 'top-right') objPos = '100% 0%';
-                                  else if (val === 'bottom-left') objPos = '0% 100%';
-                                  else if (val === 'bottom-right') objPos = '100% 100%';
-
-                                  return (
-                                    <div className="relative w-36 h-56 rounded-[2rem] bg-stone-950 p-2 shadow-xl border-4 border-stone-800 overflow-hidden shrink-0">
-                                      {/* Dynamic Island / Notch */}
-                                      <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-10 h-2.5 bg-black rounded-full z-20" />
-                                      
-                                      {/* Inner Screen */}
-                                      <div className="w-full h-full rounded-[1.3rem] overflow-hidden relative bg-stone-900">
-                                        <img
-                                          src={formatImageUrl(settingsForm.heroCoverImage)}
-                                          alt="Mobile Preview"
-                                          className="w-full h-full object-cover transition-all duration-150"
-                                          style={{ objectPosition: objPos }}
-                                          referrerPolicy="no-referrer"
-                                        />
-                                        <div
-                                          className="absolute inset-0 bg-black"
-                                          style={{ opacity: (settingsForm.heroCoverOverlayOpacity ?? 35) / 100 }}
-                                        />
-                                        {/* Mockup content */}
-                                        <div className="absolute inset-x-2.5 bottom-4 text-white pointer-events-none">
-                                          <div className="w-8 h-1.5 bg-amber-400 rounded-full mb-1.5" />
-                                          <div className="w-20 h-2.5 bg-white/95 rounded mb-1" />
-                                          <div className="w-14 h-2 bg-white/70 rounded mb-2" />
-                                          <div className="w-16 h-4 bg-[#25D366] rounded-md" />
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })()}
-                                <span className="text-[10px] text-stone-500 mt-2 text-center">
-                                  ცოცხალი რეჟიმი • გადაადგილეთ მაუსით მარცხენა ფოტოზე
-                                </span>
-                              </div>
-
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Desktop Focal Point */}
+                        {/* Interactive Pan/Drag 4-way Position Controller for Hero */}
                         <div className="pt-2 border-t border-stone-200">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <label className="text-[11px] font-semibold text-stone-700 flex items-center gap-1.5">
-                              <Monitor className="w-3.5 h-3.5 text-stone-700" />
-                              <span>კომპიუტერზე / დესკტოპზე ფოკუსი (Desktop Crop):</span>
-                            </label>
-                          </div>
-                          <div className="grid grid-cols-3 gap-2">
-                            {[
-                              { id: 'top', label: '⬆️ ზედა ნაწილი (50% 0%)', val: '50% 0%' },
-                              { id: 'center', label: '⏺️ ცენტრი (50% 50%)', val: '50% 50%' },
-                              { id: 'bottom', label: '⬇️ ქვედა ნაწილი (50% 100%)', val: '50% 100%' }
-                            ].map((pos) => {
-                              const currentVal = settingsForm.heroCoverPositionDesktop || 'center';
-                              const isSelected = currentVal === pos.id || currentVal === pos.val;
-                              return (
-                                <button
-                                  key={pos.id}
-                                  type="button"
-                                  onClick={() =>
-                                    setSettingsForm({
-                                      ...settingsForm,
-                                      heroCoverPositionDesktop: pos.val
-                                    })
-                                  }
-                                  className={`py-1.5 px-2 rounded-lg border text-xs text-center transition-all cursor-pointer ${
-                                    isSelected
-                                      ? 'bg-stone-900 text-white font-bold border-stone-900'
-                                      : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
-                                  }`}
-                                >
-                                  {pos.label}
-                                </button>
-                              );
-                            })}
-                          </div>
+                          <ImagePositionController
+                            imageUrl={settingsForm.heroCoverImage}
+                            positionMobile={settingsForm.heroCoverPositionMobile || '50% 50%'}
+                            positionDesktop={settingsForm.heroCoverPositionDesktop || '50% 50%'}
+                            onChangeMobile={(pos) => setSettingsForm((prev) => ({ ...prev, heroCoverPositionMobile: pos }))}
+                            onChangeDesktop={(pos) => setSettingsForm((prev) => ({ ...prev, heroCoverPositionDesktop: pos }))}
+                            overlayOpacity={settingsForm.heroCoverOverlayOpacity ?? 35}
+                            label="მთავარი ქავერის მცოცავი რეჟიმი & პოზიცია (Hero Pan & Drag)"
+                          />
                         </div>
                       </div>
                     )}
@@ -3246,39 +2987,6 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                     {/* Controls if cover image is active */}
                     {settingsForm.servicesCoverImage && (
                       <div className="pt-3 border-t border-stone-200/80 space-y-3">
-                        {/* Live Miniature Preview */}
-                        <div>
-                          <span className="block text-[10px] uppercase font-bold text-stone-500 mb-1">
-                            გადახედვა (Preview):
-                          </span>
-                          <div className="relative w-full h-28 rounded-xl overflow-hidden border border-stone-300 shadow-inner">
-                            <img
-                              src={settingsForm.servicesCoverImage}
-                              alt="Services Cover Preview"
-                              className="w-full h-full object-cover"
-                              referrerPolicy="no-referrer"
-                            />
-                            {/* Overlay */}
-                            <div
-                              className="absolute inset-0 bg-stone-950"
-                              style={{ opacity: (settingsForm.servicesCoverOverlayOpacity ?? 45) / 100 }}
-                            />
-                            <div className="absolute inset-0 p-3 flex flex-col justify-between text-white pointer-events-none">
-                              <span className="text-[10px] font-bold tracking-wider uppercase opacity-80 text-amber-300">
-                                ტრანსფერები და სერვისები
-                              </span>
-                              <div>
-                                <p className="text-sm font-serif italic font-bold">
-                                  მომსახურებები & გიდები
-                                </p>
-                                <p className="text-[10px] opacity-75">
-                                  კომფორტული მგზავრობა და გამოცდილი მძღოლები
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
                         {/* Overlay Darkness Slider */}
                         <div>
                           <div className="flex justify-between items-center mb-1">
@@ -3343,6 +3051,19 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                               );
                             })}
                           </div>
+                        </div>
+
+                        {/* Interactive Pan/Drag 4-way Position Controller for Services Cover */}
+                        <div className="pt-2 border-t border-stone-200">
+                          <ImagePositionController
+                            imageUrl={settingsForm.servicesCoverImage}
+                            positionMobile={settingsForm.servicesCoverPositionMobile || '50% 50%'}
+                            positionDesktop={settingsForm.servicesCoverPositionDesktop || '50% 50%'}
+                            onChangeMobile={(pos) => setSettingsForm((prev) => ({ ...prev, servicesCoverPositionMobile: pos }))}
+                            onChangeDesktop={(pos) => setSettingsForm((prev) => ({ ...prev, servicesCoverPositionDesktop: pos }))}
+                            overlayOpacity={settingsForm.servicesCoverOverlayOpacity ?? 45}
+                            label="სერვისების ფონის მცოცავი რეჟიმი & პოზიცია (Services Background Pan & Drag)"
+                          />
                         </div>
                       </div>
                     )}

@@ -29,6 +29,25 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
   const opacity = settings.servicesCoverOverlayOpacity !== undefined ? settings.servicesCoverOverlayOpacity : 45;
   const isLightText = hasCoverImage && (settings.servicesTextColorMode === 'light' || !settings.servicesTextColorMode || settings.servicesTextColorMode === 'auto');
 
+  const getObjectPositionStyle = (pos?: string): string => {
+    if (!pos || pos === 'center') return '50% 50%';
+    if (pos === 'top') return '50% 0%';
+    if (pos === 'bottom') return '50% 100%';
+    if (pos === 'left') return '0% 50%';
+    if (pos === 'right') return '100% 50%';
+    if (pos === 'top-left') return '0% 0%';
+    if (pos === 'top-right') return '100% 0%';
+    if (pos === 'bottom-left') return '0% 100%';
+    if (pos === 'bottom-right') return '100% 100%';
+    if (pos.includes('%') || pos.includes('px')) {
+      return pos;
+    }
+    return '50% 50%';
+  };
+
+  const mobilePos = getObjectPositionStyle(settings.servicesCoverPositionMobile);
+  const desktopPos = getObjectPositionStyle(settings.servicesCoverPositionDesktop);
+
   return (
     <section
       id="services"
@@ -39,13 +58,24 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
       {/* Background Cover Image with responsive alignment & overlay */}
       {hasCoverImage && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          {/* Mobile Cover Image (hidden on sm+) */}
           <img
             src={settings.servicesCoverImage}
-            alt="Services background cover"
+            alt="Services background cover mobile"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover transition-transform duration-700"
+            className="w-full h-full object-cover transition-transform duration-700 sm:hidden"
             style={{
-              objectPosition: settings.servicesCoverPositionDesktop || 'center'
+              objectPosition: mobilePos
+            }}
+          />
+          {/* Desktop Cover Image (hidden on mobile) */}
+          <img
+            src={settings.servicesCoverImage}
+            alt="Services background cover desktop"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover transition-transform duration-700 hidden sm:block"
+            style={{
+              objectPosition: desktopPos
             }}
           />
           {/* Darkness Tint / Overlay */}
