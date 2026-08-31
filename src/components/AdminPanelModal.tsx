@@ -3059,6 +3059,39 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                     {/* Controls if cover image is active */}
                     {settingsForm.servicesCoverImage && (
                       <div className="pt-3 border-t border-stone-200/80 space-y-3">
+                        {/* Live Miniature Preview */}
+                        <div>
+                          <span className="block text-[10px] uppercase font-bold text-stone-500 mb-1">
+                            გადახედვა (Preview):
+                          </span>
+                          <div className="relative w-full h-28 rounded-xl overflow-hidden border border-stone-300 shadow-inner">
+                            <img
+                              src={settingsForm.servicesCoverImage}
+                              alt="Services Cover Preview"
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                            {/* Overlay */}
+                            <div
+                              className="absolute inset-0 bg-stone-950"
+                              style={{ opacity: (settingsForm.servicesCoverOverlayOpacity ?? 45) / 100 }}
+                            />
+                            <div className="absolute inset-0 p-3 flex flex-col justify-between text-white pointer-events-none">
+                              <span className="text-[10px] font-bold tracking-wider uppercase opacity-80 text-amber-300">
+                                ტრანსფერები და სერვისები
+                              </span>
+                              <div>
+                                <p className="text-sm font-serif italic font-bold">
+                                  მომსახურებები & გიდები
+                                </p>
+                                <p className="text-[10px] opacity-75">
+                                  კომფორტული მგზავრობა და გამოცდილი მძღოლები
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
                         {/* Overlay Darkness Slider */}
                         <div>
                           <div className="flex justify-between items-center mb-1">
@@ -3094,14 +3127,15 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                         {/* Text Color Mode */}
                         <div>
                           <label className="block text-[11px] font-semibold text-stone-700 mb-1.5">
-                            ტექსტის ფერის რეჟიმი:
+                            ტექსტის ფერის რეჟიმი ქავერზე:
                           </label>
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-3 gap-2">
                             {[
-                              { id: 'light', label: 'თეთრი ტექსტი (რეკომენდებული)' },
+                              { id: 'auto', label: 'ავტომატური' },
+                              { id: 'light', label: 'თეთრი ტექსტი' },
                               { id: 'dark', label: 'მუქი ტექსტი' }
                             ].map((mode) => {
-                              const isSelected = (settingsForm.servicesTextColorMode || 'light') === mode.id;
+                              const isSelected = (settingsForm.servicesTextColorMode || 'auto') === mode.id;
                               return (
                                 <button
                                   key={mode.id}
@@ -3125,11 +3159,11 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Position presets for services */}
+                        {/* Mobile Focal Point / Position */}
                         <div className="pt-2 border-t border-stone-200">
                           <label className="block text-[11px] font-semibold text-stone-700 mb-1.5 flex items-center gap-1.5">
-                            <Sliders className="w-3.5 h-3.5 text-stone-500" />
-                            <span>ფონის გასწორება (Position / Focal Point):</span>
+                            <Smartphone className="w-3.5 h-3.5 text-stone-700" />
+                            <span>მობილურზე ფოტოს ფოკუსი (Mobile Crop):</span>
                           </label>
                           <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
                             {[
@@ -3139,10 +3173,10 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                               { id: '0% 50%', label: '⬅️ მარცხენა' },
                               { id: '100% 50%', label: '➡️ მარჯვენა' }
                             ].map((pos) => {
-                              const currentVal = settingsForm.servicesCoverPositionDesktop || '50% 50%';
+                              const currentVal = settingsForm.servicesCoverPositionMobile || '50% 50%';
                               const isSelected =
                                 currentVal === pos.id ||
-                                (pos.id === '50% 50%' && (currentVal === 'center' || !currentVal)) ||
+                                (pos.id === '50% 50%' && currentVal === 'center') ||
                                 (pos.id === '50% 0%' && currentVal === 'top') ||
                                 (pos.id === '50% 100%' && currentVal === 'bottom') ||
                                 (pos.id === '0% 50%' && currentVal === 'left') ||
@@ -3154,8 +3188,48 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                                   onClick={() =>
                                     setSettingsForm({
                                       ...settingsForm,
-                                      servicesCoverPositionDesktop: pos.id,
                                       servicesCoverPositionMobile: pos.id
+                                    })
+                                  }
+                                  className={`py-1.5 px-2 rounded-lg border text-xs text-center transition-all cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-stone-900 text-white font-bold border-stone-900 shadow-xs'
+                                      : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
+                                  }`}
+                                >
+                                  {pos.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Desktop Focal Point */}
+                        <div className="pt-2 border-t border-stone-200">
+                          <label className="block text-[11px] font-semibold text-stone-700 mb-1.5 flex items-center gap-1.5">
+                            <Monitor className="w-3.5 h-3.5 text-stone-700" />
+                            <span>კომპიუტერზე ფოტოს ფოკუსი (Desktop Crop):</span>
+                          </label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { id: '50% 0%', label: '⬆️ ზედა ნაწილი' },
+                              { id: '50% 50%', label: '⏺️ ცენტრი' },
+                              { id: '50% 100%', label: '⬇️ ქვედა ნაწილი' }
+                            ].map((pos) => {
+                              const currentVal = settingsForm.servicesCoverPositionDesktop || '50% 50%';
+                              const isSelected =
+                                currentVal === pos.id ||
+                                (pos.id === '50% 50%' && (currentVal === 'center' || !currentVal)) ||
+                                (pos.id === '50% 0%' && currentVal === 'top') ||
+                                (pos.id === '50% 100%' && currentVal === 'bottom');
+                              return (
+                                <button
+                                  key={pos.id}
+                                  type="button"
+                                  onClick={() =>
+                                    setSettingsForm({
+                                      ...settingsForm,
+                                      servicesCoverPositionDesktop: pos.id
                                     })
                                   }
                                   className={`py-1.5 px-2 rounded-lg border text-xs text-center transition-all cursor-pointer ${
