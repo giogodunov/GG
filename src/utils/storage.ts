@@ -14,9 +14,9 @@ export function loadLanguage(): Language {
     if (saved === 'ka' || saved === 'en') {
       return saved;
     }
-    return 'ka';
+    return 'en';
   } catch (e) {
-    return 'ka';
+    return 'en';
   }
 }
 
