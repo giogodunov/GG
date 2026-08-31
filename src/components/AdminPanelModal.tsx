@@ -47,7 +47,6 @@ import {
 import { Tour, Service, BookingInquiry, SiteSettings, TravelGuide } from '../types';
 import { compressImageFile, formatImageUrl } from '../utils/imageHelper';
 import { AdminTravelGuidesTab } from './AdminTravelGuidesTab';
-import { ImagePositionController } from './ImagePositionController';
 
 interface AdminPanelModalProps {
   isOpen: boolean;
@@ -2882,17 +2881,90 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Interactive Pan/Drag 4-way Position Controller for Hero */}
+                        {/* Mobile Focal Point / Position */}
                         <div className="pt-2 border-t border-stone-200">
-                          <ImagePositionController
-                            imageUrl={settingsForm.heroCoverImage}
-                            positionMobile={settingsForm.heroCoverPositionMobile || '50% 50%'}
-                            positionDesktop={settingsForm.heroCoverPositionDesktop || '50% 50%'}
-                            onChangeMobile={(pos) => setSettingsForm((prev) => ({ ...prev, heroCoverPositionMobile: pos }))}
-                            onChangeDesktop={(pos) => setSettingsForm((prev) => ({ ...prev, heroCoverPositionDesktop: pos }))}
-                            overlayOpacity={settingsForm.heroCoverOverlayOpacity ?? 35}
-                            label="მთავარი ქავერის მცოცავი რეჟიმი & პოზიცია (Hero Pan & Drag)"
-                          />
+                          <label className="block text-[11px] font-semibold text-stone-700 mb-1.5 flex items-center gap-1.5">
+                            <Smartphone className="w-3.5 h-3.5 text-stone-700" />
+                            <span>მობილურზე ფოტოს ფოკუსი (Mobile Crop):</span>
+                          </label>
+                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+                            {[
+                              { id: '50% 50%', label: '⏺️ ცენტრი' },
+                              { id: '50% 0%', label: '⬆️ ზედა' },
+                              { id: '50% 100%', label: '⬇️ ქვედა' },
+                              { id: '0% 50%', label: '⬅️ მარცხენა' },
+                              { id: '100% 50%', label: '➡️ მარჯვენა' }
+                            ].map((pos) => {
+                              const currentVal = settingsForm.heroCoverPositionMobile || '50% 50%';
+                              const isSelected =
+                                currentVal === pos.id ||
+                                (pos.id === '50% 50%' && currentVal === 'center') ||
+                                (pos.id === '50% 0%' && currentVal === 'top') ||
+                                (pos.id === '50% 100%' && currentVal === 'bottom') ||
+                                (pos.id === '0% 50%' && currentVal === 'left') ||
+                                (pos.id === '100% 50%' && currentVal === 'right');
+                              return (
+                                <button
+                                  key={pos.id}
+                                  type="button"
+                                  onClick={() =>
+                                    setSettingsForm({
+                                      ...settingsForm,
+                                      heroCoverPositionMobile: pos.id
+                                    })
+                                  }
+                                  className={`py-1.5 px-2 rounded-lg border text-xs text-center transition-all cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-stone-900 text-white font-bold border-stone-900 shadow-xs'
+                                      : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
+                                  }`}
+                                >
+                                  {pos.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Desktop Focal Point */}
+                        <div className="pt-2 border-t border-stone-200">
+                          <label className="block text-[11px] font-semibold text-stone-700 mb-1.5 flex items-center gap-1.5">
+                            <Monitor className="w-3.5 h-3.5 text-stone-700" />
+                            <span>კომპიუტერზე ფოტოს ფოკუსი (Desktop Crop):</span>
+                          </label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { id: '50% 0%', label: '⬆️ ზედა ნაწილი' },
+                              { id: '50% 50%', label: '⏺️ ცენტრი' },
+                              { id: '50% 100%', label: '⬇️ ქვედა ნაწილი' }
+                            ].map((pos) => {
+                              const currentVal = settingsForm.heroCoverPositionDesktop || '50% 50%';
+                              const isSelected =
+                                currentVal === pos.id ||
+                                (pos.id === '50% 50%' && (currentVal === 'center' || !currentVal)) ||
+                                (pos.id === '50% 0%' && currentVal === 'top') ||
+                                (pos.id === '50% 100%' && currentVal === 'bottom');
+                              return (
+                                <button
+                                  key={pos.id}
+                                  type="button"
+                                  onClick={() =>
+                                    setSettingsForm({
+                                      ...settingsForm,
+                                      heroCoverPositionDesktop: pos.id
+                                    })
+                                  }
+                                  className={`py-1.5 px-2 rounded-lg border text-xs text-center transition-all cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-stone-900 text-white font-bold border-stone-900 shadow-xs'
+                                      : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
+                                  }`}
+                                >
+                                  {pos.label}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     )}
@@ -3053,17 +3125,50 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Interactive Pan/Drag 4-way Position Controller for Services Cover */}
+                        {/* Position presets for services */}
                         <div className="pt-2 border-t border-stone-200">
-                          <ImagePositionController
-                            imageUrl={settingsForm.servicesCoverImage}
-                            positionMobile={settingsForm.servicesCoverPositionMobile || '50% 50%'}
-                            positionDesktop={settingsForm.servicesCoverPositionDesktop || '50% 50%'}
-                            onChangeMobile={(pos) => setSettingsForm((prev) => ({ ...prev, servicesCoverPositionMobile: pos }))}
-                            onChangeDesktop={(pos) => setSettingsForm((prev) => ({ ...prev, servicesCoverPositionDesktop: pos }))}
-                            overlayOpacity={settingsForm.servicesCoverOverlayOpacity ?? 45}
-                            label="სერვისების ფონის მცოცავი რეჟიმი & პოზიცია (Services Background Pan & Drag)"
-                          />
+                          <label className="block text-[11px] font-semibold text-stone-700 mb-1.5 flex items-center gap-1.5">
+                            <Sliders className="w-3.5 h-3.5 text-stone-500" />
+                            <span>ფონის გასწორება (Position / Focal Point):</span>
+                          </label>
+                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+                            {[
+                              { id: '50% 50%', label: '⏺️ ცენტრი' },
+                              { id: '50% 0%', label: '⬆️ ზედა' },
+                              { id: '50% 100%', label: '⬇️ ქვედა' },
+                              { id: '0% 50%', label: '⬅️ მარცხენა' },
+                              { id: '100% 50%', label: '➡️ მარჯვენა' }
+                            ].map((pos) => {
+                              const currentVal = settingsForm.servicesCoverPositionDesktop || '50% 50%';
+                              const isSelected =
+                                currentVal === pos.id ||
+                                (pos.id === '50% 50%' && (currentVal === 'center' || !currentVal)) ||
+                                (pos.id === '50% 0%' && currentVal === 'top') ||
+                                (pos.id === '50% 100%' && currentVal === 'bottom') ||
+                                (pos.id === '0% 50%' && currentVal === 'left') ||
+                                (pos.id === '100% 50%' && currentVal === 'right');
+                              return (
+                                <button
+                                  key={pos.id}
+                                  type="button"
+                                  onClick={() =>
+                                    setSettingsForm({
+                                      ...settingsForm,
+                                      servicesCoverPositionDesktop: pos.id,
+                                      servicesCoverPositionMobile: pos.id
+                                    })
+                                  }
+                                  className={`py-1.5 px-2 rounded-lg border text-xs text-center transition-all cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-stone-900 text-white font-bold border-stone-900 shadow-xs'
+                                      : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
+                                  }`}
+                                >
+                                  {pos.label}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     )}
