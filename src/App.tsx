@@ -393,6 +393,7 @@ export default function App() {
           })
         }
         onOpenAddService={() => setAdminModal({ isOpen: true, tab: 'services' })}
+        onOpenAdminSettings={(tab = 'settings') => setAdminModal({ isOpen: true, tab })}
         language={language}
         isAdminAuthorized={isAdminAuthorized}
       />

@@ -206,7 +206,31 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     }
   ];
 
+  const PRESET_SERVICES_COVERS = [
+    {
+      name: 'გუდაური & სამხედრო გზა',
+      url: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=2000&q=85'
+    },
+    {
+      name: 'ყაზბეგის მთები & ტრანსფერი',
+      url: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=2000&q=85'
+    },
+    {
+      name: 'კავკასიონის პანორამული გზა',
+      url: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=2000&q=85'
+    },
+    {
+      name: 'სვანეთის კოშკები & მთები',
+      url: 'https://images.unsplash.com/photo-1578895101408-1a36b834405b?auto=format&fit=crop&w=2000&q=85'
+    },
+    {
+      name: 'კახეთის ალაზნის ველი',
+      url: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=2000&q=85'
+    }
+  ];
+
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [isUploadingServicesCover, setIsUploadingServicesCover] = useState(false);
   const [isUploadingTourImage, setIsUploadingTourImage] = useState(false);
   const [isUploadingServiceImage, setIsUploadingServiceImage] = useState(false);
 
@@ -288,6 +312,33 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
         reader.readAsDataURL(file);
       } finally {
         setIsUploadingCover(false);
+      }
+    }
+  };
+
+  const handleServicesCoverFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 15 * 1024 * 1024) {
+        alert('ფაილის ზომა არ უნდა აღემატებოდეს 15MB-ს');
+        return;
+      }
+      try {
+        setIsUploadingServicesCover(true);
+        const compressedBase64 = await compressImageFile(file, 1920, 1080, 0.85);
+        setSettingsForm((prev) => ({ ...prev, servicesCoverImage: compressedBase64 }));
+      } catch (err) {
+        console.error('Error optimizing services background image:', err);
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+          const result = loadEvent.target?.result as string;
+          if (result) {
+            setSettingsForm((prev) => ({ ...prev, servicesCoverImage: result }));
+          }
+        };
+        reader.readAsDataURL(file);
+      } finally {
+        setIsUploadingServicesCover(false);
       }
     }
   };
@@ -3097,6 +3148,197 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                                   }`}
                                 >
                                   {pos.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Services Section Cover Photo Customizer */}
+                <div className="pt-4 border-t border-stone-100">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <Layers className="w-4 h-4 text-stone-700" />
+                      <label className="block text-xs font-bold text-stone-900">
+                        სერვისების სექციის ქავერ ფოტო (Transfers, Guides & Services Background)
+                      </label>
+                    </div>
+                    {settingsForm.servicesCoverImage && (
+                      <button
+                        type="button"
+                        onClick={() => setSettingsForm({ ...settingsForm, servicesCoverImage: '' })}
+                        className="text-[11px] text-rose-600 hover:text-rose-700 font-semibold cursor-pointer"
+                      >
+                        ფონის წაშლა / გამორთვა
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-stone-500 mb-2">
+                    დააყენეთ ლამაზი ფონი „Transfers, Guides & Services“ სექციის უკან.
+                  </p>
+
+                  {/* Dimension Recommendation Box */}
+                  <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl p-3 mb-3 text-[11px] text-amber-900 leading-relaxed">
+                    <span className="font-bold">📐 რეკომენდებული გარჩევადობა & ზომა:</span> <strong>1920 × 1080 px</strong> (Full HD) ან <strong>2560 × 1440 px</strong> (2K), <strong>16:9 ან 21:9</strong> ჰორიზონტალური ფორმატი. სასურველი ფაილის ზომა: <strong>200 – 500 KB</strong> (WebP / JPG).
+                  </div>
+
+                  {/* Upload and URL input */}
+                  <div className="space-y-3 bg-stone-50 p-3.5 rounded-xl border border-stone-200 mb-3">
+                    <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                      <label className="inline-flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-800 text-white px-3.5 py-2 rounded-xl text-xs font-medium cursor-pointer shrink-0 transition-colors shadow-xs">
+                        <Upload className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{isUploadingServicesCover ? 'ოპტიმიზაცია...' : 'კომპიუტერიდან ატვირთვა'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={isUploadingServicesCover}
+                          onChange={handleServicesCoverFileUpload}
+                          className="hidden"
+                        />
+                      </label>
+                      <span className="text-[11px] text-stone-400 text-center sm:text-left">ან ჩასვით ფოტოს ბმული (URL):</span>
+                    </div>
+
+                    <input
+                      type="url"
+                      value={settingsForm.servicesCoverImage || ''}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, servicesCoverImage: formatImageUrl(e.target.value) })}
+                      placeholder="https://... (პირდაპირი ბმული, Google Drive, Unsplash და ა.შ.)"
+                      className="w-full px-3 py-2 text-xs bg-white border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    />
+
+                    {/* Presets */}
+                    <div>
+                      <span className="block text-[10px] uppercase font-bold text-stone-500 mb-1.5">
+                        სწრაფი საჩვენებელი ფოტოები (Presets):
+                      </span>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {PRESET_SERVICES_COVERS.map((preset) => {
+                          const isCurrent = settingsForm.servicesCoverImage === preset.url;
+                          return (
+                            <button
+                              key={preset.name}
+                              type="button"
+                              onClick={() => setSettingsForm({ ...settingsForm, servicesCoverImage: preset.url })}
+                              className={`flex items-center gap-2 p-1.5 rounded-lg border text-[11px] text-left transition-all cursor-pointer ${
+                                isCurrent
+                                  ? 'bg-stone-900 text-white border-stone-900 font-semibold'
+                                  : 'bg-white hover:bg-stone-100 border-stone-200 text-stone-700'
+                              }`}
+                            >
+                              <img
+                                src={preset.url}
+                                alt={preset.name}
+                                className="w-8 h-8 rounded object-cover shrink-0"
+                                referrerPolicy="no-referrer"
+                              />
+                              <span className="truncate text-[11px]">{preset.name}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Controls if cover image is active */}
+                    {settingsForm.servicesCoverImage && (
+                      <div className="pt-3 border-t border-stone-200/80 space-y-3">
+                        {/* Live Miniature Preview */}
+                        <div>
+                          <span className="block text-[10px] uppercase font-bold text-stone-500 mb-1">
+                            გადახედვა (Preview):
+                          </span>
+                          <div className="relative w-full h-28 rounded-xl overflow-hidden border border-stone-300 shadow-inner">
+                            <img
+                              src={settingsForm.servicesCoverImage}
+                              alt="Services Cover Preview"
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                            {/* Overlay */}
+                            <div
+                              className="absolute inset-0 bg-stone-950"
+                              style={{ opacity: (settingsForm.servicesCoverOverlayOpacity ?? 45) / 100 }}
+                            />
+                            <div className="absolute inset-0 p-3 flex flex-col justify-between text-white pointer-events-none">
+                              <span className="text-[10px] font-bold tracking-wider uppercase opacity-80 text-amber-300">
+                                ტრანსფერები და სერვისები
+                              </span>
+                              <div>
+                                <p className="text-sm font-serif italic font-bold">
+                                  მომსახურებები & გიდები
+                                </p>
+                                <p className="text-[10px] opacity-75">
+                                  კომფორტული მგზავრობა და გამოცდილი მძღოლები
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Overlay Darkness Slider */}
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <label className="text-[11px] font-semibold text-stone-700 flex items-center gap-1.5">
+                              <Sliders className="w-3.5 h-3.5 text-stone-500" />
+                              <span>ფოტოს დაბნელება / გამუქება (Overlay):</span>
+                            </label>
+                            <span className="text-[11px] font-mono font-bold text-stone-800 bg-white px-2 py-0.5 rounded border border-stone-200">
+                              {settingsForm.servicesCoverOverlayOpacity ?? 45}%
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="85"
+                            step="5"
+                            value={settingsForm.servicesCoverOverlayOpacity ?? 45}
+                            onChange={(e) =>
+                              setSettingsForm({
+                                ...settingsForm,
+                                servicesCoverOverlayOpacity: Number(e.target.value)
+                              })
+                            }
+                            className="w-full accent-stone-900 cursor-pointer"
+                          />
+                          <div className="flex justify-between text-[10px] text-stone-400">
+                            <span>0% (გამჭვირვალე)</span>
+                            <span>45% (ოპტიმალური)</span>
+                            <span>85% (მუქი)</span>
+                          </div>
+                        </div>
+
+                        {/* Text Color Mode */}
+                        <div>
+                          <label className="block text-[11px] font-semibold text-stone-700 mb-1.5">
+                            ტექსტის ფერის რეჟიმი:
+                          </label>
+                          <div className="grid grid-cols-2 gap-2">
+                            {[
+                              { id: 'light', label: 'თეთრი ტექსტი (რეკომენდებული)' },
+                              { id: 'dark', label: 'მუქი ტექსტი' }
+                            ].map((mode) => {
+                              const isSelected = (settingsForm.servicesTextColorMode || 'light') === mode.id;
+                              return (
+                                <button
+                                  key={mode.id}
+                                  type="button"
+                                  onClick={() =>
+                                    setSettingsForm({
+                                      ...settingsForm,
+                                      servicesTextColorMode: mode.id as any
+                                    })
+                                  }
+                                  className={`py-1.5 px-2 rounded-lg border text-xs text-center transition-all cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-stone-900 text-white font-bold border-stone-900'
+                                      : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
+                                  }`}
+                                >
+                                  {mode.label}
                                 </button>
                               );
                             })}

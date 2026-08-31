@@ -238,6 +238,11 @@ export function loadSettings(): SiteSettings {
       heroTextColorMode: parsed.heroTextColorMode || DEFAULT_SETTINGS.heroTextColorMode || 'auto',
       heroCoverPositionMobile: parsed.heroCoverPositionMobile || DEFAULT_SETTINGS.heroCoverPositionMobile || '41% 25%',
       heroCoverPositionDesktop: parsed.heroCoverPositionDesktop || DEFAULT_SETTINGS.heroCoverPositionDesktop || 'center',
+      servicesCoverImage: parsed.servicesCoverImage !== undefined ? parsed.servicesCoverImage : (DEFAULT_SETTINGS.servicesCoverImage || ''),
+      servicesCoverOverlayOpacity: parsed.servicesCoverOverlayOpacity !== undefined ? parsed.servicesCoverOverlayOpacity : 45,
+      servicesTextColorMode: parsed.servicesTextColorMode || DEFAULT_SETTINGS.servicesTextColorMode || 'light',
+      servicesCoverPositionMobile: parsed.servicesCoverPositionMobile || DEFAULT_SETTINGS.servicesCoverPositionMobile || 'center',
+      servicesCoverPositionDesktop: parsed.servicesCoverPositionDesktop || DEFAULT_SETTINGS.servicesCoverPositionDesktop || 'center',
       telegramEnabled: parsed.telegramEnabled !== undefined ? parsed.telegramEnabled : DEFAULT_SETTINGS.telegramEnabled,
       telegramBotToken: parsed.telegramBotToken !== undefined ? parsed.telegramBotToken : DEFAULT_SETTINGS.telegramBotToken,
       telegramChatId: parsed.telegramChatId !== undefined ? parsed.telegramChatId : DEFAULT_SETTINGS.telegramChatId

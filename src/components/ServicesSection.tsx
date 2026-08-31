@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Image as ImageIcon } from 'lucide-react';
 import { Service, SiteSettings, Language } from '../types';
 import { ServiceCard } from './ServiceCard';
 import { translations } from '../utils/translations';
@@ -9,6 +9,7 @@ interface ServicesSectionProps {
   settings: SiteSettings;
   onBookService: (service: Service) => void;
   onOpenAddService: () => void;
+  onOpenAdminSettings?: (tab?: 'services' | 'settings') => void;
   language: Language;
   isAdminAuthorized?: boolean;
 }
@@ -18,52 +19,107 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
   settings,
   onBookService,
   onOpenAddService,
+  onOpenAdminSettings,
   language,
   isAdminAuthorized = false
 }) => {
   const t = translations[language];
   const activeServices = services.filter((s) => s.isActive);
+  const hasCoverImage = Boolean(settings.servicesCoverImage && settings.servicesCoverImage.trim() !== '');
+  const opacity = settings.servicesCoverOverlayOpacity !== undefined ? settings.servicesCoverOverlayOpacity : 45;
+  const isLightText = hasCoverImage && (settings.servicesTextColorMode === 'light' || !settings.servicesTextColorMode || settings.servicesTextColorMode === 'auto');
 
   return (
-    <section id="services" className="py-16 sm:py-24 text-[#1A1A1A] border-b border-black/5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="services"
+      className={`relative py-16 sm:py-24 border-b border-black/5 transition-all overflow-hidden ${
+        hasCoverImage ? 'text-white' : 'text-[#1A1A1A]'
+      }`}
+    >
+      {/* Background Cover Image with responsive alignment & overlay */}
+      {hasCoverImage && (
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <img
+            src={settings.servicesCoverImage}
+            alt="Services background cover"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover transition-transform duration-700"
+            style={{
+              objectPosition: settings.servicesCoverPositionDesktop || 'center'
+            }}
+          />
+          {/* Darkness Tint / Overlay */}
+          <div
+            className="absolute inset-0 bg-stone-950"
+            style={{ opacity: opacity / 100 }}
+          />
+          {/* Subtle top & bottom blend gradients */}
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+        </div>
+      )}
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div>
-            <div className="inline-block text-[10px] uppercase font-bold tracking-widest text-[#1A1A1A]/40 mb-2">
+            <div
+              className={`inline-block text-[10px] uppercase font-bold tracking-widest mb-2 ${
+                isLightText ? 'text-amber-300 drop-shadow-xs' : 'text-[#1A1A1A]/40'
+              }`}
+            >
               {t.servicesBadge}
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif italic text-[#1A1A1A] tracking-tight">
+            <h2
+              className={`text-3xl sm:text-4xl lg:text-5xl font-serif italic tracking-tight ${
+                isLightText ? 'text-white drop-shadow-sm' : 'text-[#1A1A1A]'
+              }`}
+            >
               {t.servicesTitle}
             </h2>
-            <p className="mt-2 text-sm text-[#1A1A1A]/60 max-w-xl font-normal">
+            <p
+              className={`mt-2 text-sm max-w-xl font-normal ${
+                isLightText ? 'text-stone-200/90' : 'text-[#1A1A1A]/60'
+              }`}
+            >
               {t.servicesSubtitle}
             </p>
           </div>
 
           {/* Quick Add Banner Card - Only shown for Admin */}
           {isAdminAuthorized && (
-            <div
-              onClick={onOpenAddService}
-              id="btn-add-service-quick"
-              className="bg-amber-50 hover:bg-amber-100 p-5 sm:p-6 rounded-3xl relative overflow-hidden group cursor-pointer border border-amber-200 transition-all shrink-0"
-            >
-              <div className="relative z-10">
-                <div className="text-[10px] uppercase font-bold tracking-widest mb-1 text-amber-800">
-                  {t.servicesQuickAdd}
+            <div className="flex flex-wrap items-center gap-3">
+              {onOpenAdminSettings && (
+                <button
+                  type="button"
+                  onClick={() => onOpenAdminSettings('settings')}
+                  id="btn-customize-services-bg"
+                  className="inline-flex items-center gap-1.5 bg-white/90 hover:bg-white text-stone-900 px-3.5 py-2.5 rounded-2xl text-xs font-semibold shadow-md transition-all cursor-pointer backdrop-blur-md border border-stone-200"
+                  title="ფონის შეცვლა ან გამორთვა"
+                >
+                  <ImageIcon className="w-4 h-4 text-amber-600" />
+                  <span>ფონის პარამეტრები</span>
+                </button>
+              )}
+
+              <div
+                onClick={onOpenAddService}
+                id="btn-add-service-quick"
+                className="bg-amber-50/95 hover:bg-amber-100 p-4 sm:p-5 rounded-3xl relative overflow-hidden group cursor-pointer border border-amber-300/80 shadow-md transition-all shrink-0 backdrop-blur-md"
+              >
+                <div className="relative z-10 flex items-center gap-3">
+                  <div>
+                    <div className="text-[10px] uppercase font-bold tracking-widest text-amber-900">
+                      {t.servicesQuickAdd}
+                    </div>
+                    <div className="text-xs font-serif italic text-stone-900 font-medium">
+                      {t.servicesQuickAddSub}
+                    </div>
+                  </div>
+                  <div className="inline-flex items-center justify-center bg-stone-900 group-hover:bg-black p-2 rounded-xl text-amber-300 transition-all shadow-xs">
+                    <Plus className="w-4 h-4" />
+                  </div>
                 </div>
-                <div className="text-base font-serif italic text-stone-900 mb-2 font-medium">
-                  {t.servicesQuickAddSub}
-                </div>
-                <div className="inline-flex items-center justify-center bg-stone-900 group-hover:bg-black p-2 rounded-xl text-amber-300 transition-all">
-                  <Plus className="w-4 h-4" />
-                </div>
-              </div>
-              {/* Watermark Symbol */}
-              <div className="absolute -right-3 -bottom-3 opacity-10 group-hover:opacity-20 transition-opacity text-stone-900 pointer-events-none">
-                <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                </svg>
               </div>
             </div>
           )}
@@ -83,8 +139,8 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-white rounded-3xl border border-black/5 p-8">
-            <p className="text-[#1A1A1A]/50 text-sm">
+          <div className="text-center py-12 bg-white/95 backdrop-blur-md rounded-3xl border border-black/5 p-8 shadow-sm">
+            <p className="text-[#1A1A1A]/70 text-sm">
               {language === 'en' ? 'No active services available.' : 'აქტიური მომსახურებები არ არის დამატებული.'}
             </p>
             <button

@@ -27,6 +27,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   heroTextColorMode: 'auto',
   heroCoverPositionMobile: '41% 25%',
   heroCoverPositionDesktop: 'center',
+  servicesCoverImage: 'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=2000&q=85',
+  servicesCoverOverlayOpacity: 45,
+  servicesTextColorMode: 'light',
+  servicesCoverPositionMobile: 'center',
+  servicesCoverPositionDesktop: 'center',
   telegramEnabled: true,
   telegramBotToken: '8804688673:AAENYbJOm1y8r4uIbFy8wZzmpW-UW5SZom4',
   telegramChatId: '1655481200'
