@@ -3,13 +3,14 @@ import { BookOpen, Clock, ArrowRight, X, Sparkles, CheckCircle2, MessageCircle, 
 import { Language, SiteSettings, TravelGuide } from '../types';
 import { TRAVEL_GUIDES } from '../data/seoData';
 import { formatImageUrl, getObjectPositionStyle } from '../utils/imageHelper';
+import { SectionCoverKey } from './SectionCoverCustomizer';
 
 interface TravelGuidesSectionProps {
   guides?: TravelGuide[];
   settings: SiteSettings;
   language: Language;
   onBookTour: (tourId?: string, title?: string) => void;
-  onOpenAdminSettings?: (tab?: 'services' | 'settings') => void;
+  onOpenAdminSettings?: (tab?: 'services' | 'tours' | 'guides' | 'inquiries' | 'settings', sectionCover?: SectionCoverKey) => void;
   isAdminAuthorized?: boolean;
 }
 
@@ -108,7 +109,7 @@ export const TravelGuidesSection: React.FC<TravelGuidesSectionProps> = ({
           {isAdminAuthorized && onOpenAdminSettings && (
             <button
               type="button"
-              onClick={() => onOpenAdminSettings('settings')}
+              onClick={() => onOpenAdminSettings('settings', 'guides')}
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 hover:bg-white text-stone-900 border border-stone-300 shadow-xs cursor-pointer backdrop-blur-xs self-start sm:self-auto"
             >
               <ImageIcon className="w-3.5 h-3.5 text-amber-600" />

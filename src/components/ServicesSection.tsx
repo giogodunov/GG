@@ -3,13 +3,14 @@ import { Plus, Image as ImageIcon } from 'lucide-react';
 import { Service, SiteSettings, Language } from '../types';
 import { ServiceCard } from './ServiceCard';
 import { translations } from '../utils/translations';
+import { SectionCoverKey } from './SectionCoverCustomizer';
 
 interface ServicesSectionProps {
   services: Service[];
   settings: SiteSettings;
   onBookService: (service: Service) => void;
   onOpenAddService: () => void;
-  onOpenAdminSettings?: (tab?: 'services' | 'settings') => void;
+  onOpenAdminSettings?: (tab?: 'services' | 'tours' | 'guides' | 'inquiries' | 'settings', sectionCover?: SectionCoverKey) => void;
   language: Language;
   isAdminAuthorized?: boolean;
 }
@@ -122,7 +123,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
               {onOpenAdminSettings && (
                 <button
                   type="button"
-                  onClick={() => onOpenAdminSettings('settings')}
+                  onClick={() => onOpenAdminSettings('settings', 'services')}
                   id="btn-customize-services-bg"
                   className="inline-flex items-center gap-1.5 bg-white/90 hover:bg-white text-stone-900 px-3.5 py-2.5 rounded-2xl text-xs font-semibold shadow-md transition-all cursor-pointer backdrop-blur-md border border-stone-200"
                   title="ფონის შეცვლა ან გამორთვა"

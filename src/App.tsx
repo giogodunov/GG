@@ -31,6 +31,7 @@ import { Toast } from './components/Toast';
 import { SeoStructuredData } from './components/SeoStructuredData';
 import { TravelGuidesSection } from './components/TravelGuidesSection';
 import { FaqSection } from './components/FaqSection';
+import { SectionCoverKey } from './components/SectionCoverCustomizer';
 import { Compass, PlusCircle, Settings, Image as ImageIcon } from 'lucide-react';
 import { formatImageUrl, getObjectPositionStyle } from './utils/imageHelper';
 
@@ -64,6 +65,7 @@ export default function App() {
   const [adminModal, setAdminModal] = useState<{
     isOpen: boolean;
     tab: 'services' | 'tours' | 'guides' | 'inquiries' | 'settings';
+    sectionCover?: SectionCoverKey;
   }>({ isOpen: false, tab: 'services' });
 
   // Admin access mode: Only authorized if accessed via secret link (#admin, ?admin=secret) or saved in localStorage
@@ -378,7 +380,7 @@ export default function App() {
             {isAdminAuthorized && (
               <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
                 <button
-                  onClick={() => setAdminModal({ isOpen: true, tab: 'settings' })}
+                  onClick={() => setAdminModal({ isOpen: true, tab: 'settings', sectionCover: 'tours' })}
                   type="button"
                   className="inline-flex items-center gap-2 bg-white/90 hover:bg-white text-stone-900 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs cursor-pointer border border-stone-300 backdrop-blur-xs"
                 >
@@ -458,7 +460,7 @@ export default function App() {
           })
         }
         onOpenAddService={() => setAdminModal({ isOpen: true, tab: 'services' })}
-        onOpenAdminSettings={(tab = 'settings') => setAdminModal({ isOpen: true, tab })}
+        onOpenAdminSettings={(tab = 'settings', cover = 'services') => setAdminModal({ isOpen: true, tab, sectionCover: cover })}
         language={language}
         isAdminAuthorized={isAdminAuthorized}
       />
@@ -484,7 +486,7 @@ export default function App() {
             }
           });
         }}
-        onOpenAdminSettings={(tab = 'settings') => setAdminModal({ isOpen: true, tab })}
+        onOpenAdminSettings={(tab = 'settings', cover = 'guides') => setAdminModal({ isOpen: true, tab, sectionCover: cover })}
         isAdminAuthorized={isAdminAuthorized}
       />
 
@@ -501,14 +503,14 @@ export default function App() {
             }
           })
         }
-        onOpenAdminSettings={(tab = 'settings') => setAdminModal({ isOpen: true, tab })}
+        onOpenAdminSettings={(tab = 'settings', cover = 'faq') => setAdminModal({ isOpen: true, tab, sectionCover: cover })}
         isAdminAuthorized={isAdminAuthorized}
       />
 
       {/* Minimalist Contact & Footer */}
       <ContactSection
         settings={settings}
-        onOpenAdmin={(tab = 'services') => setAdminModal({ isOpen: true, tab })}
+        onOpenAdmin={(tab = 'services', cover = 'footer') => setAdminModal({ isOpen: true, tab, sectionCover: cover })}
         onOpenBooking={() =>
           setBookingModal({
             isOpen: true,
@@ -576,6 +578,7 @@ export default function App() {
       <AdminPanelModal
         isOpen={adminModal.isOpen}
         initialTab={adminModal.tab}
+        initialSectionCover={adminModal.sectionCover}
         onClose={() => setAdminModal({ isOpen: false, tab: 'services' })}
         tours={tours}
         services={services}

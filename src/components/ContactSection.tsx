@@ -4,10 +4,11 @@ import { SiteSettings, Language } from '../types';
 import { translations } from '../utils/translations';
 import { BrandLogo } from './BrandLogo';
 import { formatImageUrl, getObjectPositionStyle } from '../utils/imageHelper';
+import { SectionCoverKey } from './SectionCoverCustomizer';
 
 interface ContactSectionProps {
   settings: SiteSettings;
-  onOpenAdmin: (tab?: 'services' | 'tours' | 'inquiries' | 'settings') => void;
+  onOpenAdmin: (tab?: 'services' | 'tours' | 'guides' | 'inquiries' | 'settings', sectionCover?: SectionCoverKey) => void;
   onOpenBooking: () => void;
   language: Language;
   isAdminAuthorized?: boolean;
@@ -94,7 +95,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               {isAdminAuthorized && (
                 <button
                   type="button"
-                  onClick={() => onOpenAdmin('settings')}
+                  onClick={() => onOpenAdmin('settings', 'footer')}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 hover:bg-white text-stone-900 border border-stone-300 shadow-xs cursor-pointer backdrop-blur-xs"
                 >
                   <ImageIcon className="w-3.5 h-3.5 text-amber-600" />

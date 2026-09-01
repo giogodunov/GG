@@ -3,12 +3,13 @@ import { ChevronDown, HelpCircle, MessageCircle, Phone, Image as ImageIcon } fro
 import { Language, SiteSettings } from '../types';
 import { SEO_FAQS, FaqItem } from '../data/seoData';
 import { formatImageUrl, getObjectPositionStyle } from '../utils/imageHelper';
+import { SectionCoverKey } from './SectionCoverCustomizer';
 
 interface FaqSectionProps {
   settings: SiteSettings;
   language: Language;
   onOpenBooking: () => void;
-  onOpenAdminSettings?: (tab?: 'services' | 'settings') => void;
+  onOpenAdminSettings?: (tab?: 'services' | 'tours' | 'guides' | 'inquiries' | 'settings', sectionCover?: SectionCoverKey) => void;
   isAdminAuthorized?: boolean;
 }
 
@@ -119,7 +120,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({
             <div className="mt-4 flex justify-center">
               <button
                 type="button"
-                onClick={() => onOpenAdminSettings('settings')}
+                onClick={() => onOpenAdminSettings('settings', 'faq')}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 hover:bg-white text-stone-900 border border-stone-300 shadow-xs cursor-pointer backdrop-blur-xs"
               >
                 <ImageIcon className="w-3.5 h-3.5 text-amber-600" />
