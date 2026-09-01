@@ -1,22 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Rich emerald gradient background -->
+    <linearGradient id="faviconBg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#1B3B2B" />
       <stop offset="100%" stop-color="#0F241A" />
     </linearGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FBBF24" />
+
+    <!-- Glowing golden amber gradient for the accent -->
+    <linearGradient id="faviconGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="50%" stop-color="#FBBF24" />
       <stop offset="100%" stop-color="#D97706" />
     </linearGradient>
+
+    <!-- Subtle drop shadow for crisp visibility on any browser background -->
+    <filter id="tabShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
   </defs>
 
-  <!-- Background rounded squircle / circle for crisp tab visibility in both light and dark browser modes -->
-  <rect width="128" height="128" rx="28" fill="url(#bgGrad)" />
-  <rect width="124" height="124" x="2" y="2" rx="26" fill="none" stroke="#FBBF24" stroke-width="2" stroke-opacity="0.35" />
+  <!-- Crisp squircle frame with dark green background & thin gold border -->
+  <rect width="128" height="128" rx="28" fill="url(#faviconBg)" />
+  <rect width="124" height="124" x="2" y="2" rx="26" fill="none" stroke="#FBBF24" stroke-width="2.5" stroke-opacity="0.45" />
 
-  <!-- InGeorgiaTours "G" Emblem -->
-  <g transform="translate(19, 21) scale(0.98)">
-    <!-- Left C-Arc Segment -->
+  <!-- InGeorgiaTours Custom Logo "G" Symbol with crisp vectors -->
+  <g transform="translate(18, 19) scale(1.02)" filter="url(#tabShadow)">
+    <!-- Left C-Arc Segment (Pure White) -->
     <path
       d="M 46 10.2
          A 42 42 0 0 0 46 93.8
@@ -26,7 +35,7 @@
       fill="#FFFFFF"
     />
 
-    <!-- Right Bottom Arc & G Horizontal Crossbar -->
+    <!-- Right Bottom Arc & G Horizontal Crossbar (Pure White) -->
     <path
       d="M 54 93.8
          A 42 42 0 0 0 92 52
@@ -39,14 +48,14 @@
       fill="#FFFFFF"
     />
 
-    <!-- Top-Right Golden Accent -->
+    <!-- Top-Right Golden Accent Block (G Emblem Signature) -->
     <rect
       x="54"
       y="10.2"
       width="24"
       height="22"
       rx="3"
-      fill="url(#goldGrad)"
+      fill="url(#faviconGold)"
     />
   </g>
 </svg>
