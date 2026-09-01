@@ -99,3 +99,49 @@ export function compressImageFile(
     reader.readAsDataURL(file);
   });
 }
+
+/**
+ * Converts stored position string (e.g. 'center', 'top', '50% 30%') into standard CSS object-position
+ */
+export function getObjectPositionStyle(pos?: string): string {
+  if (!pos || pos === 'center') return '50% 50%';
+  if (pos === 'top') return '50% 0%';
+  if (pos === 'bottom') return '50% 100%';
+  if (pos === 'left') return '0% 50%';
+  if (pos === 'right') return '100% 50%';
+  if (pos === 'top-left') return '0% 0%';
+  if (pos === 'top-right') return '100% 0%';
+  if (pos === 'bottom-left') return '0% 100%';
+  if (pos === 'bottom-right') return '100% 100%';
+  if (pos.includes('%') || pos.includes('px')) {
+    return pos;
+  }
+  return '50% 50%';
+}
+
+/**
+ * Parses any position string into numeric X and Y percentage (0-100)
+ */
+export function parseXYPosition(pos?: string): { x: number; y: number } {
+  if (!pos || pos === 'center') return { x: 50, y: 50 };
+  if (pos === 'top') return { x: 50, y: 0 };
+  if (pos === 'bottom') return { x: 50, y: 100 };
+  if (pos === 'left') return { x: 0, y: 50 };
+  if (pos === 'right') return { x: 100, y: 50 };
+  if (pos === 'top-left') return { x: 0, y: 0 };
+  if (pos === 'top-right') return { x: 100, y: 0 };
+  if (pos === 'bottom-left') return { x: 0, y: 100 };
+  if (pos === 'bottom-right') return { x: 100, y: 100 };
+  if (pos.includes('%')) {
+    const parts = pos.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      const x = Math.max(0, Math.min(100, Math.round(parseFloat(parts[0]))));
+      const y = Math.max(0, Math.min(100, Math.round(parseFloat(parts[1]))));
+      if (!isNaN(x) && !isNaN(y)) {
+        return { x, y };
+      }
+    }
+  }
+  return { x: 50, y: 50 };
+}
+

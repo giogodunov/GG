@@ -101,11 +101,31 @@ export interface SiteSettings {
   heroTextColorMode?: 'auto' | 'dark' | 'light'; // text color mode for hero
   heroCoverPositionMobile?: string; // e.g. 'center', 'top', 'bottom', 'left', 'right', or '50% 30%'
   heroCoverPositionDesktop?: string; // e.g. 'center', 'top', 'bottom', or '50% 50%'
+  toursCoverImage?: string; // custom background cover for Featured Itineraries (Tours)
+  toursCoverOverlayOpacity?: number; // 0 to 90 (% darkness)
+  toursTextColorMode?: 'auto' | 'dark' | 'light';
+  toursCoverPositionMobile?: string;
+  toursCoverPositionDesktop?: string;
   servicesCoverImage?: string; // custom background cover for Transfers, Guides & Services section
   servicesCoverOverlayOpacity?: number; // 0 to 90 (% darkness)
   servicesTextColorMode?: 'auto' | 'dark' | 'light'; // text color mode for services section
   servicesCoverPositionMobile?: string;
   servicesCoverPositionDesktop?: string;
+  guidesCoverImage?: string; // custom background cover for Travel Guides section
+  guidesCoverOverlayOpacity?: number;
+  guidesTextColorMode?: 'auto' | 'dark' | 'light';
+  guidesCoverPositionMobile?: string;
+  guidesCoverPositionDesktop?: string;
+  faqCoverImage?: string; // custom background cover for FAQ section
+  faqCoverOverlayOpacity?: number;
+  faqTextColorMode?: 'auto' | 'dark' | 'light';
+  faqCoverPositionMobile?: string;
+  faqCoverPositionDesktop?: string;
+  footerCoverImage?: string; // custom background cover for Footer / Contact section
+  footerCoverOverlayOpacity?: number;
+  footerTextColorMode?: 'auto' | 'dark' | 'light';
+  footerCoverPositionMobile?: string;
+  footerCoverPositionDesktop?: string;
   telegramEnabled?: boolean;
   telegramBotToken?: string;
   telegramChatId?: string;

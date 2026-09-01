@@ -1,20 +1,25 @@
 import React, { useState } from 'react';
-import { BookOpen, Clock, ArrowRight, X, Sparkles, CheckCircle2, MessageCircle } from 'lucide-react';
+import { BookOpen, Clock, ArrowRight, X, Sparkles, CheckCircle2, MessageCircle, Image as ImageIcon } from 'lucide-react';
 import { Language, SiteSettings, TravelGuide } from '../types';
 import { TRAVEL_GUIDES } from '../data/seoData';
+import { formatImageUrl, getObjectPositionStyle } from '../utils/imageHelper';
 
 interface TravelGuidesSectionProps {
   guides?: TravelGuide[];
   settings: SiteSettings;
   language: Language;
   onBookTour: (tourId?: string, title?: string) => void;
+  onOpenAdminSettings?: (tab?: 'services' | 'settings') => void;
+  isAdminAuthorized?: boolean;
 }
 
 export const TravelGuidesSection: React.FC<TravelGuidesSectionProps> = ({
   guides = TRAVEL_GUIDES,
   settings,
   language,
-  onBookTour
+  onBookTour,
+  onOpenAdminSettings,
+  isAdminAuthorized = false
 }) => {
   const isEn = language === 'en';
   const [selectedGuide, setSelectedGuide] = useState<TravelGuide | null>(null);
@@ -23,27 +28,93 @@ export const TravelGuidesSection: React.FC<TravelGuidesSectionProps> = ({
     (g) => g.isActive !== false
   );
 
+  const formattedCoverUrl = formatImageUrl(settings?.guidesCoverImage);
+  const hasCoverImage = Boolean(formattedCoverUrl && formattedCoverUrl.trim() !== '');
+  const opacity = settings?.guidesCoverOverlayOpacity !== undefined ? settings.guidesCoverOverlayOpacity : 35;
+  const isLightText =
+    hasCoverImage &&
+    (settings?.guidesTextColorMode === 'light' ||
+      (!settings?.guidesTextColorMode && opacity >= 25) ||
+      settings?.guidesTextColorMode === 'auto');
+
+  const mobilePos = getObjectPositionStyle(settings?.guidesCoverPositionMobile);
+  const desktopPos = getObjectPositionStyle(settings?.guidesCoverPositionDesktop);
+
   const whatsappCleanNumber = (settings.whatsappNumber || '995555123456').replace(/[^0-9]/g, '');
 
   return (
-    <section id="guides" className="py-16 sm:py-20 border-b border-black/5 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="guides"
+      className={`relative py-16 sm:py-20 border-b border-black/5 transition-all overflow-hidden ${
+        hasCoverImage ? 'text-white' : 'text-[#1A1A1A] bg-white'
+      }`}
+    >
+      {/* Background Cover Image with responsive alignment & overlay */}
+      {hasCoverImage && (
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <img
+            src={formattedCoverUrl}
+            alt="Travel Guides background mobile"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover sm:hidden"
+            style={{ objectPosition: mobilePos }}
+          />
+          <img
+            src={formattedCoverUrl}
+            alt="Travel Guides background desktop"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover hidden sm:block"
+            style={{ objectPosition: desktopPos }}
+          />
+          <div
+            className="absolute inset-0 bg-stone-950"
+            style={{ opacity: opacity / 100 }}
+          />
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+        </div>
+      )}
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest text-[#1A1A1A]/40 mb-1">
+            <div
+              className={`inline-flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest mb-1 ${
+                isLightText ? 'text-amber-300 drop-shadow-xs' : 'text-[#1A1A1A]/40'
+              }`}
+            >
               <BookOpen className="w-3.5 h-3.5" />
               <span>{isEn ? 'Georgia Travel Insights' : 'გზამკვლევები & რჩევები'}</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif italic text-[#1A1A1A] tracking-tight">
+            <h2
+              className={`text-3xl sm:text-4xl lg:text-5xl font-serif italic tracking-tight ${
+                isLightText ? 'text-white drop-shadow-xs' : 'text-[#1A1A1A]'
+              }`}
+            >
               {isEn ? 'Travel Guides & Local Tips' : 'სასარგებლო გზამკვლევი'}
             </h2>
-            <p className="mt-2 text-sm text-[#1A1A1A]/60 max-w-xl font-normal">
+            <p
+              className={`mt-2 text-sm max-w-xl font-normal ${
+                isLightText ? 'text-stone-200 drop-shadow-xs' : 'text-[#1A1A1A]/60'
+              }`}
+            >
               {isEn
                 ? 'Practical advice, airport transfer logistics, and scenic road trip recommendations for traveling in Georgia.'
                 : 'პრაქტიკული რჩევები, აეროპორტის ტრანსფერები და რეკომენდაციები საქართველოს აღმოსაჩენად.'}
             </p>
           </div>
+
+          {isAdminAuthorized && onOpenAdminSettings && (
+            <button
+              type="button"
+              onClick={() => onOpenAdminSettings('settings')}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 hover:bg-white text-stone-900 border border-stone-300 shadow-xs cursor-pointer backdrop-blur-xs self-start sm:self-auto"
+            >
+              <ImageIcon className="w-3.5 h-3.5 text-amber-600" />
+              <span>ფონის მორგება</span>
+            </button>
+          )}
         </div>
 
         {/* Guides Cards Grid */}

@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
-import { ChevronDown, HelpCircle, MessageCircle, Phone } from 'lucide-react';
+import { ChevronDown, HelpCircle, MessageCircle, Phone, Image as ImageIcon } from 'lucide-react';
 import { Language, SiteSettings } from '../types';
 import { SEO_FAQS, FaqItem } from '../data/seoData';
+import { formatImageUrl, getObjectPositionStyle } from '../utils/imageHelper';
 
 interface FaqSectionProps {
   settings: SiteSettings;
   language: Language;
   onOpenBooking: () => void;
+  onOpenAdminSettings?: (tab?: 'services' | 'settings') => void;
+  isAdminAuthorized?: boolean;
 }
 
 export const FaqSection: React.FC<FaqSectionProps> = ({
   settings,
   language,
-  onOpenBooking
+  onOpenBooking,
+  onOpenAdminSettings,
+  isAdminAuthorized = false
 }) => {
   const isEn = language === 'en';
   const [openId, setOpenId] = useState<string | null>('faq-1');
@@ -35,25 +40,93 @@ export const FaqSection: React.FC<FaqSectionProps> = ({
     setOpenId((prev) => (prev === id ? null : id));
   };
 
+  const formattedCoverUrl = formatImageUrl(settings?.faqCoverImage);
+  const hasCoverImage = Boolean(formattedCoverUrl && formattedCoverUrl.trim() !== '');
+  const opacity = settings?.faqCoverOverlayOpacity !== undefined ? settings.faqCoverOverlayOpacity : 35;
+  const isLightText =
+    hasCoverImage &&
+    (settings?.faqTextColorMode === 'light' ||
+      (!settings?.faqTextColorMode && opacity >= 25) ||
+      settings?.faqTextColorMode === 'auto');
+
+  const mobilePos = getObjectPositionStyle(settings?.faqCoverPositionMobile);
+  const desktopPos = getObjectPositionStyle(settings?.faqCoverPositionDesktop);
+
   const whatsappCleanNumber = (settings.whatsappNumber || '995555123456').replace(/[^0-9]/g, '');
 
   return (
-    <section id="faq" className="py-16 sm:py-20 border-b border-black/5 bg-[#F9F7F2]">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section
+      id="faq"
+      className={`relative py-16 sm:py-20 border-b border-black/5 transition-all overflow-hidden ${
+        hasCoverImage ? 'text-white' : 'text-[#1A1A1A] bg-[#F9F7F2]'
+      }`}
+    >
+      {/* Background Cover Image with responsive alignment & overlay */}
+      {hasCoverImage && (
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <img
+            src={formattedCoverUrl}
+            alt="FAQ background mobile"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover sm:hidden"
+            style={{ objectPosition: mobilePos }}
+          />
+          <img
+            src={formattedCoverUrl}
+            alt="FAQ background desktop"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover hidden sm:block"
+            style={{ objectPosition: desktopPos }}
+          />
+          <div
+            className="absolute inset-0 bg-stone-950"
+            style={{ opacity: opacity / 100 }}
+          />
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+        </div>
+      )}
+
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest text-[#1A1A1A]/40 mb-2">
+        <div className="text-center mb-10 relative">
+          <div
+            className={`inline-flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest mb-2 ${
+              isLightText ? 'text-amber-300 drop-shadow-xs' : 'text-[#1A1A1A]/40'
+            }`}
+          >
             <HelpCircle className="w-3.5 h-3.5" />
             <span>{isEn ? 'Common Questions' : 'ხშირად დასმული კითხვები'}</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif italic text-[#1A1A1A] tracking-tight">
+          <h2
+            className={`text-3xl sm:text-4xl lg:text-5xl font-serif italic tracking-tight ${
+              isLightText ? 'text-white drop-shadow-xs' : 'text-[#1A1A1A]'
+            }`}
+          >
             {isEn ? 'Frequently Asked Questions' : 'კითხვები & პასუხები'}
           </h2>
-          <p className="mt-3 text-sm text-[#1A1A1A]/60 max-w-xl mx-auto">
+          <p
+            className={`mt-3 text-sm max-w-xl mx-auto ${
+              isLightText ? 'text-stone-200 drop-shadow-xs' : 'text-[#1A1A1A]/60'
+            }`}
+          >
             {isEn
               ? 'Everything you need to know about our private tours, Kutaisi & Tbilisi airport transfers, and flexible booking conditions.'
               : 'ყველაფერი რაც უნდა იცოდეთ ჩვენი ტურების, აეროპორტის ტრანსფერებისა და დაჯავშნის პირობების შესახებ.'}
           </p>
+
+          {isAdminAuthorized && onOpenAdminSettings && (
+            <div className="mt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => onOpenAdminSettings('settings')}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/90 hover:bg-white text-stone-900 border border-stone-300 shadow-xs cursor-pointer backdrop-blur-xs"
+              >
+                <ImageIcon className="w-3.5 h-3.5 text-amber-600" />
+                <span>ფონის მორგება</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Category Pills */}

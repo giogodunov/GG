@@ -32,6 +32,7 @@ import { SeoStructuredData } from './components/SeoStructuredData';
 import { TravelGuidesSection } from './components/TravelGuidesSection';
 import { FaqSection } from './components/FaqSection';
 import { Compass, PlusCircle, Settings, Image as ImageIcon } from 'lucide-react';
+import { formatImageUrl, getObjectPositionStyle } from './utils/imageHelper';
 
 export default function App() {
   // Language state: 'ka' (Georgian) or 'en' (English)
@@ -253,6 +254,17 @@ export default function App() {
     return inquiries.filter((i) => i.status === 'new').length;
   }, [inquiries]);
 
+  const formattedToursCoverUrl = formatImageUrl(settings?.toursCoverImage);
+  const hasToursCover = Boolean(formattedToursCoverUrl && formattedToursCoverUrl.trim() !== '');
+  const toursOverlayOpacity = settings?.toursCoverOverlayOpacity !== undefined ? settings.toursCoverOverlayOpacity : 35;
+  const isToursLightText =
+    hasToursCover &&
+    (settings?.toursTextColorMode === 'light' ||
+      (!settings?.toursTextColorMode && toursOverlayOpacity >= 25) ||
+      settings?.toursTextColorMode === 'auto');
+  const toursMobilePos = getObjectPositionStyle(settings?.toursCoverPositionMobile);
+  const toursDesktopPos = getObjectPositionStyle(settings?.toursCoverPositionDesktop);
+
   return (
     <div
       style={{ backgroundColor: settings.backgroundColor || '#F9F7F2' }}
@@ -303,32 +315,85 @@ export default function App() {
       />
 
       {/* Main Tours Section */}
-      <main id="tours" className="flex-1 py-16 sm:py-20 border-b border-black/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main
+        id="tours"
+        className={`relative flex-1 py-16 sm:py-20 border-b border-black/5 transition-all overflow-hidden ${
+          hasToursCover ? 'text-white' : 'text-[#1A1A1A]'
+        }`}
+      >
+        {/* Tours Background Cover */}
+        {hasToursCover && (
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <img
+              src={formattedToursCoverUrl}
+              alt="Tours cover mobile"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover sm:hidden"
+              style={{ objectPosition: toursMobilePos }}
+            />
+            <img
+              src={formattedToursCoverUrl}
+              alt="Tours cover desktop"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover hidden sm:block"
+              style={{ objectPosition: toursDesktopPos }}
+            />
+            <div
+              className="absolute inset-0 bg-stone-950"
+              style={{ opacity: toursOverlayOpacity / 100 }}
+            />
+            <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          </div>
+        )}
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header Bar */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
             <div>
-              <div className="text-[10px] uppercase font-bold tracking-widest text-[#1A1A1A]/40 mb-1">
+              <div
+                className={`text-[10px] uppercase font-bold tracking-widest mb-1 ${
+                  isToursLightText ? 'text-amber-300 drop-shadow-xs' : 'text-[#1A1A1A]/40'
+                }`}
+              >
                 {t.toursBadge}
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif italic text-[#1A1A1A] tracking-tight">
+              <h2
+                className={`text-3xl sm:text-4xl lg:text-5xl font-serif italic tracking-tight ${
+                  isToursLightText ? 'text-white drop-shadow-xs' : 'text-[#1A1A1A]'
+                }`}
+              >
                 {t.toursTitle}
               </h2>
-              <p className="mt-2 text-sm text-[#1A1A1A]/60 max-w-xl font-normal">
+              <p
+                className={`mt-2 text-sm max-w-xl font-normal ${
+                  isToursLightText ? 'text-stone-200 drop-shadow-xs' : 'text-[#1A1A1A]/60'
+                }`}
+              >
                 {t.toursSubtitle}
               </p>
             </div>
 
-            {/* Quick action button for adding tour - Only for Admin */}
+            {/* Quick action button for adding tour or configuring background - Only for Admin */}
             {isAdminAuthorized && (
-              <button
-                onClick={() => setAdminModal({ isOpen: true, tab: 'tours' })}
-                id="btn-add-tour-shortcut"
-                className="inline-flex items-center gap-2 bg-stone-900 hover:bg-black text-white px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors self-start sm:self-auto shrink-0 shadow-xs cursor-pointer"
-              >
-                <PlusCircle className="w-4 h-4 text-amber-300" />
-                <span>{t.adminAddTour}</span>
-              </button>
+              <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+                <button
+                  onClick={() => setAdminModal({ isOpen: true, tab: 'settings' })}
+                  type="button"
+                  className="inline-flex items-center gap-2 bg-white/90 hover:bg-white text-stone-900 px-3.5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs cursor-pointer border border-stone-300 backdrop-blur-xs"
+                >
+                  <ImageIcon className="w-4 h-4 text-amber-600" />
+                  <span>ფონის მორგება</span>
+                </button>
+                <button
+                  onClick={() => setAdminModal({ isOpen: true, tab: 'tours' })}
+                  id="btn-add-tour-shortcut"
+                  className="inline-flex items-center gap-2 bg-stone-900 hover:bg-black text-white px-5 py-3 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors shadow-xs cursor-pointer"
+                >
+                  <PlusCircle className="w-4 h-4 text-amber-300" />
+                  <span>{t.adminAddTour}</span>
+                </button>
+              </div>
             )}
           </div>
 
@@ -419,6 +484,8 @@ export default function App() {
             }
           });
         }}
+        onOpenAdminSettings={(tab = 'settings') => setAdminModal({ isOpen: true, tab })}
+        isAdminAuthorized={isAdminAuthorized}
       />
 
       {/* Frequently Asked Questions (FAQ) Section with Rich Snippets */}
@@ -434,6 +501,8 @@ export default function App() {
             }
           })
         }
+        onOpenAdminSettings={(tab = 'settings') => setAdminModal({ isOpen: true, tab })}
+        isAdminAuthorized={isAdminAuthorized}
       />
 
       {/* Minimalist Contact & Footer */}
