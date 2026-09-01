@@ -1,6 +1,6 @@
 {
   "name": "InGeorgiaTours",
-  "description": "მინიმალისტური ტურისტული ვებ-გვერდი საქართველოში ტურების დასათვალიერებლად, სერვისების სამართავად და WhatsApp-ით/ფორმით მარტივი დაჯავშნისთვის.",
+  "description": "ექსკლუზიური ტურები საქართველოში, გიდის მომსახურება და აეროპორტის ტრანსფერები (Kazbegi, Svaneti, Martvili). მარტივად დაჯავშნეთ ონლაინ WhatsApp-ით!",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

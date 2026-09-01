@@ -31,7 +31,7 @@ import { Toast } from './components/Toast';
 import { SeoStructuredData } from './components/SeoStructuredData';
 import { TravelGuidesSection } from './components/TravelGuidesSection';
 import { FaqSection } from './components/FaqSection';
-import { Compass, PlusCircle, Settings } from 'lucide-react';
+import { Compass, PlusCircle, Settings, Image as ImageIcon } from 'lucide-react';
 
 export default function App() {
   // Language state: 'ka' (Georgian) or 'en' (English)

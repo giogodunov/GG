@@ -34,8 +34,8 @@ export const SeoStructuredData: React.FC<SeoStructuredDataProps> = ({
         ? `${siteBrand} | Private Tours, Transfers & Travel in Georgia`
         : `${siteBrand} | ტურები, ტრანსფერები და მოგზაურობა საქართველოში`;
       const defaultDesc = isEn
-        ? 'Discover Georgia with tailor-made private tours, Kutaisi & Tbilisi airport transfers, wine tastings in Kakheti, and mountain expeditions in Kazbegi and Svaneti. Instant WhatsApp booking.'
-        : 'ინდივიდუალური და ჯგუფური ტურები საქართველოში, აეროპორტის ტრანსფერები (ქუთაისი, თბილისი, ბათუმი), გიდის მომსახურება და მანქანის ქირაობა მძღოლით. მარტივი დაჯავშნა WhatsApp-ით.';
+        ? 'Custom private tours in Georgia, certified guides & airport transfers (Kazbegi, Svaneti, Martvili). Book online easily via WhatsApp!'
+        : 'ექსკლუზიური ტურები საქართველოში, გიდის მომსახურება და აეროპორტის ტრანსფერები (Kazbegi, Svaneti, Martvili). მარტივად დაჯავშნეთ ონლაინ WhatsApp-ით!';
       
       document.title = defaultTitle;
       

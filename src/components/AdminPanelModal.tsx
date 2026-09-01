@@ -3346,69 +3346,232 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Mobile Focal Point / Position */}
+                        {/* Mobile Focal Point / Interactive Pin Canvas */}
                         <div className="pt-2 border-t border-stone-200">
-                          <label className="block text-[11px] font-semibold text-stone-700 mb-1.5 flex items-center gap-1.5">
-                            <Smartphone className="w-3.5 h-3.5 text-stone-700" />
-                            <span>მობილურზე ფოტოს ფოკუსი (Mobile Crop):</span>
-                          </label>
-                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
-                            {[
-                              { id: '50% 50%', label: '⏺️ ცენტრი' },
-                              { id: '50% 0%', label: '⬆️ ზედა' },
-                              { id: '50% 100%', label: '⬇️ ქვედა' },
-                              { id: '0% 50%', label: '⬅️ მარცხენა' },
-                              { id: '100% 50%', label: '➡️ მარჯვენა' }
-                            ].map((pos) => {
-                              const currentVal = settingsForm.servicesCoverPositionMobile || '50% 50%';
-                              const isSelected =
-                                currentVal === pos.id ||
-                                (pos.id === '50% 50%' && currentVal === 'center') ||
-                                (pos.id === '50% 0%' && currentVal === 'top') ||
-                                (pos.id === '50% 100%' && currentVal === 'bottom') ||
-                                (pos.id === '0% 50%' && currentVal === 'left') ||
-                                (pos.id === '100% 50%' && currentVal === 'right');
-                              return (
-                                <button
-                                  key={pos.id}
-                                  type="button"
-                                  onClick={() =>
-                                    setSettingsForm({
-                                      ...settingsForm,
-                                      servicesCoverPositionMobile: pos.id
-                                    })
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-[11px] font-semibold text-stone-700 flex items-center gap-1.5">
+                              <Smartphone className="w-3.5 h-3.5 text-stone-700" />
+                              <span>მობილურის კადრირება & გადაადგილება (Mobile Focal Point):</span>
+                            </label>
+                            <span className="text-[10px] bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-medium">
+                              ინტერაქტიული
+                            </span>
+                          </div>
+
+                          <div className="bg-stone-50 p-4 rounded-xl border border-stone-200">
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+                              
+                              {/* Interactive Focal Pin Canvas */}
+                              <div className="lg:col-span-7 flex flex-col gap-2">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[11px] font-bold text-stone-700 flex items-center gap-1">
+                                    <Move className="w-3.5 h-3.5 text-amber-600" />
+                                    სრული ფოტო (დააწკაპუნეთ ან გადაათრიეთ წრე):
+                                  </span>
+                                  {(() => {
+                                    const val = settingsForm.servicesCoverPositionMobile || '50% 50%';
+                                    let xPercent = 50;
+                                    let yPercent = 50;
+                                    if (val === 'top') { xPercent = 50; yPercent = 0; }
+                                    else if (val === 'bottom') { xPercent = 50; yPercent = 100; }
+                                    else if (val === 'left') { xPercent = 0; yPercent = 50; }
+                                    else if (val === 'right') { xPercent = 100; yPercent = 50; }
+                                    else if (val.includes('%')) {
+                                      const parts = val.split(' ');
+                                      if (parts.length === 2) {
+                                        xPercent = Math.round(parseFloat(parts[0]));
+                                        yPercent = Math.round(parseFloat(parts[1]));
+                                      }
+                                    }
+                                    return (
+                                      <span className="text-[10px] font-mono font-bold bg-white px-2 py-0.5 rounded border border-stone-200 text-stone-600">
+                                        X: {xPercent}% | Y: {yPercent}%
+                                      </span>
+                                    );
+                                  })()}
+                                </div>
+
+                                {(() => {
+                                  const val = settingsForm.servicesCoverPositionMobile || '50% 50%';
+                                  let currentX = 50;
+                                  let currentY = 50;
+                                  if (val === 'top') { currentX = 50; currentY = 0; }
+                                  else if (val === 'bottom') { currentX = 50; currentY = 100; }
+                                  else if (val === 'left') { currentX = 0; currentY = 50; }
+                                  else if (val === 'right') { currentX = 100; currentY = 50; }
+                                  else if (val.includes('%')) {
+                                    const parts = val.split(' ');
+                                    if (parts.length === 2) {
+                                      currentX = parseFloat(parts[0]);
+                                      currentY = parseFloat(parts[1]);
+                                    }
                                   }
-                                  className={`py-1.5 px-2 rounded-lg border text-xs text-center transition-all cursor-pointer ${
-                                    isSelected
-                                      ? 'bg-stone-900 text-white font-bold border-stone-900 shadow-xs'
-                                      : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
-                                  }`}
-                                >
-                                  {pos.label}
-                                </button>
-                              );
-                            })}
+
+                                  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    const clientX = e.clientX;
+                                    const clientY = e.clientY;
+                                    const clampedX = Math.max(0, Math.min(rect.width, clientX - rect.left));
+                                    const clampedY = Math.max(0, Math.min(rect.height, clientY - rect.top));
+                                    const pctX = Math.round((clampedX / rect.width) * 100);
+                                    const pctY = Math.round((clampedY / rect.height) * 100);
+                                    setSettingsForm((prev) => ({
+                                      ...prev,
+                                      servicesCoverPositionMobile: `${pctX}% ${pctY}%`
+                                    }));
+                                  };
+
+                                  return (
+                                    <div
+                                      className="relative w-full aspect-[16/9] rounded-xl overflow-hidden cursor-crosshair border-2 border-stone-300 shadow-inner bg-stone-900 select-none group"
+                                      onPointerDown={(e) => {
+                                        e.currentTarget.setPointerCapture(e.pointerId);
+                                        handlePointerMove(e);
+                                      }}
+                                      onPointerMove={(e) => {
+                                        if (e.buttons === 1) {
+                                          handlePointerMove(e);
+                                        }
+                                      }}
+                                    >
+                                      <img
+                                        src={formatImageUrl(settingsForm.servicesCoverImage)}
+                                        alt="Services Focal full view"
+                                        className="w-full h-full object-cover pointer-events-none"
+                                        referrerPolicy="no-referrer"
+                                      />
+                                      <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none opacity-25">
+                                        <div className="border-r border-b border-white" />
+                                        <div className="border-r border-b border-white" />
+                                        <div className="border-b border-white" />
+                                        <div className="border-r border-b border-white" />
+                                        <div className="border-r border-b border-white" />
+                                        <div className="border-b border-white" />
+                                        <div className="border-r border-white" />
+                                        <div className="border-r border-white" />
+                                        <div />
+                                      </div>
+
+                                      <div
+                                        className="absolute left-0 right-0 h-px bg-white/60 pointer-events-none transition-all"
+                                        style={{ top: `${currentY}%` }}
+                                      />
+                                      <div
+                                        className="absolute top-0 bottom-0 w-px bg-white/60 pointer-events-none transition-all"
+                                        style={{ left: `${currentX}%` }}
+                                      />
+
+                                      <div
+                                        className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center transition-all"
+                                        style={{
+                                          left: `${currentX}%`,
+                                          top: `${currentY}%`
+                                        }}
+                                      >
+                                        <div className="relative flex items-center justify-center">
+                                          <div className="w-9 h-9 rounded-full border-2 border-white bg-amber-500/90 text-white flex items-center justify-center shadow-lg ring-4 ring-black/30 animate-pulse">
+                                            <Smartphone className="w-4 h-4" />
+                                          </div>
+                                          <div className="absolute -bottom-5 whitespace-nowrap bg-black/80 text-white text-[9px] px-1.5 py-0.5 rounded font-mono shadow-xs">
+                                            მობილურის ფოკუსი
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded backdrop-blur-xs pointer-events-none">
+                                        🖱️ დააწექით მაუსით სასურველ ადგილას
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+
+                                {/* Quick Presets for Reset */}
+                                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                  <span className="text-[10px] text-stone-500 font-medium">სწრაფი გასწორება:</span>
+                                  {[
+                                    { label: 'ცენტრი (50% 50%)', val: '50% 50%' },
+                                    { label: 'ზედა (50% 15%)', val: '50% 15%' },
+                                    { label: 'ქვედა (50% 85%)', val: '50% 85%' },
+                                    { label: 'მარცხენა (20% 50%)', val: '20% 50%' },
+                                    { label: 'მარჯვენა (80% 50%)', val: '80% 50%' }
+                                  ].map((p) => (
+                                    <button
+                                      key={p.val}
+                                      type="button"
+                                      onClick={() => setSettingsForm({ ...settingsForm, servicesCoverPositionMobile: p.val })}
+                                      className="text-[10px] bg-white hover:bg-stone-100 text-stone-700 px-2 py-1 rounded border border-stone-200 transition-colors cursor-pointer"
+                                    >
+                                      {p.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Live Mobile Phone Mockup Preview */}
+                              <div className="lg:col-span-5 flex flex-col items-center justify-center">
+                                <span className="text-[11px] font-bold text-stone-700 mb-2 flex items-center gap-1.5">
+                                  <Smartphone className="w-3.5 h-3.5 text-amber-600" />
+                                  როგორ გამოჩნდება ტელეფონზე:
+                                </span>
+                                
+                                {(() => {
+                                  const val = settingsForm.servicesCoverPositionMobile || '50% 50%';
+                                  let objPos = val;
+                                  if (val === 'top') objPos = '50% 0%';
+                                  else if (val === 'bottom') objPos = '50% 100%';
+                                  else if (val === 'left') objPos = '0% 50%';
+                                  else if (val === 'right') objPos = '100% 50%';
+
+                                  return (
+                                    <div className="relative w-36 h-56 rounded-[2rem] bg-stone-950 p-2 shadow-xl border-4 border-stone-800 overflow-hidden shrink-0">
+                                      <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-10 h-2.5 bg-black rounded-full z-20" />
+                                      <div className="w-full h-full rounded-[1.3rem] overflow-hidden relative bg-stone-900">
+                                        <img
+                                          src={formatImageUrl(settingsForm.servicesCoverImage)}
+                                          alt="Mobile Preview"
+                                          className="w-full h-full object-cover transition-all duration-150"
+                                          style={{ objectPosition: objPos }}
+                                          referrerPolicy="no-referrer"
+                                        />
+                                        <div
+                                          className="absolute inset-0 bg-black"
+                                          style={{ opacity: (settingsForm.servicesCoverOverlayOpacity ?? 45) / 100 }}
+                                        />
+                                        <div className="absolute inset-x-2.5 bottom-4 text-white pointer-events-none">
+                                          <div className="w-8 h-1.5 bg-amber-400 rounded-full mb-1.5" />
+                                          <div className="w-20 h-2.5 bg-white/95 rounded mb-1" />
+                                          <div className="w-14 h-2 bg-white/70 rounded mb-2" />
+                                          <div className="w-16 h-4 bg-[#25D366] rounded-md" />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                                <span className="text-[10px] text-stone-500 mt-2 text-center">
+                                  ცოცხალი რეჟიმი • გადაადგილეთ მაუსით მარცხენა ფოტოზე
+                                </span>
+                              </div>
+
+                            </div>
                           </div>
                         </div>
 
                         {/* Desktop Focal Point */}
                         <div className="pt-2 border-t border-stone-200">
-                          <label className="block text-[11px] font-semibold text-stone-700 mb-1.5 flex items-center gap-1.5">
-                            <Monitor className="w-3.5 h-3.5 text-stone-700" />
-                            <span>კომპიუტერზე ფოტოს ფოკუსი (Desktop Crop):</span>
-                          </label>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="text-[11px] font-semibold text-stone-700 flex items-center gap-1.5">
+                              <Monitor className="w-3.5 h-3.5 text-stone-700" />
+                              <span>კომპიუტერზე / დესკტოპზე ფოკუსი (Desktop Crop):</span>
+                            </label>
+                          </div>
                           <div className="grid grid-cols-3 gap-2">
                             {[
-                              { id: '50% 0%', label: '⬆️ ზედა ნაწილი' },
-                              { id: '50% 50%', label: '⏺️ ცენტრი' },
-                              { id: '50% 100%', label: '⬇️ ქვედა ნაწილი' }
+                              { id: 'top', label: '⬆️ ზედა ნაწილი (50% 0%)', val: '50% 0%' },
+                              { id: 'center', label: '⏺️ ცენტრი (50% 50%)', val: '50% 50%' },
+                              { id: 'bottom', label: '⬇️ ქვედა ნაწილი (50% 100%)', val: '50% 100%' }
                             ].map((pos) => {
-                              const currentVal = settingsForm.servicesCoverPositionDesktop || '50% 50%';
-                              const isSelected =
-                                currentVal === pos.id ||
-                                (pos.id === '50% 50%' && (currentVal === 'center' || !currentVal)) ||
-                                (pos.id === '50% 0%' && currentVal === 'top') ||
-                                (pos.id === '50% 100%' && currentVal === 'bottom');
+                              const currentVal = settingsForm.servicesCoverPositionDesktop || 'center';
+                              const isSelected = currentVal === pos.id || currentVal === pos.val;
                               return (
                                 <button
                                   key={pos.id}
@@ -3416,12 +3579,12 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                                   onClick={() =>
                                     setSettingsForm({
                                       ...settingsForm,
-                                      servicesCoverPositionDesktop: pos.id
+                                      servicesCoverPositionDesktop: pos.val
                                     })
                                   }
                                   className={`py-1.5 px-2 rounded-lg border text-xs text-center transition-all cursor-pointer ${
                                     isSelected
-                                      ? 'bg-stone-900 text-white font-bold border-stone-900 shadow-xs'
+                                      ? 'bg-stone-900 text-white font-bold border-stone-900'
                                       : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-50'
                                   }`}
                                 >
