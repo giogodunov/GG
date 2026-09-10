@@ -10,6 +10,15 @@ const PORT = 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Block scanner bots and hidden dotfiles immediately (e.g. .git, .env, .php)
+app.use((req, res, next) => {
+  const p = req.path.toLowerCase();
+  if (p.includes('/.') || p.includes('.env') || p.endsWith('.php') || p.includes('invokefunction')) {
+    return res.status(403).send('Forbidden');
+  }
+  next();
+});
+
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'store.json');
 
