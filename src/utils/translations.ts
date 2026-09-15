@@ -53,6 +53,9 @@ export interface Translations {
   directWhatsAppInquiry: string;
   sendBookingRequest: string;
   priceNote: string;
+  photoGallery: string;
+  photosCount: string;
+  viewAllPhotos: string;
 
   // Services Section
   servicesBadge: string;
@@ -198,6 +201,9 @@ export const translations: Record<Language, Translations> = {
     directWhatsAppInquiry: 'WhatsApp-ით შეკვეთა',
     sendBookingRequest: 'ფორმით დაჯავშნა',
     priceNote: '* ფასები არის საინფორმაციო და ზუსტდება ინდივიდუალურად ჯგუფის რაოდენობის მიხედვით.',
+    photoGallery: 'ფოტოგალერეა',
+    photosCount: 'ფოტო',
+    viewAllPhotos: 'ყველა ფოტოს ნახვა',
 
     servicesBadge: 'დამატებითი მომსახურებები',
     servicesTitle: 'ტრანსფერი, გიდი & სერვისები',
@@ -336,6 +342,9 @@ export const translations: Record<Language, Translations> = {
     directWhatsAppInquiry: 'Order via WhatsApp',
     sendBookingRequest: 'Send Booking Form',
     priceNote: '* Prices are indicative and finalized based on your group size and season.',
+    photoGallery: 'Photo Gallery',
+    photosCount: 'Photos',
+    viewAllPhotos: 'View all photos',
 
     servicesBadge: 'Additional Services',
     servicesTitle: 'Transfers, Guides & Services',

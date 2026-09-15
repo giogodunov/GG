@@ -19,6 +19,7 @@ export interface Tour {
   included: string[];
   includedEn?: string[];
   imageUrl: string;
+  gallery?: string[]; // Up to 5 photos for tour gallery
   featured?: boolean;
   isActive: boolean;
 }

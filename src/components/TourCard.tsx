@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Camera } from 'lucide-react';
 import { Tour, Language } from '../types';
 import { openWhatsAppDirect } from '../utils/whatsapp';
 import { translations } from '../utils/translations';
@@ -28,6 +28,9 @@ export const TourCard: React.FC<TourCardProps> = ({
   const description = (language === 'en' && tour.shortDescriptionEn) ? tour.shortDescriptionEn : tour.shortDescription;
   const highlights = (language === 'en' && tour.highlightsEn && tour.highlightsEn.length > 0) ? tour.highlightsEn : tour.highlights;
 
+  const displayImage = tour.imageUrl || (tour.gallery && tour.gallery[0]) || 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=800&q=80';
+  const photoCount = (tour.gallery && tour.gallery.length > 0) ? tour.gallery.length : 1;
+
   const handleDirectWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
     openWhatsAppDirect(whatsappNumber, {
@@ -46,7 +49,7 @@ export const TourCard: React.FC<TourCardProps> = ({
         {/* Unified 16:9 Standard Image Container */}
         <div className="aspect-[16/9] bg-[#E8E4DB] rounded-2xl mb-4 overflow-hidden relative shadow-xs">
           <img
-            src={tour.imageUrl}
+            src={displayImage}
             alt={title}
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -69,6 +72,14 @@ export const TourCard: React.FC<TourCardProps> = ({
             <span className="absolute top-3 right-3 bg-[#C5D1C5] text-[#1A1A1A] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-xs">
               {t.featuredBadge}
             </span>
+          )}
+
+          {/* Photo count indicator badge */}
+          {photoCount > 1 && (
+            <div className="absolute bottom-3 left-3 bg-black/65 backdrop-blur-xs text-white text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+              <Camera className="w-3 h-3" />
+              <span>{photoCount}</span>
+            </div>
           )}
 
           {/* Direct WhatsApp Quick Icon Overlay */}

@@ -48,10 +48,14 @@ export function loadTours(): Tour[] {
           priceInfoEn: t.priceInfoEn || defaultMatch.priceInfoEn,
           shortDescriptionEn: t.shortDescriptionEn || defaultMatch.shortDescriptionEn,
           highlightsEn: t.highlightsEn || defaultMatch.highlightsEn,
-          includedEn: t.includedEn || defaultMatch.includedEn
+          includedEn: t.includedEn || defaultMatch.includedEn,
+          gallery: (t.gallery && t.gallery.length > 0) ? t.gallery : defaultMatch.gallery
         };
       }
-      return t;
+      return {
+        ...t,
+        gallery: (t.gallery && t.gallery.length > 0) ? t.gallery : (t.imageUrl ? [t.imageUrl] : [])
+      };
     });
   } catch (e) {
     console.error('Failed to load tours', e);

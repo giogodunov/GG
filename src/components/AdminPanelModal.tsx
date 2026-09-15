@@ -42,6 +42,9 @@ import {
   CheckCircle2,
   AlertCircle,
   HelpCircle,
+  Star,
+  ChevronLeft,
+  ChevronRight,
   Bot
 } from 'lucide-react';
 import { Tour, Service, BookingInquiry, SiteSettings, TravelGuide } from '../types';
@@ -187,33 +190,126 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   };
 
   const [isUploadingTourImage, setIsUploadingTourImage] = useState(false);
+  const [tourGalleryUrlInput, setTourGalleryUrlInput] = useState('');
   const [isUploadingServiceImage, setIsUploadingServiceImage] = useState(false);
 
-  const handleTourImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 15 * 1024 * 1024) {
-        alert('ფაილის ზომა არ უნდა აღემატებოდეს 15MB-ს');
-        return;
-      }
-      try {
-        setIsUploadingTourImage(true);
-        const compressedBase64 = await compressImageFile(file, 1600, 900, 0.85);
-        setTourFormData((prev) => ({ ...prev, imageUrl: compressedBase64 }));
-      } catch (err) {
-        console.error('Error optimizing tour image:', err);
-        const reader = new FileReader();
-        reader.onload = (loadEvent) => {
-          const result = loadEvent.target?.result as string;
-          if (result) {
-            setTourFormData((prev) => ({ ...prev, imageUrl: result }));
-          }
-        };
-        reader.readAsDataURL(file);
-      } finally {
-        setIsUploadingTourImage(false);
-      }
+  const handleTourImagesFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const currentGallery = (tourFormData.gallery && tourFormData.gallery.length > 0)
+      ? [...tourFormData.gallery]
+      : (tourFormData.imageUrl ? [tourFormData.imageUrl] : []);
+
+    const availableSlots = 5 - currentGallery.length;
+
+    if (availableSlots <= 0) {
+      alert('ტურზე უკვე დამატებულია მაქსიმალური (5) რაოდენობის ფოტო.');
+      e.target.value = '';
+      return;
     }
+
+    const filesToUpload: File[] = Array.from(files).slice(0, availableSlots) as File[];
+    if (files.length > availableSlots) {
+      alert(`არჩეული იყო ${files.length} ფოტო. დაემატება მხოლოდ დარჩენილი ${availableSlots} ფოტო (მაქსიმუმ 5).`);
+    }
+
+    try {
+      setIsUploadingTourImage(true);
+      const newImages: string[] = [];
+
+      for (const file of filesToUpload) {
+        if (file.size > 15 * 1024 * 1024) {
+          continue;
+        }
+        try {
+          // Compress to protect Droplet memory and bandwidth
+          const compressed = await compressImageFile(file, 1400, 900, 0.80);
+          newImages.push(compressed);
+        } catch (err) {
+          console.error('Error optimizing tour image:', err);
+        }
+      }
+
+      if (newImages.length > 0) {
+        const updatedGallery = [...currentGallery, ...newImages].slice(0, 5);
+        const mainImage = tourFormData.imageUrl || updatedGallery[0];
+        setTourFormData((prev) => ({
+          ...prev,
+          gallery: updatedGallery,
+          imageUrl: mainImage
+        }));
+        onShowToast(`${newImages.length} ფოტო წარმატებით დაემატა`);
+      }
+    } finally {
+      setIsUploadingTourImage(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleAddTourGalleryUrl = () => {
+    if (!tourGalleryUrlInput.trim()) return;
+    const currentGallery = (tourFormData.gallery && tourFormData.gallery.length > 0)
+      ? [...tourFormData.gallery]
+      : (tourFormData.imageUrl ? [tourFormData.imageUrl] : []);
+
+    if (currentGallery.length >= 5) {
+      alert('მაქსიმუმ 5 ფოტოს დამატებაა შესაძლებელი');
+      return;
+    }
+
+    const updated = [...currentGallery, tourGalleryUrlInput.trim()].slice(0, 5);
+    const main = tourFormData.imageUrl || updated[0];
+    setTourFormData((prev) => ({
+      ...prev,
+      gallery: updated,
+      imageUrl: main
+    }));
+    setTourGalleryUrlInput('');
+    onShowToast('ფოტო დაემატა გალერეაში');
+  };
+
+  const handleSetMainPhoto = (photoUrl: string) => {
+    setTourFormData((prev) => ({
+      ...prev,
+      imageUrl: photoUrl
+    }));
+    onShowToast('ფოტო მონიშნულია როგორც მთავარი (Cover)');
+  };
+
+  const handleRemoveTourPhoto = (idx: number) => {
+    const currentGallery = (tourFormData.gallery && tourFormData.gallery.length > 0)
+      ? [...tourFormData.gallery]
+      : (tourFormData.imageUrl ? [tourFormData.imageUrl] : []);
+
+    const removedPhoto = currentGallery[idx];
+    const updated = currentGallery.filter((_, i) => i !== idx);
+    let newMain = tourFormData.imageUrl;
+    if (newMain === removedPhoto) {
+      newMain = updated[0] || '';
+    }
+    setTourFormData((prev) => ({
+      ...prev,
+      gallery: updated,
+      imageUrl: newMain
+    }));
+    onShowToast('ფოტო ამოიშალა გალერეიდან');
+  };
+
+  const handleMoveTourPhoto = (fromIdx: number, toIdx: number) => {
+    const currentGallery = [
+      ...((tourFormData.gallery && tourFormData.gallery.length > 0)
+        ? tourFormData.gallery
+        : (tourFormData.imageUrl ? [tourFormData.imageUrl] : []))
+    ];
+    if (toIdx < 0 || toIdx >= currentGallery.length) return;
+    const item = currentGallery[fromIdx];
+    currentGallery.splice(fromIdx, 1);
+    currentGallery.splice(toIdx, 0, item);
+    setTourFormData((prev) => ({
+      ...prev,
+      gallery: currentGallery
+    }));
   };
 
   const handleServiceImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -384,9 +480,11 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       included: ['კომფორტული ტრანსპორტი', 'მძღოლი-გიდი'],
       includedEn: ['Comfortable AC Transport', 'Private Driver / Guide'],
       imageUrl: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
+      gallery: ['https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80'],
       featured: false,
       isActive: true
     });
+    setTourGalleryUrlInput('');
     setHighlightInput('');
     setHighlightEnInput('');
     setIncludedInput('');
@@ -395,7 +493,15 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   };
 
   const handleStartEditTour = (tour: Tour) => {
-    setTourFormData({ ...tour });
+    const gallery = (tour.gallery && tour.gallery.length > 0)
+      ? [...tour.gallery]
+      : (tour.imageUrl ? [tour.imageUrl] : []);
+    setTourFormData({
+      ...tour,
+      gallery,
+      imageUrl: tour.imageUrl || gallery[0] || ''
+    });
+    setTourGalleryUrlInput('');
     setHighlightInput('');
     setHighlightEnInput('');
     setIncludedInput('');
@@ -411,6 +517,14 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
     }
 
     const currentId = tourFormData.id || 'tour_' + Date.now();
+    const currentGallery = (tourFormData.gallery && tourFormData.gallery.length > 0)
+      ? tourFormData.gallery.slice(0, 5)
+      : (tourFormData.imageUrl ? [tourFormData.imageUrl] : []);
+    const mainImageUrl = tourFormData.imageUrl || currentGallery[0] || 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80';
+    const finalizedGallery = currentGallery.includes(mainImageUrl)
+      ? currentGallery
+      : [mainImageUrl, ...currentGallery].slice(0, 5);
+
     const newTour: Tour = {
       id: currentId,
       title: tourFormData.title.trim(),
@@ -429,7 +543,8 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       highlightsEn: tourFormData.highlightsEn && tourFormData.highlightsEn.length > 0 ? tourFormData.highlightsEn : undefined,
       included: tourFormData.included || [],
       includedEn: tourFormData.includedEn && tourFormData.includedEn.length > 0 ? tourFormData.includedEn : undefined,
-      imageUrl: tourFormData.imageUrl || 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
+      imageUrl: mainImageUrl,
+      gallery: finalizedGallery,
       featured: tourFormData.featured || false,
       isActive: tourFormData.isActive ?? true
     };
@@ -1846,64 +1961,186 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                       </div>
                     </div>
 
-                    {/* Tour Image Upload & URL */}
-                    <div className="bg-white p-3.5 rounded-xl border border-stone-200/80 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-semibold text-stone-800 flex items-center gap-1.5">
-                          <ImageIcon className="w-4 h-4 text-stone-500" />
-                          <span>ტურის მთავარი ფოტო *</span>
+                    {/* Tour Image Gallery (Multi-photo up to 5) */}
+                    <div className="bg-white p-4 rounded-2xl border border-stone-200/90 space-y-3 shadow-2xs">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-stone-100">
+                        <label className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                          <ImageIcon className="w-4 h-4 text-stone-600" />
+                          <span>ტურის ფოტოგალერეა (მაქსიმუმ 5 ფოტო)</span>
                         </label>
-                        {tourFormData.imageUrl && (
-                          <span className="text-[11px] text-emerald-700 font-medium">✓ ფოტო არჩეულია</span>
-                        )}
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                        {/* Image Preview */}
-                        {tourFormData.imageUrl ? (
-                          <div className="relative w-24 h-16 rounded-xl overflow-hidden border border-stone-200 shrink-0 bg-stone-200 shadow-2xs">
-                            <img
-                              src={tourFormData.imageUrl}
-                              alt="ტურის ფოტო"
-                              referrerPolicy="no-referrer"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-24 h-16 rounded-xl border border-dashed border-stone-300 flex items-center justify-center shrink-0 text-stone-400 bg-white">
-                            <ImageIcon className="w-6 h-6" />
-                          </div>
-                        )}
-
-                        {/* Upload Button + URL Input */}
-                        <div className="flex-1 w-full space-y-2">
-                          <div className="flex items-center gap-2">
-                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-800 border border-stone-300 rounded-xl text-xs font-medium transition-colors shadow-2xs">
-                              <Upload className="w-3.5 h-3.5 text-stone-600" />
-                              <span>{isUploadingTourImage ? 'იტვირთება...' : 'ფოტოს ატვირთვა კომპიუტერიდან'}</span>
-                              <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={handleTourImageFileUpload}
-                                disabled={isUploadingTourImage}
-                              />
-                            </label>
-                            <span className="text-[10px] text-stone-400">ან ჩაწერეთ ბმული:</span>
-                          </div>
-
-                          <input
-                            type="url"
-                            value={tourFormData.imageUrl || ''}
-                            onChange={(e) => setTourFormData({ ...tourFormData, imageUrl: e.target.value })}
-                            placeholder="https://images.unsplash.com/..."
-                            className="w-full px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
-                          />
-                          <p className="text-[10px] text-stone-500">
-                            📐 <b>სტანდარტული პროპორცია: 16:9</b> (მაგ: 1200×675 px ან 1920×1080 px)
-                          </p>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                            ((tourFormData.gallery?.length || (tourFormData.imageUrl ? 1 : 0)) >= 5)
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-stone-100 text-stone-700'
+                          }`}>
+                            {tourFormData.gallery?.length || (tourFormData.imageUrl ? 1 : 0)} / 5 ფოტო
+                          </span>
                         </div>
                       </div>
+
+                      <p className="text-[11px] text-stone-500 leading-relaxed">
+                        ★ <b>ვარსკვლავით მონიშნული ფოტო</b> გამოჩნდება საიტის მთავარ ბარათზე (Cover). ტურზე გადასვლისას კი ვიზიტორი ნახავს ყველა დამატებულ ფოტოს თანამედროვე გალერეაში.
+                      </p>
+
+                      {/* Photo Cards Grid */}
+                      {(() => {
+                        const currentGallery = (tourFormData.gallery && tourFormData.gallery.length > 0)
+                          ? tourFormData.gallery
+                          : (tourFormData.imageUrl ? [tourFormData.imageUrl] : []);
+                        const mainImage = tourFormData.imageUrl || currentGallery[0];
+
+                        return (
+                          <div className="space-y-3">
+                            {currentGallery.length > 0 && (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {currentGallery.map((photoUrl, idx) => {
+                                  const isMain = photoUrl === mainImage || (!tourFormData.imageUrl && idx === 0);
+
+                                  return (
+                                    <div
+                                      key={idx}
+                                      className={`relative rounded-xl overflow-hidden border transition-all ${
+                                        isMain
+                                          ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-xs'
+                                          : 'border-stone-200 bg-stone-50 hover:border-stone-300'
+                                      }`}
+                                    >
+                                      {/* Thumbnail */}
+                                      <div className="aspect-[16/9] w-full bg-stone-100 relative">
+                                        <img
+                                          src={photoUrl}
+                                          alt={`ფოტო ${idx + 1}`}
+                                          referrerPolicy="no-referrer"
+                                          className="w-full h-full object-cover"
+                                        />
+
+                                        {/* Status Tag: Main or Set Main */}
+                                        <div className="absolute top-2 left-2 z-10">
+                                          {isMain ? (
+                                            <span className="inline-flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs">
+                                              <Star className="w-3 h-3 fill-white" />
+                                              <span>მთავარი (Cover)</span>
+                                            </span>
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleSetMainPhoto(photoUrl)}
+                                              title="დააყენეთ მთავარ ფოტოდ"
+                                              className="inline-flex items-center gap-1 bg-black/70 hover:bg-black text-white text-[10px] font-medium px-2 py-0.5 rounded-md backdrop-blur-xs transition-colors cursor-pointer"
+                                            >
+                                              <Star className="w-3 h-3 text-amber-300" />
+                                              <span>მთავარად</span>
+                                            </button>
+                                          )}
+                                        </div>
+
+                                        {/* Position badge */}
+                                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-mono px-1.5 py-0.2 rounded backdrop-blur-xs">
+                                          #{idx + 1}
+                                        </div>
+
+                                        {/* Actions: Reorder & Delete */}
+                                        <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
+                                          {idx > 0 && (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleMoveTourPhoto(idx, idx - 1)}
+                                              title="გადაადგილება მარცხნივ"
+                                              className="w-6 h-6 rounded bg-black/60 hover:bg-black text-white flex items-center justify-center backdrop-blur-xs cursor-pointer"
+                                            >
+                                              <ChevronLeft className="w-3.5 h-3.5" />
+                                            </button>
+                                          )}
+                                          {idx < currentGallery.length - 1 && (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleMoveTourPhoto(idx, idx + 1)}
+                                              title="გადაადგილება მარჯვნივ"
+                                              className="w-6 h-6 rounded bg-black/60 hover:bg-black text-white flex items-center justify-center backdrop-blur-xs cursor-pointer"
+                                            >
+                                              <ChevronRight className="w-3.5 h-3.5" />
+                                            </button>
+                                          )}
+                                          <button
+                                            type="button"
+                                            onClick={() => handleRemoveTourPhoto(idx)}
+                                            title="ფოტოს წაშლა"
+                                            className="w-6 h-6 rounded bg-rose-600/90 hover:bg-rose-700 text-white flex items-center justify-center shadow-xs cursor-pointer"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+
+                            {/* Add Photo Controls (if < 5) */}
+                            {currentGallery.length < 5 ? (
+                              <div className="bg-stone-50 p-3.5 rounded-xl border border-dashed border-stone-300 space-y-2.5">
+                                <div className="text-xs font-semibold text-stone-700">
+                                  + ფოტოს დამატება (დარჩენილია {5 - currentGallery.length} ადგილი)
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                                  {/* Upload from Computer */}
+                                  <label className="cursor-pointer inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-stone-900 hover:bg-black text-white rounded-xl text-xs font-medium transition-colors shadow-2xs shrink-0">
+                                    <Upload className="w-3.5 h-3.5 text-stone-300" />
+                                    <span>{isUploadingTourImage ? 'იტვირთება & ოპტიმიზდება...' : 'კომპიუტერიდან ატვირთვა'}</span>
+                                    <input
+                                      type="file"
+                                      multiple
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={handleTourImagesFileUpload}
+                                      disabled={isUploadingTourImage}
+                                    />
+                                  </label>
+
+                                  <div className="text-[11px] text-stone-400 text-center sm:text-left">ან ბმულით:</div>
+
+                                  {/* Add by URL */}
+                                  <div className="flex flex-1 gap-1.5">
+                                    <input
+                                      type="url"
+                                      value={tourGalleryUrlInput}
+                                      onChange={(e) => setTourGalleryUrlInput(e.target.value)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          e.preventDefault();
+                                          handleAddTourGalleryUrl();
+                                        }
+                                      }}
+                                      placeholder="https://images.unsplash.com/..."
+                                      className="flex-1 px-3 py-1.5 text-xs bg-white border border-stone-200 rounded-xl"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={handleAddTourGalleryUrl}
+                                      disabled={!tourGalleryUrlInput.trim()}
+                                      className="px-3 py-1.5 bg-stone-200 hover:bg-stone-300 disabled:opacity-50 text-stone-800 rounded-xl text-xs font-semibold transition-colors"
+                                    >
+                                      დამატება
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <p className="text-[10px] text-stone-400">
+                                  ⚡ ფოტოები ავტომატურად კომპრესირდება და ოპტიმიზდება ბრაუზერში Droplet-ის მეხსიერების დასაცავად. რეკომენდებულია 16:9 პროპორცია.
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0" />
+                                <span>მიღწეულია მაქსიმალური რაოდენობა: ტურს აქვს 5 ფოტო. ახლის დასამატებლად ჯერ წაშალეთ ერთ-ერთი.</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Toggles */}

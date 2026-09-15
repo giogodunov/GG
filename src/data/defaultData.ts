@@ -87,6 +87,12 @@ export const DEFAULT_TOURS: Tour[] = [
     included: ['კომფორტული ტრანსპორტი', 'მძღოლი / გიდი', 'სასმელი წყალი'],
     includedEn: ['Comfortable Air-conditioned Vehicle', 'Professional Driver / Guide', 'Bottled Mineral Water'],
     imageUrl: 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1578895101408-1a36b834405b?auto=format&fit=crop&w=1200&q=80'
+    ],
     featured: true,
     isActive: true
   },
@@ -119,6 +125,11 @@ export const DEFAULT_TOURS: Tour[] = [
     included: ['ტრანსპორტირება', 'გიდის თანხლება', 'ღვინის დეგუსტაცია'],
     includedEn: ['Private Transportation', 'Certified English Guide', 'Wine & Chacha Tastings'],
     imageUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1516594798947-e65505dbb29d?auto=format&fit=crop&w=1200&q=80'
+    ],
     featured: true,
     isActive: true
   },
@@ -149,6 +160,11 @@ export const DEFAULT_TOURS: Tour[] = [
     included: ['ტრანსპორტი', 'მძღოლი-გიდი', 'ბოთლის წყალი'],
     includedEn: ['Comfortable Vehicle', 'English-speaking Driver Guide', 'Bottled Spring Water'],
     imageUrl: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'
+    ],
     featured: true,
     isActive: true
   },
@@ -181,6 +197,11 @@ export const DEFAULT_TOURS: Tour[] = [
     included: ['4x4 ტრანსპორტი', 'გიდი', 'სასტუმროს შერჩევაში დახმარება'],
     includedEn: ['4x4 Off-road Vehicle & Fuel', 'Certified Mountain Guide', 'Boutique Hotel Planning Support'],
     imageUrl: 'https://images.unsplash.com/photo-1578895101408-1a36b834405b?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1578895101408-1a36b834405b?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80'
+    ],
     featured: true,
     isActive: true
   },
@@ -213,6 +234,10 @@ export const DEFAULT_TOURS: Tour[] = [
     included: ['ტრანსპორტირება', 'სერტიფიცირებული გიდი'],
     includedEn: ['City Transport & Transfers', 'Certified English Historian Guide'],
     imageUrl: 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80'
+    ],
     featured: false,
     isActive: true
   },
@@ -243,6 +268,10 @@ export const DEFAULT_TOURS: Tour[] = [
     included: ['კომფორტული ტრანსპორტი', 'მძღოლი-გიდი'],
     includedEn: ['Comfortable Vehicle & Driver-Guide', 'Mineral Water & Fuel'],
     imageUrl: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1200&q=80'
+    ],
     featured: false,
     isActive: true
   }
