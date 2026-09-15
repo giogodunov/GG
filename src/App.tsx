@@ -68,10 +68,16 @@ export default function App() {
     sectionCover?: SectionCoverKey;
   }>({ isOpen: false, tab: 'services' });
 
-  // Admin access mode: Only authorized if accessed via secret link (#admin, ?admin=secret) or saved in localStorage
+  // Admin access mode: Strictly authorized ONLY if accessed with ?admin=secret (or #admin / #geoadmin)
   const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('geo_admin_authorized') === 'true';
+      const p = new URLSearchParams(window.location.search);
+      const h = window.location.hash.toLowerCase();
+      // Strictly require ?admin=secret or secret hash
+      if (p.get('admin') === 'secret' || h === '#admin' || h === '#geoadmin') {
+        return true;
+      }
+      return false;
     } catch {
       return false;
     }
@@ -138,11 +144,9 @@ export default function App() {
     const checkAdminAccess = () => {
       const p = new URLSearchParams(window.location.search);
       const h = window.location.hash.toLowerCase();
-      if (p.get('admin') === 'secret' || p.has('admin') || h === '#admin' || h === '#geoadmin') {
-        setIsAdminAuthorized(true);
-        try {
-          localStorage.setItem('geo_admin_authorized', 'true');
-        } catch {}
+      const isAuthorized = p.get('admin') === 'secret' || h === '#admin' || h === '#geoadmin';
+      setIsAdminAuthorized(isAuthorized);
+      if (isAuthorized) {
         setAdminModal({ isOpen: true, tab: 'services' });
       }
     };
@@ -155,9 +159,6 @@ export default function App() {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
         e.preventDefault();
         setIsAdminAuthorized(true);
-        try {
-          localStorage.setItem('geo_admin_authorized', 'true');
-        } catch {}
         setAdminModal((prev) => ({ isOpen: !prev.isOpen, tab: 'services' }));
       }
     };

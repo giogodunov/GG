@@ -710,9 +710,10 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                if (window.confirm('გსურთ ადმინ რეჟიმის გამორთვა და საიტის ჩაკეტვა?')) {
+                if (window.confirm('გსურთ ადმინ რეჟიმიდან გამოსვლა და საიტის ჩვეულებრივ რეჟიმში დაბრუნება?')) {
                   localStorage.removeItem('geo_admin_authorized');
-                  window.location.href = window.location.pathname;
+                  // Remove any search params or hash, return to clean origin
+                  window.location.href = window.location.origin + window.location.pathname;
                 }
               }}
               title="ადმინ რეჟიმიდან გამოსვლა და ღილაკების დამალვა"
