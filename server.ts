@@ -13,6 +13,10 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Block scanner bots and hidden dotfiles immediately (e.g. .git, .env, .php)
 app.use((req, res, next) => {
   const p = req.path.toLowerCase();
+  // Allow Vite internal dev cache directory
+  if (p.includes('/.vite/')) {
+    return next();
+  }
   if (p.includes('/.') || p.includes('.env') || p.endsWith('.php') || p.includes('invokefunction')) {
     return res.status(403).send('Forbidden');
   }
