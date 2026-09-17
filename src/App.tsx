@@ -21,12 +21,9 @@ import { translations } from './utils/translations';
 import { Navbar } from './components/Navbar';
 import { HeroMinimal } from './components/HeroMinimal';
 import { TourCard } from './components/TourCard';
-import { TourDetailModal } from './components/TourDetailModal';
 import { ServicesSection } from './components/ServicesSection';
 import { AboutPricingSection } from './components/AboutPricingSection';
 import { ContactSection } from './components/ContactSection';
-import { BookingFormModal } from './components/BookingFormModal';
-import { AdminPanelModal } from './components/AdminPanelModal';
 import { Toast } from './components/Toast';
 import { SeoStructuredData } from './components/SeoStructuredData';
 import { TravelGuidesSection } from './components/TravelGuidesSection';
@@ -34,6 +31,17 @@ import { FaqSection } from './components/FaqSection';
 import { SectionCoverKey } from './components/SectionCoverCustomizer';
 import { Compass, PlusCircle, Settings, Image as ImageIcon } from 'lucide-react';
 import { formatImageUrl, getObjectPositionStyle } from './utils/imageHelper';
+
+// Code-split modals so initial bundle loads fast
+const TourDetailModal = React.lazy(() =>
+  import('./components/TourDetailModal').then((m) => ({ default: m.TourDetailModal }))
+);
+const BookingFormModal = React.lazy(() =>
+  import('./components/BookingFormModal').then((m) => ({ default: m.BookingFormModal }))
+);
+const AdminPanelModal = React.lazy(() =>
+  import('./components/AdminPanelModal').then((m) => ({ default: m.AdminPanelModal }))
+);
 
 export default function App() {
   // Language state: 'ka' (Georgian) or 'en' (English)
@@ -555,55 +563,67 @@ export default function App() {
         </div>
       )}
 
-      {/* Tour Detail Modal */}
-      <TourDetailModal
-        tour={selectedTourDetails}
-        settings={settings}
-        onClose={() => setSelectedTourDetails(null)}
-        onOpenBookingForm={(tour) =>
-          setBookingModal({
-            isOpen: true,
-            initialItem: {
-              type: 'tour',
-              title: (language === 'en' && tour.titleEn) ? tour.titleEn : tour.title,
-              id: tour.id
+      {/* Tour Detail Modal - Lazy Loaded */}
+      {selectedTourDetails && (
+        <React.Suspense fallback={null}>
+          <TourDetailModal
+            tour={selectedTourDetails}
+            settings={settings}
+            onClose={() => setSelectedTourDetails(null)}
+            onOpenBookingForm={(tour) =>
+              setBookingModal({
+                isOpen: true,
+                initialItem: {
+                  type: 'tour',
+                  title: (language === 'en' && tour.titleEn) ? tour.titleEn : tour.title,
+                  id: tour.id
+                }
+              })
             }
-          })
-        }
-        language={language}
-      />
+            language={language}
+          />
+        </React.Suspense>
+      )}
 
-      {/* Booking & WhatsApp Inquiry Modal */}
-      <BookingFormModal
-        isOpen={bookingModal.isOpen}
-        onClose={() => setBookingModal({ isOpen: false })}
-        initialItem={bookingModal.initialItem}
-        tours={tours.filter((t) => t.isActive)}
-        services={services.filter((s) => s.isActive)}
-        settings={settings}
-        onSubmitInquiry={handleCreateInquiry}
-        language={language}
-      />
+      {/* Booking & WhatsApp Inquiry Modal - Lazy Loaded */}
+      {bookingModal.isOpen && (
+        <React.Suspense fallback={null}>
+          <BookingFormModal
+            isOpen={bookingModal.isOpen}
+            onClose={() => setBookingModal({ isOpen: false })}
+            initialItem={bookingModal.initialItem}
+            tours={tours.filter((t) => t.isActive)}
+            services={services.filter((s) => s.isActive)}
+            settings={settings}
+            onSubmitInquiry={handleCreateInquiry}
+            language={language}
+          />
+        </React.Suspense>
+      )}
 
-      {/* Admin Panel Modal */}
-      <AdminPanelModal
-        isOpen={adminModal.isOpen}
-        initialTab={adminModal.tab}
-        initialSectionCover={adminModal.sectionCover}
-        onClose={() => setAdminModal({ isOpen: false, tab: 'services' })}
-        tours={tours}
-        services={services}
-        guides={guides}
-        inquiries={inquiries}
-        settings={settings}
-        onUpdateTours={handleUpdateTours}
-        onUpdateServices={handleUpdateServices}
-        onUpdateGuides={handleUpdateGuides}
-        onUpdateInquiries={handleUpdateInquiries}
-        onUpdateSettings={handleUpdateSettings}
-        onResetAllData={handleResetData}
-        onShowToast={(msg) => showToast(msg, 'success')}
-      />
+      {/* Admin Panel Modal - Lazy Loaded */}
+      {adminModal.isOpen && (
+        <React.Suspense fallback={null}>
+          <AdminPanelModal
+            isOpen={adminModal.isOpen}
+            initialTab={adminModal.tab}
+            initialSectionCover={adminModal.sectionCover}
+            onClose={() => setAdminModal({ isOpen: false, tab: 'services' })}
+            tours={tours}
+            services={services}
+            guides={guides}
+            inquiries={inquiries}
+            settings={settings}
+            onUpdateTours={handleUpdateTours}
+            onUpdateServices={handleUpdateServices}
+            onUpdateGuides={handleUpdateGuides}
+            onUpdateInquiries={handleUpdateInquiries}
+            onUpdateSettings={handleUpdateSettings}
+            onResetAllData={handleResetData}
+            onShowToast={(msg) => showToast(msg, 'success')}
+          />
+        </React.Suspense>
+      )}
 
       {/* Toast notifications */}
       {toast && (

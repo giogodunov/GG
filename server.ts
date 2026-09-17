@@ -31,6 +31,9 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
+// Serve public directory for static assets (images, favicon, etc.)
+app.use(express.static(path.join(process.cwd(), 'public')));
+
 // Helpers for reading/writing persistent store
 function readStore(): any {
   try {
