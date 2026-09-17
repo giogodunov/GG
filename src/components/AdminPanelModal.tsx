@@ -43,6 +43,7 @@ import {
   AlertCircle,
   HelpCircle,
   Star,
+  Share2,
   ChevronLeft,
   ChevronRight,
   Bot
@@ -2385,6 +2386,58 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                     >
                       🇬🇧 English
                     </button>
+                  </div>
+                </div>
+
+                {/* WhatsApp & Social Link Thumbnail Preview */}
+                <div className="bg-[#102A1E] text-white rounded-2xl p-4 sm:p-5 border border-emerald-800/80 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between gap-2 border-b border-emerald-800/60 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <Share2 className="w-4 h-4 text-[#FFD166]" />
+                      <span className="text-xs font-bold text-white tracking-wide">
+                        WhatsApp & სოციალური ქსელების ბმულის Thumbnail
+                      </span>
+                    </div>
+                    <span className="text-[10px] bg-emerald-800/80 text-emerald-200 px-2 py-0.5 rounded-full font-semibold border border-emerald-700/60">
+                      აქტიურია (og-image.png)
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-emerald-100/80 leading-relaxed">
+                    როდესაც თქვენ ან თქვენი მომხმარებლები საიტის ლინკს (მაგ: <code>ingeorgiatours.ge</code> ან <code>/admin</code>) ჩააგდებთ WhatsApp-ში ან სხვა მესენჯერში, გამოჩნდება ეს ოფიციალური ბრენდული ლოგო:
+                  </p>
+
+                  {/* Realistic WhatsApp Chat Bubble Mockup */}
+                  <div className="bg-[#1F2C34] text-white p-3 rounded-xl border border-stone-700/60 max-w-md shadow-inner">
+                    <div className="flex items-center gap-3 bg-[#111B21] p-2.5 rounded-lg border border-stone-800">
+                      <img
+                        src="/og-image.png"
+                        alt="InGeorgiaTours WhatsApp Thumbnail"
+                        className="w-16 h-16 rounded-md object-cover border border-emerald-800/60 shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[12px] font-bold text-white truncate">
+                          {settingsForm.brandName || 'InGeorgiaTours'} | Private Tours, Transfers & Guides
+                        </div>
+                        <div className="text-[11px] text-stone-400 line-clamp-2 mt-0.5 leading-snug">
+                          {settingsForm.aboutText || 'ექსკლუზიური ტურები საქართველოში, გიდის მომსახურება და აეროპორტის ტრანსფერები (Kazbegi, Svaneti, Martvili)...'}
+                        </div>
+                        <div className="text-[10px] text-stone-500 mt-1 font-mono">
+                          ingeorgiatours.ge
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-[10px] text-stone-400 mt-2 flex items-center justify-between">
+                      <span className="text-emerald-400">✓ ზუსტად ეს ნახატია მიბმული ლინკზე</span>
+                      <a
+                        href="/og-image.png"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-amber-300 hover:underline inline-flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3 h-3" /> სურათის ნახვა
+                      </a>
+                    </div>
                   </div>
                 </div>
 
