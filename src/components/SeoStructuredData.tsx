@@ -56,7 +56,7 @@ export const SeoStructuredData: React.FC<SeoStructuredDataProps> = ({
       name: settings.brandName || 'InGeorgiaTours',
       url: 'https://ingeorgiatours.ge/',
       logo: 'https://ingeorgiatours.ge/logo.png',
-      image: settings.heroCoverImage || 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
+      image: 'https://ingeorgiatours.ge/og-image.png',
       description: isEn
         ? (settings.aboutTextEn || 'Tailor-made private tours, airport transfers, and certified guide services across Georgia.')
         : (settings.aboutText || 'ინდივიდუალური ტურები, აეროპორტის ტრანსფერები და გიდის მომსახურება საქართველოში.'),
