@@ -90,6 +90,16 @@ export const SeoStructuredData: React.FC<SeoStructuredDataProps> = ({
       priceRange: '$$',
       currenciesAccepted: 'GEL, USD, EUR',
       paymentAccepted: 'Cash, Bank Transfer',
+      sameAs: [
+        settings.googleBusinessUrl || 'https://share.google/ljHaCKoL7bDPdtIg3'
+      ],
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '5.0',
+        bestRating: '5',
+        worstRating: '1',
+        ratingCount: '25'
+      },
       areaServed: [
         { '@type': 'Country', name: 'Georgia' },
         { '@type': 'City', name: 'Kutaisi' },

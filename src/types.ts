@@ -86,6 +86,7 @@ export interface SiteSettings {
   displayPhone: string; // formatted e.g. "+995 555 12 34 56"
   phone?: string; // formatted e.g. "+995 555 12 34 56"
   email: string;
+  googleBusinessUrl?: string; // e.g. 'https://share.google/ljHaCKoL7bDPdtIg3'
   location: string;
   locationEn?: string;
   address?: string;

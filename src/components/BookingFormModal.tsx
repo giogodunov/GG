@@ -269,7 +269,7 @@ export const BookingFormModal: React.FC<BookingFormModalProps> = ({
                       setCustomerName(e.target.value);
                       setErrorMsg('');
                     }}
-                    placeholder={language === 'en' ? 'Alex Miller' : 'გიორგი მაისურაძე'}
+                    placeholder={language === 'en' ? 'Name Surname' : 'სახელი გვარი'}
                     className="w-full pl-9 pr-3 py-2.5 bg-[#F9F7F2] border border-black/5 rounded-xl text-xs text-[#1A1A1A] focus:outline-none focus:ring-1 ring-black/10"
                   />
                 </div>

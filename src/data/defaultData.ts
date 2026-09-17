@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   "displayPhone": "+995 595 01 73 90",
   "phone": "+995 595 01 73 90",
   "email": "info.ingeorgiatours@gmail.com",
+  "googleBusinessUrl": "https://share.google/ljHaCKoL7bDPdtIg3",
   "location": "ქუთაისი, საქართველო",
   "locationEn": "Kutaisi, Georgia",
   "address": "ქუთაისი, საქართველო",

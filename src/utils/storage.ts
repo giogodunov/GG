@@ -269,7 +269,8 @@ export function loadSettings(): SiteSettings {
       footerCoverPositionDesktop: parsed.footerCoverPositionDesktop || DEFAULT_SETTINGS.footerCoverPositionDesktop || '50% 50%',
       telegramEnabled: parsed.telegramEnabled !== undefined ? parsed.telegramEnabled : DEFAULT_SETTINGS.telegramEnabled,
       telegramBotToken: parsed.telegramBotToken !== undefined ? parsed.telegramBotToken : DEFAULT_SETTINGS.telegramBotToken,
-      telegramChatId: parsed.telegramChatId !== undefined ? parsed.telegramChatId : DEFAULT_SETTINGS.telegramChatId
+      telegramChatId: parsed.telegramChatId !== undefined ? parsed.telegramChatId : DEFAULT_SETTINGS.telegramChatId,
+      googleBusinessUrl: parsed.googleBusinessUrl || DEFAULT_SETTINGS.googleBusinessUrl || 'https://share.google/ljHaCKoL7bDPdtIg3'
     };
   } catch (e) {
     console.error('Failed to load settings', e);
@@ -304,6 +305,11 @@ export async function fetchServerData(): Promise<{
       const json = await res.json();
       if (json.success && json.data) {
         if (json.data.settings) {
+          json.data.settings = {
+            ...DEFAULT_SETTINGS,
+            ...json.data.settings,
+            googleBusinessUrl: json.data.settings.googleBusinessUrl || DEFAULT_SETTINGS.googleBusinessUrl || 'https://share.google/ljHaCKoL7bDPdtIg3'
+          };
           localStorage.setItem(SETTINGS_KEY, JSON.stringify(json.data.settings));
         }
         if (json.data.tours && Array.isArray(json.data.tours)) {
