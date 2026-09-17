@@ -64,7 +64,7 @@ export const HeroMinimal: React.FC<HeroMinimalProps> = ({
   return (
     <section
       id="hero-section"
-      className={`relative pt-12 pb-16 sm:pt-16 sm:pb-20 border-b border-black/5 overflow-hidden transition-colors ${
+      className={`relative pt-12 pb-14 sm:pt-16 sm:pb-20 border-b border-black/5 overflow-hidden transition-colors ${
         isLightText ? 'text-white' : 'text-[#1A1A1A]'
       }`}
     >
@@ -93,16 +93,14 @@ export const HeroMinimal: React.FC<HeroMinimalProps> = ({
             className="absolute inset-0 bg-black transition-opacity"
             style={{ opacity: (settings?.heroCoverOverlayOpacity ?? 35) / 100 }}
           />
-          {/* Right-side subtle dark vignette so right-aligned text pops clearly on cover image */}
           <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/25 to-transparent" />
-          {/* Subtle bottom gradient to ease smoothly into tours section */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
         </div>
       )}
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end w-full">
         <div className="max-w-xl sm:max-w-2xl lg:max-w-3xl w-full flex flex-col items-end text-right">
-          {/* Subtle label */}
+          {/* Subtle label / badge */}
           <div
             className={`inline-flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest mb-3.5 px-3 py-1 rounded-full border transition-all self-end ${
               isLightText
@@ -116,7 +114,7 @@ export const HeroMinimal: React.FC<HeroMinimalProps> = ({
 
           {/* Artistic Serif Headline */}
           <h1
-            className={`text-3xl sm:text-6xl lg:text-7xl font-serif italic tracking-tight leading-[1.08] sm:leading-[1.05] mb-4 text-right ${
+            className={`text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif italic tracking-tight leading-[1.08] sm:leading-[1.05] mb-4 text-right ${
               isLightText ? 'text-white drop-shadow-md' : 'text-[#1C1917]'
             }`}
           >
@@ -134,8 +132,8 @@ export const HeroMinimal: React.FC<HeroMinimalProps> = ({
               : (settings?.tagline || t.heroSubtext)}
           </p>
 
-          {/* CTAs */}
-          <div className="mt-7 sm:mt-8 flex flex-wrap items-center gap-2.5 sm:gap-3 justify-end w-full">
+          {/* Hero CTAs (Desktop only - completely hidden on mobile) */}
+          <div className="mt-7 sm:mt-8 hidden sm:flex flex-wrap items-center gap-2.5 sm:gap-3 justify-end w-full">
             <a
               href={directWhatsAppUrl}
               target="_blank"

@@ -105,9 +105,13 @@ export default function App() {
     // Asynchronously fetch server data for visitors
     fetchServerData().then((serverData) => {
       if (serverData) {
-        if (serverData.settings) setSettings(serverData.settings);
+        if (serverData.settings) {
+          setSettings(serverData.settings);
+          try { localStorage.setItem('geo_settings_data_v1', JSON.stringify(serverData.settings)); } catch {}
+        }
         if (serverData.tours && Array.isArray(serverData.tours)) {
           setTours(serverData.tours);
+          try { localStorage.setItem('geo_tours_data_v1', JSON.stringify(serverData.tours)); } catch {}
           // Check if a tour was deep-linked in URL ?tour=id
           const params = new URLSearchParams(window.location.search);
           const deepTourId = params.get('tour');
@@ -116,8 +120,14 @@ export default function App() {
             if (found) setSelectedTourDetails(found);
           }
         }
-        if (serverData.services && Array.isArray(serverData.services)) setServices(serverData.services);
-        if (serverData.guides && Array.isArray(serverData.guides)) setGuides(serverData.guides);
+        if (serverData.services && Array.isArray(serverData.services)) {
+          setServices(serverData.services);
+          try { localStorage.setItem('geo_services_data_v1', JSON.stringify(serverData.services)); } catch {}
+        }
+        if (serverData.guides && Array.isArray(serverData.guides)) {
+          setGuides(serverData.guides);
+          try { localStorage.setItem('geo_guides_data_v1', JSON.stringify(serverData.guides)); } catch {}
+        }
         if (serverData.inquiries && Array.isArray(serverData.inquiries)) setInquiries(serverData.inquiries);
       } else {
         // If server was just initialized and empty, sync our local customized settings to server
